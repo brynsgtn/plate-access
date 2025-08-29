@@ -2,14 +2,14 @@
 import express from "express";
 
 // Import controllers
-import { login, logout } from "../controllers/auth.controller.js";
+import { loginUser, logoutUser } from "../controllers/auth.controller.js";
 
 // Initialize Express router
 const router = express.Router();
 
 // Authentication routes
-router.get("/login", login); // Routes for user log in
-router.get("/logout", logout);// Routes for user log in
+router.get("/login", loginUser); // Routes for user log in
+router.get("/logout", logoutUser); // Routes for user log out
 
 // Export router
 export default router;

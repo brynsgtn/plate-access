@@ -1,5 +1,5 @@
 // Register user controller
-export const register = async(req, res) => {
+export const registerUser = async(req, res) => {
     res.send("Register user");
 };
 // Update user controller
