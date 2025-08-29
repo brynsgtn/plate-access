@@ -1,11 +1,14 @@
+// Import dependencies
 import express from "express";
 
+// Import controllers
+import { viewLogs } from "../controllers/log.controller.js";
+
+// Initialize Express router
 const router = express.Router();
 
+// Log routes
+router.get("/", viewLogs);
 
-router.get("/", (req, res) => {
-    res.send("Log route");
-});
-
-
+// Export router
 export default router;
