@@ -7,11 +7,9 @@ import { register, updateUser, deleteUser } from "../controllers/user.controller
 const router = express.Router();
 
 // User routes
-router.get("/register", register);
-
-router.get("/update", updateUser);
-
-router.get("/delete", deleteUser);
+router.get("/register", register); // Register user route
+router.get("/update", updateUser); // Update user route
+router.get("/delete", deleteUser); // Delete user route
 
 // Export router
 export default router;
