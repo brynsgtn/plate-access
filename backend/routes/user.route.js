@@ -1,17 +1,17 @@
+// Import dependencies
 import express from "express";
 
+// Import controllers
+import { register, updateUser, deleteUser } from "../controllers/user.controller.js";
+// Initialize Express router
 const router = express.Router();
 
-router.get("/register", (req, res) => {
-    res.send("Register user");
-});
+// User routes
+router.get("/register", register);
 
-router.get("/update", (req, res) => {
-    res.send("Update user");
-});
+router.get("/update", updateUser);
 
-router.get("/delete", (req, res) => {
-    res.send("Delete user");
-});
+router.get("/delete", deleteUser);
 
+// Export router
 export default router;
