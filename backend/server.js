@@ -17,7 +17,7 @@ const app = express();
 // Define server port
 const PORT = process.env.PORT || 5001;
 
-// TODO: Set up models, controllers, and database connection.
+// TODO: Set up models and database connection.
 
 // Routes for authentication
 app.use("/api/auth", authRoutes);
