@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 
 // Definition of user schema
-const userSchema = new Schema(
+const userSchema = new mongoose.Schema(
     {
         // User's fullname
         name: {
@@ -30,6 +30,8 @@ const userSchema = new Schema(
         timestamps: true, // Created at, updated at, etc..
     }
 );
+
+// TODO - Pre-save hook to hash password before saving to database and method to compare password
 
 // Converts user schema into a Model and store in User variable
 const User = mongoose.model("User", userSchema);
