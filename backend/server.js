@@ -21,7 +21,8 @@ const app = express();
 // Define server port
 const PORT = process.env.PORT || 5001;
 
-// TODO: Set up models and database connection.
+// Allows to parse the body of request
+app.use(express.json());
 
 // Routes for authentication
 app.use("/api/auth", authRoutes);
@@ -40,3 +41,6 @@ app.listen(PORT,  () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     connectDB(); // connects to mongoDB
 });
+
+
+// TODO: Set up models (Vehicle and Log)
