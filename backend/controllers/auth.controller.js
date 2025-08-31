@@ -10,21 +10,35 @@ export const loginUser = async (req, res) => {
         // If neither username nor email is provided, OR password is missing
         if ((!username && !email) || !password) {
             // If true logs message in console and returns status code of 400 (bad request)
-            console.log("loginUser controller : Either Username or Email and Password are required")
-            return res.status(400).json({ message: "Either Username or Email and Password are required" });
+            console.log("loginUser controller : Either username or email and password are required")
+            return res.status(400).json({ message: "Either username or email and password are required" });
         }
 
         // Defines a variable if a user exists or not.
-        const userExists = await User.findOne([{ username }, { email }]);
+        const user = await User.findOne({
+            $or: [{ username }, { email }]
+        });
 
-        if (!userExists) {
-            // If user doesn't exist logs a message into the console and returns status code of 400 (bad request)
-            console.log("loginUser : User does not exist");
-            res.status(400).json({ message: "User does not exist" });
+        // Checks if user exist and password matched the hashed password
+        if (user && (user.comparePassword(password))) {
+            // If true returns status code 200 (success) and json data (_id, name, email, and isAdmin)
+            res.status(200).json({
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                isAdmin: user.isAdmin
+            });
+        } else {
+            // If invalid credentials (username/email or password) logs a message into the console and returns status code of 400 (bad request)
+            console.log("loginUser : Invalid credentials");
+            res.status(400).json({ message: "Invalid credentials" });
         };
 
     } catch (error) {
-
+        // Logs error message in terminal
+        console.log("Error in loginUser controller", error.message);
+        // Returns status 500 (Internal Server Error) and the error message
+        res.status(500).json({ message: error.message });
     }
 };
 // Logout controller
