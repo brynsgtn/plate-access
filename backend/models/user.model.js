@@ -1,5 +1,6 @@
 // Import dependencies
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 // Definition of user schema
 const userSchema = new mongoose.Schema(
@@ -31,7 +32,29 @@ const userSchema = new mongoose.Schema(
     }
 );
 
-// TODO - Pre-save hook to hash password before saving to database and method to compare password
+
+// Pre-save hook to hash password before saving to database
+userSchema.pre("save", async function (next) {
+    // "this" refers to the document being saved (a user in this case).
+
+    // If the password field has NOT been changed, just continue.
+    if (!this.isModified("password")) return next();
+
+    try {
+        // Generate a salt (extra randomness for better security).
+        const salt = await bcrypt.genSalt(10);
+        // Hash the password with the salt.
+        this.password = await bcrypt.hash(this.password, salt);
+        // Continue saving the document.
+        next();
+    } catch (error) {
+        // If something goes wrong, pass the error to Mongoose.
+        next(error);
+
+    };
+});
+
+// TODO - Custom method to compare password
 
 // Converts user schema into a Model and store in User variable
 const User = mongoose.model("User", userSchema);
