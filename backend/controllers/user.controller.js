@@ -9,7 +9,9 @@ export const registerUser = async (req, res) => {
     try {
         // Checks if all fields are present
         if (!name || !email || !password) {
-            // If not returns status code of 400 (bad request)
+
+            // If not logs messgae in console and returns status code of 400 (bad request)
+            console.log("registrerController : All fields are required")
             return res.status(400).json({ message: "All fields are required" });
         };
 
