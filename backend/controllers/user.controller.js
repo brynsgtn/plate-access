@@ -1,6 +1,9 @@
 // Import User model
 import User from "../models/user.model.js";
 
+// Import utility function
+import { generateToken } from "../lib/utils.js";
+
 // Register user controller
 export const registerUser = async (req, res) => {
     // Destructures variables from request body
@@ -27,7 +30,8 @@ export const registerUser = async (req, res) => {
         // If passed all checks create a user
         const user = await User.create({ username, email, password });
 
-        // TODO - function to set cookie
+        // Generate a JWT for the logged-in user and store it in a secure HTTP-only cookie
+        generateToken(user._id, res);
 
         // Return status code 201 (created) and json data (_id, name, email, and isAdmin)
         res.status(201).json({

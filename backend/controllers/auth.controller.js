@@ -1,6 +1,9 @@
 // Import User model
 import User from "../models/user.model.js";
 
+// Import utility function
+import { generateToken } from "../lib/utils.js";
+
 // Login controller
 export const loginUser = async (req, res) => {
     // Destructures variables from request body
@@ -21,7 +24,11 @@ export const loginUser = async (req, res) => {
 
         // Checks if user exist and password matched the hashed password
         if (user && (user.comparePassword(password))) {
-            // If true returns status code 200 (success) and json data (_id, name, email, and isAdmin)
+
+            // Generate a JWT for the logged-in user and store it in a secure HTTP-only cookie
+            generateToken(user._id, res); 
+
+            // Returns status code 200 (success) and json data (_id, name, email, and isAdmin)
             res.status(200).json({
                 _id: user._id,
                 username: user.username,
