@@ -55,7 +55,15 @@ userSchema.pre("save", async function (next) {
     };
 });
 
-// TODO - Custom method to compare password
+// Custom method to check if the entered plain text password
+userSchema.methods.comparePassword = async function (password) {
+    // "this" refers to the user document calling this method.
+    // "password" is the plain text password the user typed when logging in.
+
+    // bcrypt.compare will hash the plain password and check if it matches
+    // the hashed password stored in the database.
+    return bcrypt.compare(password, this.password);
+};
 
 // Converts user schema into a Model and store in User variable
 const User = mongoose.model("User", userSchema);
