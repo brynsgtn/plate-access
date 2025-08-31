@@ -1,6 +1,7 @@
 // Import dependencies
 import express from "express";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 
 
 // Import route modules
@@ -23,6 +24,8 @@ const PORT = process.env.PORT || 5001;
 
 // Middleware that allows to parse the body of request
 app.use(express.json());
+// Middleware to parse cookies from the incoming request
+app.use(cookieParser());
 
 // Routes for authentication
 app.use("/api/auth", authRoutes);
