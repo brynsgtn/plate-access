@@ -21,7 +21,7 @@ const app = express();
 // Define server port
 const PORT = process.env.PORT || 5001;
 
-// Allows to parse the body of request
+// Middleware that allows to parse the body of request
 app.use(express.json());
 
 // Routes for authentication
