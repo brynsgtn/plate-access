@@ -9,7 +9,7 @@ const router = express.Router();
 
 // Authentication routes
 router.post("/login", loginUser); // Route for user log in
-router.get("/logout", logoutUser); // Route for user log out
+router.post("/logout", logoutUser); // Route for user log out
 
 // Export router
 export default router;
