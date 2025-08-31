@@ -4,11 +4,11 @@ import User from "../models/user.model.js";
 // Register user controller
 export const registerUser = async (req, res) => {
     // Destructures variables from request body
-    const { name, email, password } = req.body;
+    const { username, email, password } = req.body;
 
     try {
         // Checks if all fields are present
-        if (!name || !email || !password) {
+        if (!username || !email || !password) {
 
             // If not logs messgae in console and returns status code of 400 (bad request)
             console.log("registrerController : All fields are required")
@@ -25,14 +25,14 @@ export const registerUser = async (req, res) => {
         };
 
         // If passed all checks create a user
-        const user = await User.create({ name, email, password });
+        const user = await User.create({ username, email, password });
 
         // TODO - function to set cookie
 
         // Return status code 201 (created) and json data (_id, name, email, and isAdmin)
         res.status(201).json({
             _id: user._id,
-            name: user.name,
+            username: user.username,
             email: user.email,
             isAdmin: user.isAdmin
         });
