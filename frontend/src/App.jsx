@@ -1,11 +1,15 @@
+// Import necessary components from React Router
+import { Routes , Route } from 'react-router-dom'
 
+// Main application component
 function App() {
-
-
+  
   return (
-      <h1 class="text-3xl text-red-300 font-bold underline">
-    Hello world!
-  </h1>
+    // Define the routes for the application
+    <Routes>
+      // Home route
+      <Route path="/" element={<Home />} />
+    </Routes>
   )
 }
 
