@@ -4,6 +4,28 @@ import User from "../models/user.model.js";
 // Import utility function
 import { generateToken } from "../lib/utils.js";
 
+// Function that checks if a user is logged in
+export const checkAuth = async (req, res) => {
+    try {
+        // Defines a variable if a user exists or not.
+        const user = await User.findById(req.userId).select("-password");
+
+        // Check if user exists
+        if (!user) {
+            // If user does not exist logs message in console and returns status code of 400 (bad request)
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        // If user exists return status code of 200 (success) and success message
+        res.status(200).json({ user });
+    } catch (error) {
+        // Logs error message in terminal
+        console.log("Error in loginUser controller", error.message);
+        // Returns status 500 (Internal Server Error) and the error message
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // Login controller
 export const loginUser = async (req, res) => {
     // Destructures variables from request body
@@ -26,7 +48,7 @@ export const loginUser = async (req, res) => {
         if (user && (user.comparePassword(password))) {
 
             // Generate a JWT for the logged-in user and store it in a secure HTTP-only cookie
-            generateToken(user._id, res); 
+            generateToken(user._id, res);
 
             // Returns status code 200 (success) and json data (_id, name, email, and isAdmin)
             res.status(200).json({
