@@ -8,7 +8,7 @@ function App() {
     // Define the routes for the application
     <Routes>
       // Home route
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<HomePage />} />
     </Routes>
   )
 }
