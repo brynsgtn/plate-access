@@ -47,6 +47,26 @@ export const registerUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     };
 };
+
+// Get users controller
+export const getUsers = async (req, res) => {
+    try {
+
+        // 1. Get the userId from the request object
+        const userId = req.userId;
+        
+        // 2. Fetch all users from the database except the current user, excluding the password field for security
+        const users = await User.find({_id: { $ne: userId }}).select("-password");
+
+        // 3. Send the list of users with a 200 OK status
+        res.status(200).json(users);
+    } catch (error) {
+        // 4. Log any errors and send a 500 Internal Server Error response
+        console.log("Error in getUsers controller", error.message);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 // Update user controller
 export const updateUser = async (req, res) => {
     res.send("Update user");
