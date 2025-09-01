@@ -7,10 +7,9 @@ function App() {
   return (
     // Define the routes for the application
     <Routes>
-      // Home route
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<HomePage />} /> {/* Home route */}
     </Routes>
   )
 }
 
-export default App
+export default App;
