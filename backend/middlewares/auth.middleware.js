@@ -33,8 +33,10 @@ export const protectRoute = async (req, res, next) => {
         };
 
         // 4. Attach user data to request object for access in next middleware or route
+       
         req.user = user;
         req.userId = user._id;
+        req.isAdmin = user.isAdmin
 
         // 5. Call next middleware or controller
         next();
@@ -42,6 +44,26 @@ export const protectRoute = async (req, res, next) => {
     } catch (error) {
         // Handle unexpected errors
         console.log("Error in protectRoute middleware", error.message);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+// Middleware to restrict access to admin-only routes
+export const adminRoute = (req, res, next) => {
+    try {
+        // 1. Check if the user has admin privileges
+        const isAdmin = req.user.isAdmin;
+
+        // 2. If not admin, deny access with 403 Forbidden
+        if (!isAdmin) {
+            return res.status(403).json({ message: "Forbidden - Admin Access Required" });
+        };
+
+        //  If admin, allow access
+        next();
+
+    } catch (error) {
+        // Handle unexpected errors
+        console.log("Error in adminRoute middleware", error.message);
         res.status(500).json({ message: "Internal server error" });
     }
 };
