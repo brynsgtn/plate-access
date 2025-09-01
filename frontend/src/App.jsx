@@ -1,6 +1,9 @@
 // Import necessary components from React Router
 import { Routes , Route } from 'react-router-dom'
 
+// Import pages
+import HomePage from './pages/HomePage';
+
 // Main application component
 function App() {
   
