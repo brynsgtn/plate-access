@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { LogIn } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const NavBar = () => {
 
@@ -132,7 +133,14 @@ const NavBar = () => {
                     </ul>
                 </div>
                 {/* Logo */}
-                <a className="btn btn-ghost text-xl">PlateAccess</a>
+                <Link to="/" className="flex items-center gap-2 ms-5 text-2xl font-bold">
+                    <img
+                        src="/logo.png"
+                        alt="PlateAccess Logo"
+                        className="w-8 h-8"
+                    />
+                    PlateAccess
+                </Link>
             </div>
 
             {/* Navbar Center (Desktop Menu) */}
