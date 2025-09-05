@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { LogIn } from "lucide-react";
 
 const NavBar = () => {
 
@@ -34,10 +35,10 @@ const NavBar = () => {
             document.removeEventListener("click", handleClickOutside);
         };
     }, []);
-    const isAdmin = true;
-
+    const isAdmin = false;
+    const user = true;
     return (
-        <div className="navbar bg-base-100 shadow-sm">
+        <div className="navbar shadow-sm bg-primary text-primary-content py-5 font-medium text-xl">
             {/* Navbar Start (Logo + Mobile Menu) */}
             <div className="navbar-start">
                 {/* Mobile Dropdown */}
@@ -49,7 +50,7 @@ const NavBar = () => {
                     </div>
                     <ul
                         tabIndex={0}
-                        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                        className="menu menu-sm dropdown-content bg-primary rounded-none z-1 mt-3 w-52 p-2 shadow">
 
                         {
                             isAdmin ? (
@@ -135,7 +136,7 @@ const NavBar = () => {
             </div>
 
             {/* Navbar Center (Desktop Menu) */}
-            <div className="navbar-center hidden lg:flex">
+            {user && <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1 gap-4">
 
                     {isAdmin ? (
@@ -144,7 +145,7 @@ const NavBar = () => {
                             <li>
                                 <details>
                                     <summary>System Monitoring</summary>
-                                    <ul className="p-2 bg-base-100">
+                                    <ul className="p-2 bg-primary rounded-none">
                                         <li><a>Access Logs</a></li>
                                         <li><a>Alerts</a></li>
                                         <li><a>Camera Status</a></li>
@@ -154,7 +155,7 @@ const NavBar = () => {
                             <li>
                                 <details>
                                     <summary>Vehicle Management</summary>
-                                    <ul className="p-2 bg-base-100">
+                                    <ul className="p-2 bg-primary rounded-none">
                                         <li><a>View Vehicles</a></li>
                                         <li><a>Register Vehicle</a></li>
                                         <li><a>Update Vehicle</a></li>
@@ -173,7 +174,7 @@ const NavBar = () => {
                             <li>
                                 <details>
                                     <summary>Manual Intervention</summary>
-                                    <ul className="p-2 bg-base-100">
+                                    <ul className="p-2 bg-primary rounded-none">
                                         <li><a>Manual Plate Entry</a></li>
                                         <li><a>Gate Controls</a></li>
                                         <li><a>Add Vehicle</a></li>
@@ -183,7 +184,7 @@ const NavBar = () => {
                             <li>
                                 <details>
                                     <summary>Monitoring</summary>
-                                    <ul className="p-2 bg-base-100">
+                                    <ul className="p-2 bg-primary rounded-none">
                                         <li><a>Access Logs</a></li>
                                         <li><a>Status</a></li>
                                     </ul>
@@ -192,7 +193,7 @@ const NavBar = () => {
                             <li>
                                 <details>
                                     <summary>Blacklisted Vehicles</summary>
-                                    <ul className="p-2 bg-base-100">
+                                    <ul className="p-2 bg-primary rounded-none">
                                         <li><a>View Blacklisted Vehicles</a></li>
                                         <li><a>Add to Blacklist</a></li>
                                         <li><a>Remove from Blacklist</a></li>
@@ -202,18 +203,9 @@ const NavBar = () => {
                             <li>
                                 <details>
                                     <summary>Alerts</summary>
-                                    <ul className="p-2 bg-base-100">
+                                    <ul className="p-2 bg-primary rounded-none">
                                         <li><a>Verification Alerts</a></li>
                                         <li><a>Blacklisted Alert</a></li>
-                                    </ul>
-                                </details>
-                            </li>
-                            <li>
-                                <details>
-                                    <summary>Username</summary>
-                                    <ul className="p-2 bg-base-100">
-                                        <li><a>Profile</a></li>
-                                        <li><a>Logout</a></li>
                                     </ul>
                                 </details>
                             </li>
@@ -222,25 +214,37 @@ const NavBar = () => {
                     }
 
                 </ul>
-            </div>
 
+            </div>
+            }
             {/* Navbar End (Button, Profile, etc.) */}
             <div className="navbar-end hidden lg:flex me-5">
-                <ul className="menu menu-horizontal px-1">
-                    <li>
-                        <details>
-                            <summary>Username</summary>
-                            <ul className="bg-base-100 rounded-t-none p-2">
-                                <li><a>Profile</a></li>
-                                <li><a>Logout</a></li>
-                            </ul>
-                        </details>
-                    </li>
-                </ul>
-            </div>
-        </div >
+                {user ? (
+                    <ul className="menu menu-horizontal px-1 text-lg">
+                        <li>
+                            <details>
+                                <summary>Username</summary>
+                                <ul className="bg-primary rounded-none p--2 w-full">
+                                    <li><a>Profile</a></li>
+                                    <li><a>Logout</a></li>
+                                </ul>
+                            </details>
+                        </li>
+                    </ul>
+                ) : (
+                    <ul className="menu menu-horizontal px-1 text-lg">
+                        <li>
+                            <a> <LogIn /> Login</a>
+                        </li>
+                    </ul>
+                )
+                }
 
+            </div>
+        </div>
     )
 }
 
-export default NavBar
+
+export default NavBar;
+
