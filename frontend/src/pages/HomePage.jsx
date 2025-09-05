@@ -1,6 +1,8 @@
 import { ScanSearch, ShieldCheck, ThumbsUpIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
+  const user = true
   return (
     <>
       <div className="flex flex-col">
@@ -24,7 +26,18 @@ const HomePage = () => {
                       <p className="text-lg mb-6 leading-relaxed">
                         PlateAccess is your all-in-one solution for modern parking management. Effortlessly monitor, control, and secure your parking facilities with real-time updates and intuitive tools.
                       </p>
-                      <button className="btn btn-outline btn-accent text-primary-content border-primary-content">Get Started</button>
+                      {user ? (
+                        <Link to="/dashboard" className="btn btn-outline btn-accent text-primary-content border-primary-content">
+                          Get Started
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/login"
+                          className="btn btn-outline btn-accent text-primary-content border-primary-content"
+                        >
+                          Login
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
