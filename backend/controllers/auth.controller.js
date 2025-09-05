@@ -29,23 +29,23 @@ export const checkAuth = async (req, res) => {
 // Login controller
 export const loginUser = async (req, res) => {
     // Destructures variables from request body
-    const { username, email, password } = req.body;
+    const { usernameOrEmail, password } = req.body;
 
     try {
         // If neither username nor email is provided, OR password is missing
-        if ((!username && !email) || !password) {
+        if (!usernameOrEmail || !password) {
             // If true logs message in console and returns status code of 400 (bad request)
-            console.log("loginUser controller : Either username or email and password are required")
-            return res.status(400).json({ message: "Either username or email and password are required" });
+            console.log("loginUser controller : Either username/email or password are required")
+            return res.status(400).json({ message: "Either username/email or password are required" });
         }
 
         // Defines a variable if a user exists or not.
         const user = await User.findOne({
-            $or: [{ username }, { email }]
+            $or: [{ 'email': usernameOrEmail }, { 'username': usernameOrEmail }]
         });
 
         // Checks if user exist and password matched the hashed password
-        if (user && (user.comparePassword(password))) {
+        if (user && (await user.comparePassword(password))) {
 
             // Generate a JWT for the logged-in user and store it in a secure HTTP-only cookie
             generateToken(user._id, res);
