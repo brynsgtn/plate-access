@@ -27,7 +27,7 @@ export default App;
 
 
 // TODO: 
-// Navbar component, extract the navbar code from HomePage
-// HomePage
+// Navbar - functionality and styling
+// HomePage - separate components, functionality, and styling
 // Login page, route and component
 // Dashboard page, route and component (Admin and Parking Staff)
