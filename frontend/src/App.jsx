@@ -6,7 +6,7 @@ import HomePage from './pages/HomePage';
 import NavBar from './components/NavBar';
 import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
-import DashBoard from './pages/DashBoard';
+import DashboardPage from './pages/DashboardPage';
 
 // Main application component
 function App() {
@@ -18,7 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<DashBoard />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
         </Routes>
       </main>
       <Footer />
