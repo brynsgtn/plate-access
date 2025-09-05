@@ -4,7 +4,7 @@ import { Routes, Route } from 'react-router-dom'
 // Import pages
 import HomePage from './pages/HomePage';
 import NavBar from './components/NavBar';
-import Footer from './pages/Footer';
+import Footer from './components/Footer';
 
 // Main application component
 function App() {
