@@ -5,6 +5,8 @@ import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage';
 import NavBar from './components/NavBar';
 import Footer from './components/Footer';
+import LoginPage from './pages/LoginPage';
+import DashBoard from './pages/DashBoard';
 
 // Main application component
 function App() {
@@ -15,6 +17,8 @@ function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/dashboard" element={<DashBoard />} />
         </Routes>
       </main>
       <Footer />
