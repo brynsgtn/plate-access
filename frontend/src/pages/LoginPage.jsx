@@ -19,8 +19,6 @@ const LoginPage = () => {
     setPassword("");
   };
 
-  // TODO - loading state
-
   return (
     <div className="flex flex-col items-center min-h-[80vh] bg-base-200">
       {/* Logo and App Name */}
