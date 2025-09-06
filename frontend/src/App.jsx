@@ -12,6 +12,7 @@ import NavBar from './components/NavBar';
 import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import ProfilePage from './pages/ProfilePage';
 
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -48,6 +49,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={ user ? <Navigate to="/dashboard" /> : <LoginPage />} />
           <Route path="/dashboard" element={ !user ? <Navigate to="/login" /> : <DashboardPage />} />
+          <Route path="/profile" element={ !user ? <Navigate to="/login" /> : <ProfilePage />} />
         </Routes>
       </main>
       <Footer />
@@ -61,8 +63,8 @@ export default App;
 
 
 // TODO: 
+// User Management
 // Navbar - functionality and styling
 // HomePage - functionality, and styling
-// Login page, route and component
 // Dashboard page, route and component (Admin and Parking Staff)
 // Protect routes
