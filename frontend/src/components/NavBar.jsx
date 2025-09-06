@@ -40,7 +40,7 @@ const NavBar = () => {
     }, []);
 
     const { logout, user } = useUserStore();
-    const isAdmin = false;
+
 
     return (
         <div className="navbar shadow-sm bg-primary text-primary-content py-5 font-medium text-xl">
@@ -58,7 +58,7 @@ const NavBar = () => {
                         className="menu menu-sm dropdown-content bg-primary rounded-none z-1 mt-3 w-52 p-2 shadow">
 
                         {
-                            isAdmin ? (
+                            user?.isAdmin ? (
                                 // Admin user
                                 <>
                                     <li >
@@ -151,7 +151,7 @@ const NavBar = () => {
             {user && <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1 gap-4">
 
-                    {isAdmin ? (
+                    {user?.isAdmin ? (
                         // Admin user
                         <>
                             <li>
