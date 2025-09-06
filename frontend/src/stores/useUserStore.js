@@ -38,7 +38,7 @@ export const useUserStore = create((set, get) => ({
             const response = await axios.get("/auth/check-auth");
             set({ user: response.data, checkingAuth: false });
         } catch (error) {
-            set({ checkingAuth: false });
+            set({ user: null, checkingAuth: false });
             console.error("Authentication check failed:", error);
             toast.error("Session expired. Please log in again.");
         }
