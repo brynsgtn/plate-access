@@ -12,7 +12,6 @@ export const useUserStore = create((set, get) => ({
         try {
             const response = await axios.post("/auth/login", { usernameOrEmail, password });
             set({ user: response.data, loading: false });
-            console.log(response);
             toast.success("Login successful!");
         } catch (error) {
             set({ loading: false });
@@ -20,6 +19,18 @@ export const useUserStore = create((set, get) => ({
             toast.error(error.response.data.message);
         }
     },
+    logout: async () => {
+        set({ loading: true });
+        try {
+            await axios.post("/auth/logout");
+            set({ user: null, loading: false });
+            toast.success("Logout successful!");
+        } catch (error) {
+            set({ loading: false });
+            console.error("Logout failed:", error);
+            toast.error(error.response.data.message);
+        }
+    }
 }));
 
 // TODO - toast notifications, logout, check auth.
