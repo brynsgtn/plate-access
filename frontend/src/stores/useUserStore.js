@@ -2,6 +2,7 @@ import { create } from "zustand";
 import axios from "../lib/axios";
 import { toast } from "react-hot-toast";
 
+
 export const useUserStore = create((set, get) => ({
     user: null,
     loading:false,
@@ -29,6 +30,16 @@ export const useUserStore = create((set, get) => ({
             set({ loading: false });
             console.error("Logout failed:", error);
             toast.error(error.response.data.message);
+        }
+    },
+    checkAuth: async () => {
+        set({ checkingAuth: true });
+        try {
+            const response = await axios.get("/auth/check-auth");
+            set({ user: response.data, checkingAuth: false });
+        } catch (error) {
+            set({ checkingAuth: false });
+            console.error("Authentication check failed:", error);
         }
     }
 }));
