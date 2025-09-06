@@ -61,7 +61,7 @@ const NavBar = () => {
                             user?.isAdmin ? (
                                 // Admin user
                                 <>
-                                    <li >
+                                    <li>
                                         <a>System Monitoring</a>
                                         <ul className="p-2">
                                             <li><a>Access Logs</a></li>
@@ -82,10 +82,19 @@ const NavBar = () => {
                                         </ul>
                                     </li>
                                     <li>
-                                        <a>Username</a>
+                                        <a>User Management</a>
                                         <ul className="p-2">
-                                            <li><a>Profile</a></li>
-                                            <li><a>Logout</a></li>
+                                            <li><a>View Users</a></li>
+                                            <li><a>Register User</a></li>
+                                            <li><a>Update User</a></li>
+                                            <li><a>Delete User</a></li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <a>{user?.username}</a>
+                                        <ul className="p-2">
+                                            <li><Link to="/profile">Profile</Link></li>
+                                            <li><button onClick={logout}>Logout</button></li>
                                         </ul>
                                     </li>
                                 </>
@@ -124,7 +133,7 @@ const NavBar = () => {
                                         </ul>
                                     </li>
                                     <li>
-                                        <a>Username</a>
+                                        <a>{user?.username}</a>
                                         <ul className="p-2">
                                             <li><a>Profile</a></li>
                                             <li><button onClick={logout}>Logout</button></li>
@@ -174,6 +183,17 @@ const NavBar = () => {
                                         <li><a>Delete Vehicle</a></li>
                                         <li><a>Blacklisted Vehicle</a></li>
                                         <li><a>Requests</a></li>
+                                    </ul>
+                                </details>
+                            </li>
+                            <li>
+                                <details>
+                                    <summary>User Management</summary>
+                                    <ul className="p-2 bg-primary rounded-none">
+                                        <li><a>View Users</a></li>
+                                        <li><a>Register User</a></li>
+                                        <li><a>Update User</a></li>
+                                        <li><a>Delete User</a></li>
                                     </ul>
                                 </details>
                             </li>
@@ -235,9 +255,9 @@ const NavBar = () => {
                     <ul className="menu menu-horizontal px-1 text-lg">
                         <li>
                             <details>
-                                <summary>Username</summary>
-                                <ul className="bg-primary rounded-none p--2 w-full">
-                                    <li><a>Profile</a></li>
+                                <summary className="text-primary-content">{user?.username}</summary>
+                                <ul className="bg-primary rounded-none p-2 w-full">
+                                    <li><Link to="/profile">Profile</Link></li>
                                     <li><button onClick={logout}>Logout</button></li>
                                 </ul>
                             </details>
