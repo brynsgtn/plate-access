@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 // Import necessary components from React Router
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
 // Import react-hot-toast dependency;
 import { Toaster } from 'react-hot-toast';
@@ -13,12 +13,14 @@ import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 
+import LoadingSpinner from './components/LoadingSpinner';
+
 import { useUserStore } from './stores/useUserStore';
 
 // Main application component
 function App() {
 
-  const { user, checkAuth } = useUserStore();
+  const { user, checkAuth, checkingAuth } = useUserStore();
 
   useEffect(() => {
     // Check user authentication status
@@ -27,19 +29,25 @@ function App() {
 
   useEffect(() => {
     // Log user in console
-    console.log(user)
+    console.log("Logged in user:", user);
   }, [user]);
 
   
-
+  if (checkingAuth) {
+    return (
+      <div data-theme="autumn" className="min-h-screen flex items-center justify-center bg-base-100">
+        <LoadingSpinner />
+      </div>
+    )
+  };
   return (
     <div data-theme="autumn" className="min-h-screen flex flex-col">
       <NavBar />
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/login" element={ user ? <Navigate to="/dashboard" /> : <LoginPage />} />
+          <Route path="/dashboard" element={ !user ? <Navigate to="/login" /> : <DashboardPage />} />
         </Routes>
       </main>
       <Footer />
@@ -54,7 +62,7 @@ export default App;
 
 // TODO: 
 // Navbar - functionality and styling
-// HomePage - separate components, functionality, and styling
+// HomePage - functionality, and styling
 // Login page, route and component
 // Dashboard page, route and component (Admin and Parking Staff)
 // Protect routes
