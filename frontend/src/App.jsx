@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 // Import necessary components from React Router
 import { Routes, Route } from 'react-router-dom'
 
@@ -11,8 +13,24 @@ import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 
+import { useUserStore } from './stores/useUserStore';
+
 // Main application component
 function App() {
+
+  const { user, checkAuth } = useUserStore();
+
+  useEffect(() => {
+    // Check user authentication status
+    checkAuth();
+  }, [checkAuth]);
+
+  useEffect(() => {
+    // Log user in console
+    console.log(user)
+  }, [user]);
+
+  
 
   return (
     <div data-theme="autumn" className="min-h-screen flex flex-col">
