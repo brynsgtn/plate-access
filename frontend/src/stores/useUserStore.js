@@ -40,6 +40,7 @@ export const useUserStore = create((set, get) => ({
         } catch (error) {
             set({ checkingAuth: false });
             console.error("Authentication check failed:", error);
+            toast.error("Session expired. Please log in again.");
         }
     }
 }));
