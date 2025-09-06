@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { LogIn } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { useUserStore } from "../stores/useUserStore";
+
 const NavBar = () => {
 
     useEffect(() => {
@@ -36,8 +38,10 @@ const NavBar = () => {
             document.removeEventListener("click", handleClickOutside);
         };
     }, []);
+
+    const { logout, user } = useUserStore();
     const isAdmin = false;
-    const user = true;
+
     return (
         <div className="navbar shadow-sm bg-primary text-primary-content py-5 font-medium text-xl">
             {/* Navbar Start (Logo + Mobile Menu) */}
@@ -123,7 +127,7 @@ const NavBar = () => {
                                         <a>Username</a>
                                         <ul className="p-2">
                                             <li><a>Profile</a></li>
-                                            <li><a>Logout</a></li>
+                                            <li><button onClick={logout}>Logout</button></li>
                                         </ul>
                                     </li>
                                 </>
@@ -234,7 +238,7 @@ const NavBar = () => {
                                 <summary>Username</summary>
                                 <ul className="bg-primary rounded-none p--2 w-full">
                                     <li><a>Profile</a></li>
-                                    <li><a>Logout</a></li>
+                                    <li><button onClick={logout}>Logout</button></li>
                                 </ul>
                             </details>
                         </li>
@@ -242,7 +246,7 @@ const NavBar = () => {
                 ) : (
                     <ul className="menu menu-horizontal px-1 text-lg">
                         <li>
-                            <a> <LogIn /> Login</a>
+                            <Link to="/login"> <LogIn /> Login</Link>
                         </li>
                     </ul>
                 )
