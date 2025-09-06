@@ -1,6 +1,9 @@
 // Import necessary components from React Router
 import { Routes, Route } from 'react-router-dom'
 
+// Import react-hot-toast dependency;
+import { Toaster } from 'react-hot-toast';
+
 // Import pages
 import HomePage from './pages/HomePage';
 import NavBar from './components/NavBar';
@@ -22,6 +25,7 @@ function App() {
         </Routes>
       </main>
       <Footer />
+      <Toaster />
     </div>
 
   )
@@ -35,3 +39,4 @@ export default App;
 // HomePage - separate components, functionality, and styling
 // Login page, route and component
 // Dashboard page, route and component (Admin and Parking Staff)
+// Protect routes
