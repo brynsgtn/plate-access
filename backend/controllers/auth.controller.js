@@ -17,7 +17,13 @@ export const checkAuth = async (req, res) => {
         }
 
         // If user exists return status code of 200 (success) and success message
-        res.status(200).json({ user });
+        res.status(200).json({
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            isAdmin: user.isAdmin,
+            createdAt: user.createdAt
+        });
     } catch (error) {
         // Logs error message in terminal
         console.log("Error in loginUser controller", error.message);
@@ -55,7 +61,8 @@ export const loginUser = async (req, res) => {
                 _id: user._id,
                 username: user.username,
                 email: user.email,
-                isAdmin: user.isAdmin
+                isAdmin: user.isAdmin,
+                createdAt: user.createdAt
             });
         } else {
             // If invalid credentials (username/email or password) logs a message into the console and returns status code of 400 (bad request)
