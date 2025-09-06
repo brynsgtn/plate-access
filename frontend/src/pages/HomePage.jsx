@@ -1,8 +1,9 @@
 import { ScanSearch, ShieldCheck, ThumbsUpIcon } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useUserStore } from "../stores/useUserStore";
 
 const HomePage = () => {
-  const user = true
+  const { user } = useUserStore();
   return (
     <>
       <div className="flex flex-col">
