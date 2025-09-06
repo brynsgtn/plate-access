@@ -1,21 +1,20 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
-import { useNavigate } from "react-router-dom";
+
 
 const LoginPage = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   
-  const navigate = useNavigate();
 
-  const { login } = useUserStore();
+
+  const { login, loading } = useUserStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     login(usernameOrEmail, password);
-    navigate("/dashboard");
     setUsernameOrEmail("");
     setPassword("");
   };
@@ -85,7 +84,7 @@ const LoginPage = () => {
           type="submit"
           className="btn btn-primary w-full mt-6"
         >
-          Login
+         { loading ? <span className="loading loading-spinner loading-xs"></span> : "Login"}
         </button>
       </form>
     </div>
