@@ -13,6 +13,7 @@ import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
+import UserManagementPage from './pages/UserManagementPage';
 
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -50,6 +51,7 @@ function App() {
           <Route path="/login" element={ user ? <Navigate to="/dashboard" /> : <LoginPage />} />
           <Route path="/dashboard" element={ !user ? <Navigate to="/login" /> : <DashboardPage />} />
           <Route path="/profile" element={ !user ? <Navigate to="/login" /> : <ProfilePage />} />
+          <Route path="/user-management" element={ !user ? <Navigate to="/login" /> : <UserManagementPage />} />
         </Routes>
       </main>
       <Footer />
@@ -63,8 +65,10 @@ export default App;
 
 
 // TODO: 
-// User Management
-// Navbar - functionality and styling
+// User Management - styling
+// CreateUserForm - functionality and styling (intergrate backend)
+// UserList - functionality and styling (intergrate backend)
+// Navbar - functionality and styling (to remove dropdown)
 // HomePage - functionality, and styling
 // Dashboard page, route and component (Admin and Parking Staff)
 // Protect routes
