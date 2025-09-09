@@ -256,7 +256,7 @@ const NavBar = () => {
                         <li>
                             <details>
                                 <summary className="text-primary-content">{user?.username}</summary>
-                                <ul className="bg-primary rounded-none p-2 w-full">
+                                <ul className="bg-primary rounded-none p-2 w-full z-50 absolute right-0 mt-2 shadow-lg">
                                     <li><Link to="/profile">Profile</Link></li>
                                     <li><button onClick={logout}>Logout</button></li>
                                 </ul>
