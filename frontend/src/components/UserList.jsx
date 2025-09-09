@@ -5,13 +5,19 @@ import { useUserStore } from "../stores/useUserStore";
 const USERS_PER_PAGE = 5;
 
 const UserList = () => {
-  const { users } = useUserStore();
+  const { users, updateUser } = useUserStore();
   const [page, setPage] = useState(1);
 
   const totalPages = users ? Math.ceil(users.length / USERS_PER_PAGE) : 1;
   const paginatedUsers = users
     ? users.slice((page - 1) * USERS_PER_PAGE, page * USERS_PER_PAGE)
     : [];
+
+  const setRole = async (id) => {
+
+    await updateUser(id);
+
+  };
 
   return (
     <>
@@ -66,7 +72,7 @@ const UserList = () => {
                   </button>
                   <div className="tooltip" data-tip={user.isAdmin ? "Set as Parking Staff" : "Set as Admin"}>
                     <button
-                      // onClick={() => setRole(user._id)}
+                      onClick={() => setRole(user._id)}
                       className="btn btn-xs btn-ghost text-blue-500 hover:bg-transparent hover:text-blue-700 border-none"
                       title={user.isAdmin ? "Set as Parking Staff" : "Set as Admin"}
                     >
