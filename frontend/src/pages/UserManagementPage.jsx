@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserPlus, Users } from "lucide-react";
 
 import CreateUserForm from "../components/CreateUserForm";
 import UserList from "../components/UserList";
+
+import { useUserStore } from "../stores/useUserStore";
 
 const tabs = [
     { id: "create", label: "Create User", icon: UserPlus },
@@ -11,6 +13,12 @@ const tabs = [
 
 
 const UserManagementPage = () => {
+
+    const { fetchAllUsers, users } = useUserStore();   
+    useEffect( () => {
+         fetchAllUsers();
+    }, [fetchAllUsers]);
+
     const [activeTab, setActiveTab] = useState("create");
     return (
         <div className='min-h-screen relative overflow-hidden'>
@@ -24,7 +32,7 @@ const UserManagementPage = () => {
             <div className='flex justify-center mb-8'>
                 <div
                     role="tablist"
-                    className="tabs tabs-lift tabs-lg bg-base-100 rounded-xl border border-base-300 shadow"
+                    className="tabs tabs-lift tabs-lg bg-base-100 rounded-xl border-none "
                 >
                     {tabs.map((tab) => (
                         <button
