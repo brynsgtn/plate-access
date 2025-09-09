@@ -17,7 +17,7 @@ const UserManagementPage = () => {
     const { fetchAllUsers, users } = useUserStore();   
     useEffect( () => {
          fetchAllUsers();
-    }, [fetchAllUsers]);
+    }, [fetchAllUsers, users]);
 
     const [activeTab, setActiveTab] = useState("create");
     return (
