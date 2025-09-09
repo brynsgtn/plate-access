@@ -19,7 +19,9 @@ export const registerUser = async (req, res) => {
         };
 
         // Defines a variable if a user exists or not.
-        const userExists = await User.findOne({ email });
+        const userExists = await User.findOne({
+            $or: [{ username }, { email }]
+        });
 
         if (userExists) {
             // If user exists returns status code of 400 (bad request)
@@ -29,9 +31,6 @@ export const registerUser = async (req, res) => {
 
         // If passed all checks create a user
         const user = await User.create({ username, email, password });
-
-        // Generate a JWT for the logged-in user and store it in a secure HTTP-only cookie
-        generateToken(user._id, res);
 
         // Return status code 201 (created) and json data (_id, name, email, and isAdmin)
         res.status(201).json({
@@ -54,9 +53,9 @@ export const getUsers = async (req, res) => {
 
         // 1. Get the userId from the request object
         const userId = req.userId;
-        
+
         // 2. Fetch all users from the database except the current user, excluding the password field for security
-        const users = await User.find({_id: { $ne: userId }}).select("-password");
+        const users = await User.find({ _id: { $ne: userId } }).select("-password");
 
         // 3. Send the list of users with a 200 OK status
         res.status(200).json(users);
