@@ -65,7 +65,6 @@ export const useUserStore = create((set, get) => ({
         } catch (error) {
             set({ loading: false });
             console.error("Fetch users failed:", error);
-            toast.error(error.response?.data?.message || "Failed to fetch users.");
         }
     },
     updateUser: async (id) => {
@@ -79,6 +78,18 @@ export const useUserStore = create((set, get) => ({
             console.error("Update user failed:", error);
             toast.error(error.response?.data?.message || "Failed to update user.");
         }
-    }
+    },
+    deleteUser: async (id) => {
+        set({ loading: true });
+        try {
+            const response = await axios.delete(`/user/delete`, { data: { id } });
+            set({ loading: false });
+            toast.success(response?.data?.message);
+        } catch (error) {
+            set({ loading: false });
+            console.error("Delete user failed:", error);
+            toast.error(error.response?.data?.message || "Failed to delete user.");
+        }
+    },
 }));
 
