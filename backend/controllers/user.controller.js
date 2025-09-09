@@ -68,8 +68,8 @@ export const getUsers = async (req, res) => {
 
 // Update user controller
 export const updateUser = async (req, res) => {
-    const { id } = req.body; // or req.params if coming from URL
-    const loggedInUserId = req.user.id; // Assuming you have user info from auth middleware
+    const { id } = req.body; 
+    const loggedInUserId = req.user.id;
 
     try {
         console.log(loggedInUserId);
@@ -109,5 +109,39 @@ export const updateUser = async (req, res) => {
 };
 // Delete user controller
 export const deleteUser = async (req, res) => {
-    res.send("Delete user");
+    const { id } = req.body; 
+    const loggedInUserId = req.user.id;
+    
+    try {
+        // Check if the logged-in user is admin
+        const loggedInUser = await User.findById(loggedInUserId);
+        if (!loggedInUser || !loggedInUser.isAdmin) {
+            return res.status(403).json({
+                message: "Access denied. Only admins can delete users."
+            });
+        }
+
+        // Check if user is trying to delete themselves
+        if (loggedInUserId === id) {
+            return res.status(400).json({
+                message: "You cannot delete your own account."
+            });
+        }
+
+        // Find the user to be deleted
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Delete the user
+        await user.deleteOne();
+
+        res.status(200).json({
+            message: `User ${user.username} deleted successfully`
+        });
+    } catch (error) {
+        console.log("Error in deleteUser controller", error.message);
+        res.status(500).json({ message: error.message });
+    }
 };
