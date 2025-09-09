@@ -3,6 +3,7 @@ import axios from "../lib/axios";
 import { toast } from "react-hot-toast";
 
 
+
 export const useUserStore = create((set, get) => ({
     user: null,
     users: null,
@@ -65,6 +66,18 @@ export const useUserStore = create((set, get) => ({
             set({ loading: false });
             console.error("Fetch users failed:", error);
             toast.error(error.response?.data?.message || "Failed to fetch users.");
+        }
+    },
+    updateUser: async (id) => {
+        set({ loading: true });
+        try {
+            const response = await axios.patch(`/user/update`, {id});
+            set({ loading: false });
+            toast.success(response?.data?.message);
+        } catch (error) {
+            set({ loading: false });
+            console.error("Update user failed:", error);
+            toast.error(error.response?.data?.message || "Failed to update user.");
         }
     }
 }));
