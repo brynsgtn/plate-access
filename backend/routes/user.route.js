@@ -19,7 +19,7 @@ const router = express.Router();
 router.get("/get-users", protectRoute, adminRoute, getUsers); // Route for getting all users except current user (ADMIN ONLY)
 router.post("/register", protectRoute, adminRoute, registerUser); // Route for user registration (ADMIN ONLY)
 router.patch("/update", protectRoute, adminRoute, updateUser); // Route for updating user (ADMIN ONLY)
-router.get("/delete", protectRoute, adminRoute, deleteUser); // Route for deleting user (ADMIN ONLY)
+router.delete("/delete", protectRoute, adminRoute, deleteUser); // Route for deleting user (ADMIN ONLY)
 
 // Export router
 export default router;
