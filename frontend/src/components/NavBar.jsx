@@ -6,39 +6,6 @@ import { useUserStore } from "../stores/useUserStore";
 
 const NavBar = () => {
 
-    useEffect(() => {
-        const details = document.querySelectorAll("details");
-
-        // Accordion behavior
-        details.forEach((targetDetail) => {
-            targetDetail.addEventListener("toggle", () => {
-                if (targetDetail.open) {
-                    details.forEach((detail) => {
-                        if (detail !== targetDetail) {
-                            detail.removeAttribute("open");
-                        }
-                    });
-                }
-            });
-        });
-
-        // Close all dropdowns when clicking outside
-        const handleClickOutside = (event) => {
-            details.forEach((detail) => {
-                if (detail.open && !detail.contains(event.target)) {
-                    detail.removeAttribute("open");
-                }
-            });
-        };
-
-        document.addEventListener("click", handleClickOutside);
-
-        // Cleanup
-        return () => {
-            document.removeEventListener("click", handleClickOutside);
-        };
-    }, []);
-
     const { logout, user } = useUserStore();
 
 
@@ -82,13 +49,7 @@ const NavBar = () => {
                                         </ul>
                                     </li>
                                     <li>
-                                        <a>User Management</a>
-                                        <ul className="p-2">
-                                            <li><a>View Users</a></li>
-                                            <li><a>Register User</a></li>
-                                            <li><a>Update User</a></li>
-                                            <li><a>Delete User</a></li>
-                                        </ul>
+                                        <Link to="/user-management">User Management</Link>
                                     </li>
                                     <li>
                                         <a>{user?.username}</a>
@@ -186,17 +147,7 @@ const NavBar = () => {
                                     </ul>
                                 </details>
                             </li>
-                            <li>
-                                <details>
-                                    <summary>User Management</summary>
-                                    <ul className="p-2 bg-primary rounded-none">
-                                        <li><a>View Users</a></li>
-                                        <li><a>Register User</a></li>
-                                        <li><a>Update User</a></li>
-                                        <li><a>Delete User</a></li>
-                                    </ul>
-                                </details>
-                            </li>
+                            <li><Link to="/user-management">User Management</Link></li>
                         </>
 
 
