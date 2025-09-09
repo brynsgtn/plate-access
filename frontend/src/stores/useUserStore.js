@@ -5,6 +5,7 @@ import { toast } from "react-hot-toast";
 
 export const useUserStore = create((set, get) => ({
     user: null,
+    users: null,
     loading: false,
     checkingAuth: true,
 
@@ -53,6 +54,17 @@ export const useUserStore = create((set, get) => ({
             set({ user: null, checkingAuth: false });
             console.error("Authentication check failed:", error);
             toast.error("Session expired. Please log in again.");
+        }
+    },
+    fetchAllUsers: async () => {
+        set({ loading: true });
+        try {
+            const response = await axios.get("/user/get-users");
+            set({ users: response.data, loading: false });
+        } catch (error) {
+            set({ loading: false });
+            console.error("Fetch users failed:", error);
+            toast.error(error.response?.data?.message || "Failed to fetch users.");
         }
     }
 }));
