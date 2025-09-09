@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PlusCircle, Loader, Eye, EyeOff } from "lucide-react";
+import { useUserStore } from "../stores/useUserStore";
 
 const CreateUserForm = () => {
     const [formData, setFormData] = useState({
@@ -9,14 +10,22 @@ const CreateUserForm = () => {
     });
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const loading = false;
 
-    const isConfirmValid = confirmPassword === formData.password
+    const { createUser, loading } = useUserStore();
+
+    const isConfirmValid = confirmPassword === formData.password;
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (isConfirmValid) {
-            console.log("Form submitted:", formData);
+            createUser(formData);
+            setFormData({
+                username: "",
+                email: "",
+                password: "",
+            });
+            setConfirmPassword("");
         }
     }
 
