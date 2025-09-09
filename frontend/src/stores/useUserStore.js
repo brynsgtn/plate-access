@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 
 export const useUserStore = create((set, get) => ({
     user: null,
-    loading:false,
+    loading: false,
     checkingAuth: true,
 
     login: async (usernameOrEmail, password) => {
@@ -18,6 +18,18 @@ export const useUserStore = create((set, get) => ({
             set({ loading: false });
             console.error("Login failed:", error);
             toast.error(error.response.data.message);
+        }
+    },
+    createUser: async (userData) => {
+        set({ loading: true });
+        try {
+            await axios.post("/user/register", userData);
+            set({ loading: false });
+            toast.success("User created successfully!");
+        } catch (error) {
+            set({ loading: false });
+            console.error("Create user failed:", error);
+            toast.error(error.response?.data?.message || "Failed to create user.");
         }
     },
     logout: async () => {
@@ -45,5 +57,3 @@ export const useUserStore = create((set, get) => ({
     }
 }));
 
-// TODO - toast notifications, logout, check auth.
-// Implement user state in navbar, homepage
