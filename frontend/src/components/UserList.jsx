@@ -5,7 +5,7 @@ import { useUserStore } from "../stores/useUserStore";
 const USERS_PER_PAGE = 5;
 
 const UserList = () => {
-  const { users, updateUser } = useUserStore();
+  const { users, updateUser, deleteUser } = useUserStore();
   const [page, setPage] = useState(1);
 
   const totalPages = users ? Math.ceil(users.length / USERS_PER_PAGE) : 1;
@@ -14,9 +14,11 @@ const UserList = () => {
     : [];
 
   const setRole = async (id) => {
-
     await updateUser(id);
+  };
 
+  const deleteSelectedUser = async (id) => {
+    await deleteUser(id);
   };
 
   return (
@@ -64,7 +66,7 @@ const UserList = () => {
                 </td>
                 <td>
                   <button
-                    // onClick={() => deleteUser(user._id)}
+                    onClick={() => deleteSelectedUser(user._id)}
                     className="btn btn-xs btn-ghost text-red-500 hover:bg-transparent  hover:text-red-700 border-none"
                     title="Delete User"
                   >
