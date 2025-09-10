@@ -163,3 +163,37 @@ export const viewVehicleRequests = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+
+export const approveVehicleRequest = async (req, res) => {
+    const { id } = req.body;
+
+    // Validate request body
+    if (!id) {
+        return res.status(400).json({ message: "Vehicle ID is required" });
+    }
+
+    try {
+        // Find the vehicle by id
+        const vehicle = await Vehicle.findOne({ _id: id });
+        if (!vehicle) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+
+        // Approve the vehicle
+        vehicle.isApproved = true;
+
+        // Save the updated vehicle
+        await vehicle.save();
+
+        // Respond with the updated vehicle
+        res.status(200).json({
+            message: "Vehicle approved successfully",
+            vehicle
+        });
+    } catch (error) {
+        // Handle errors
+        console.error("Error approving vehicle:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
