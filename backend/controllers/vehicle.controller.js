@@ -76,6 +76,7 @@ export const addVehicle = async (req, res) => {
     }
 };
 
+// Update vehicle controller
 export const updateVehicle = async (req, res) => {
     const { plateNumber, makeModel, ownerName, id } = req.body;
 
@@ -107,6 +108,39 @@ export const updateVehicle = async (req, res) => {
     } catch (error) {
         // Handle errors
         console.error("Error updating vehicle:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const blackListOrUnblacklistVehicle = async (req, res) => {
+    const { id } = req.body;
+
+    // Validate request body
+    if (!id) {
+        return res.status(400).json({ message: "Vehicle ID is required" });
+    }
+
+    try {
+        // Find the vehicle by id
+        const vehicle = await Vehicle.findOne({ _id: id });
+        if (!vehicle) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+
+        // Toggle the isBlacklisted status
+        vehicle.isBlacklisted = !vehicle.isBlacklisted;
+
+        // Save the updated vehicle
+        await vehicle.save();
+
+        // Respond with the updated vehicle
+        res.status(200).json({
+            message: `Vehicle ${vehicle.isBlacklisted ? "blacklisted" : "unblacklisted"} successfully`,
+            vehicle
+        });
+    } catch (error) {
+        // Handle errors
+        console.error("Error blacklisting/unblacklisting vehicle:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
