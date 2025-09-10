@@ -11,7 +11,7 @@ import { protectRoute } from "../middlewares/auth.middleware.js";
 const router = express.Router();
 
 // Vehicle routes
-router.get("/", viewVehicle);
+router.get("/view-vehicle", protectRoute, viewVehicle);
 router.post("/add-vehicle", protectRoute, addVehicle);
 
 // Export router
