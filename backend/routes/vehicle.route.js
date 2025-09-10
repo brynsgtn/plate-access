@@ -2,7 +2,7 @@
 import express from "express";
 
 // Import controllers
-import { viewVehicles, addVehicle, updateVehicle, blackListOrUnblacklistVehicle } from "../controllers/vehicle.controller.js";
+import { viewVehicles, addVehicle, updateVehicle, blackListOrUnblacklistVehicle, viewVehicleRequests } from "../controllers/vehicle.controller.js";
 
 // Import middleware
 import { protectRoute } from "../middlewares/auth.middleware.js";
@@ -12,6 +12,7 @@ const router = express.Router();
 
 // Vehicle routes
 router.get("/view-vehicle", protectRoute, viewVehicles);
+router.get("/view-add-vehicle-requests", protectRoute, viewVehicleRequests);
 router.post("/add-vehicle", protectRoute, addVehicle);
 router.put("/update-vehicle", protectRoute, updateVehicle);
 router.patch("/blacklist-unblacklist-vehicle", protectRoute, blackListOrUnblacklistVehicle);
