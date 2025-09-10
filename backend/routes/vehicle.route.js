@@ -2,7 +2,7 @@
 import express from "express";
 
 // Import controllers
-import { viewVehicle, addVehicle } from "../controllers/vehicle.controller.js";
+import { viewVehicles, addVehicle, updateVehicle } from "../controllers/vehicle.controller.js";
 
 // Import middleware
 import { protectRoute } from "../middlewares/auth.middleware.js";
@@ -11,8 +11,9 @@ import { protectRoute } from "../middlewares/auth.middleware.js";
 const router = express.Router();
 
 // Vehicle routes
-router.get("/view-vehicle", protectRoute, viewVehicle);
+router.get("/view-vehicle", protectRoute, viewVehicles);
 router.post("/add-vehicle", protectRoute, addVehicle);
+router.put("/update-vehicle", protectRoute, updateVehicle);
 
 // Export router
 export default router;
