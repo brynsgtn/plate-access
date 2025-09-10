@@ -3,7 +3,17 @@ import Vehicle from "../models/Vehicle.model.js";
 
 // View vehicle controller
 export const viewVehicle = async (req, res) => {
-    res.send("Vehicle route");
+    try {
+        // Fetch all vehicles
+        const vehicles = await Vehicle.find();
+        const totalVehicles = await Vehicle.countDocuments();
+        // Respond with the list of vehicles
+        res.status(200).json({ vehicles, totalVehicles });
+    } catch (error) {
+        // Handle errors
+        console.error("Error fetching vehicles:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 };
 
 // Add vehicle controller
@@ -49,7 +59,6 @@ export const addVehicle = async (req, res) => {
                 plateNumber,
                 makeModel,
                 ownerName,
-
             });
             // Save the vehicle to the database
             await newVehicle.save();
@@ -63,6 +72,40 @@ export const addVehicle = async (req, res) => {
     } catch (error) {
         // Handle errors
         console.error("Error adding vehicle:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+const updateVehicle = async (req, res) => {
+    const { plateNumber, makeModel, ownerName, id } = req.body;
+
+    // Validate request body
+    if (!plateNumber || !makeModel || !ownerName || !id) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
+
+    try {
+        // Find the vehicle by id
+        const vehicle = await Vehicle.findOne({ _id: id });
+        if (!vehicle) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+
+        // Update vehicle details
+        vehicle.makeModel = makeModel;
+        vehicle.ownerName = ownerName;
+
+        // Save the updated vehicle
+        await vehicle.save();
+
+        // Respond with the updated vehicle
+        res.status(200).json({
+            message: "Vehicle updated successfully",
+            vehicle
+        });
+    } catch (error) {
+        // Handle errors
+        console.error("Error updating vehicle:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
