@@ -112,6 +112,7 @@ export const updateVehicle = async (req, res) => {
     }
 };
 
+// Blacklist or unblacklist vehicle
 export const blackListOrUnblacklistVehicle = async (req, res) => {
     const { id } = req.body;
 
@@ -145,6 +146,25 @@ export const blackListOrUnblacklistVehicle = async (req, res) => {
     }
 };
 
+// View blacklisted vehicles
+export const viewBlacklistedVehicles = async (req, res) => {
+    try {
+        // Find all blacklisted vehicles
+        const blacklistedVehicles = await Vehicle.find({ isBlacklisted: true });
+        const totalBlacklistedVehicles = await Vehicle.countDocuments({ isBlacklisted: true }); // Get the total
+        res.status(200).json({
+            message: "Blacklisted vehicles retrieved successfully",
+            blacklistedVehicles,
+            totalBlacklistedVehicles
+        });
+    } catch (error) {
+        // Handle errors
+        console.error("Error viewing blacklisted vehicles:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+// View vehicle requests
 export const viewVehicleRequests = async (req, res) => {
     try {
         // Find all vehicle requests
@@ -164,7 +184,7 @@ export const viewVehicleRequests = async (req, res) => {
     }
 };
 
-
+// Approve vehicle request
 export const approveVehicleRequest = async (req, res) => {
     const { id } = req.body;
 
