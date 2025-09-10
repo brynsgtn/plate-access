@@ -2,12 +2,17 @@
 import express from "express";
 
 // Import controllers
-import { viewVehicle } from "../controllers/vehicle.controller.js";
+import { viewVehicle, addVehicle } from "../controllers/vehicle.controller.js";
+
+// Import middleware
+import { protectRoute } from "../middlewares/auth.middleware.js";
+
 // Initialize Express router
 const router = express.Router();
 
 // Vehicle routes
 router.get("/", viewVehicle);
+router.post("/add-vehicle", protectRoute, addVehicle);
 
 // Export router
 export default router;
