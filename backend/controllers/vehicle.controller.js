@@ -2,11 +2,11 @@
 import Vehicle from "../models/Vehicle.model.js";
 
 // View vehicle controller
-export const viewVehicle = async (req, res) => {
+export const viewVehicles = async (req, res) => {
     try {
         // Fetch all vehicles
-        const vehicles = await Vehicle.find();
-        const totalVehicles = await Vehicle.countDocuments();
+        const vehicles = await Vehicle.find({ isApproved: true });
+        const totalVehicles = await Vehicle.countDocuments({ isApproved: true });
         // Respond with the list of vehicles
         res.status(200).json({ vehicles, totalVehicles });
     } catch (error) {
@@ -76,7 +76,7 @@ export const addVehicle = async (req, res) => {
     }
 };
 
-const updateVehicle = async (req, res) => {
+export const updateVehicle = async (req, res) => {
     const { plateNumber, makeModel, ownerName, id } = req.body;
 
     // Validate request body
@@ -92,6 +92,7 @@ const updateVehicle = async (req, res) => {
         }
 
         // Update vehicle details
+        vehicle.plateNumber = plateNumber;
         vehicle.makeModel = makeModel;
         vehicle.ownerName = ownerName;
 
