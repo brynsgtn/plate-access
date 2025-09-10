@@ -144,3 +144,22 @@ export const blackListOrUnblacklistVehicle = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const viewVehicleRequests = async (req, res) => {
+    try {
+        // Find all vehicle requests
+        const vehicleRequests = await Vehicle.find({ isApproved: false });
+        const totalRequests = await Vehicle.countDocuments({ isApproved: false });``
+
+        // Respond with the vehicle requests
+        res.status(200).json({
+            message: "Vehicle requests retrieved successfully",
+            vehicleRequests,
+            totalRequests
+        });
+    } catch (error) {
+        // Handle errors
+        console.error("Error viewing vehicle requests:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
