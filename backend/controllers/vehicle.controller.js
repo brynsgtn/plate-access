@@ -169,7 +169,7 @@ export const viewVehicleRequests = async (req, res) => {
     try {
         // Find all vehicle requests
         const vehicleRequests = await Vehicle.find({ isApproved: false });
-        const totalRequests = await Vehicle.countDocuments({ isApproved: false });``
+        const totalRequests = await Vehicle.countDocuments({ isApproved: false }); ``
 
         // Respond with the vehicle requests
         res.status(200).json({
@@ -184,7 +184,7 @@ export const viewVehicleRequests = async (req, res) => {
     }
 };
 
-// Approve vehicle request
+// Approve vehicle registration request
 export const approveVehicleRequest = async (req, res) => {
     const { id } = req.body;
 
@@ -217,3 +217,43 @@ export const approveVehicleRequest = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const requestUpdateVehicle = async (req, res) => {
+    const { id, makeModel, ownerName } = req.body;
+
+    // Validate request body
+    if (!id || !makeModel || !ownerName) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Find the vehicle by id and update the request
+    const vehicle = await Vehicle.findByIdAndUpdate(id, {
+        updateRequest: {
+            makeModel,
+            ownerName,
+            requestedBy: req.user.id,
+            requestedAt: Date.now(),
+            reason: `Requesting update for vehicle: ${makeModel}, ${ownerName}`,
+            status: 'pending'
+        }
+    },
+        {
+            new: true
+        }
+    );
+
+    // Check if the vehicle was found and updated
+    if(!vehicle) {
+        return res.status(404).json({ message: "Vehicle not found" });
+    }
+
+    if(!vehicle.isApproved) {
+        return res.status(400).json({ message: "Vehicle registration must be approved before updating" });
+    }
+
+    // Respond with the updated vehicle
+    res.status(200).json({
+        message: "Vehicle update request submitted successfully",
+        vehicle
+    });
+}
