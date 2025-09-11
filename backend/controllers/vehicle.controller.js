@@ -112,6 +112,38 @@ export const updateVehicle = async (req, res) => {
     }
 };
 
+export const deleteVehicle = async (req, res) => {
+    const { id } = req.body;
+    const reqUser = req.user;
+
+    // Validate request body
+    if (!id) {
+        return res.status(400).json({ message: "Vehicle ID is required" });
+    }
+
+    if (!reqUser.isAdmin) {
+        return res.status(403).json({ message: "Only admin can delete vehicles with requests" });
+    }
+
+    try {
+        // Find the vehicle by id
+        const vehicle = await Vehicle.findOne({ _id: id });
+        if (!vehicle) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+
+        // Delete the vehicle
+        await Vehicle.deleteOne({ _id: id });
+
+        // Respond with a success message
+        res.status(200).json({ message: "Vehicle deleted successfully" });
+    } catch (error) {
+        // Handle errors
+        console.error("Error deleting vehicle:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 // Blacklist or unblacklist vehicle
 export const blackListOrUnblacklistVehicle = async (req, res) => {
     const { id } = req.body;
