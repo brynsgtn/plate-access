@@ -34,28 +34,26 @@ const vehicleSchema = new mongoose.Schema(
         // Request to update request details - for parking staff
         updateRequest: {
             type: Object,
-            properties: {
-                requestedBy: {
-                    type: String,
-                    required: true
-                },
-                requestedAt: {
-                    type: Date,
-                    default: Date.now
-                },
-                approvedOrDeclinedAt: {
-                    type: Date,
-                    default: null
-                },
-                reason: {
-                    type: String,
-                    required: true
-                },
-                status: {
-                    type: String,
-                    enum: ['pending', 'approved', 'rejected'],
-                    default: null
-                }
+            requestedBy: {
+                type: String,
+                required: true
+            },
+            requestedAt: {
+                type: Date,
+                default: Date.now
+            },
+            approvedOrDeclinedAt: {
+                type: Date,
+                default: null
+            },
+            reason: {
+                type: String,
+                required: true
+            },
+            status: {
+                type: String,
+                enum: ['pending', 'approved', 'rejected'],
+                default: null
             }
         },
         // Request to delete vehicle - for parking staff
@@ -64,10 +62,6 @@ const vehicleSchema = new mongoose.Schema(
             properties: {
                 requestedBy: {
                     type: String, required: true
-                },
-                requestedAt: {
-                    type: Date,
-                    default: Date.now()
                 },
                 approvedOrDeclinedAt: {
                     type: Date,
