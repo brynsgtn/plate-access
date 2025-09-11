@@ -25,10 +25,63 @@ const vehicleSchema = new mongoose.Schema(
             type: Boolean,
             default: false
         },
+        //Requests made my parking staff
         // Vehicle's registration approval status - for parking staff
         isApproved: {
             type: Boolean,
             default: false
+        },
+        // Request to update request details - for parking staff
+        updateRequest: {
+            type: Object,
+            properties: {
+                requestedBy: {
+                    type: String,
+                    required: true
+                },
+                requestedAt: {
+                    type: Date,
+                    default: Date.now
+                },
+                approvedOrDeclinedAt: {
+                    type: Date,
+                    default: null
+                },
+                reason: {
+                    type: String,
+                    required: true
+                },
+                status: {
+                    type: String,
+                    enum: ['pending', 'approved', 'rejected'],
+                    default: null
+                }
+            }
+        },
+        // Request to delete vehicle - for parking staff
+        deleteRequest: {
+            type: Object,
+            properties: {
+                requestedBy: {
+                    type: String, required: true
+                },
+                requestedAt: {
+                    type: Date,
+                    default: Date.now()
+                },
+                approvedOrDeclinedAt: {
+                    type: Date,
+                    default: null
+                },
+                reason: {
+                    type: String, required: true
+                },
+                status: {
+                    type: String,
+                    enum: ['pending', 'approved', 'rejected'],
+                    default: 'pending'
+                }
+            }
         }
     },
     {
