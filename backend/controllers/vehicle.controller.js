@@ -293,7 +293,6 @@ export const requestUpdateVehicle = async (req, res) => {
             requestedBy: reqUser.id,
             reason: `Requesting update for vehicle: ${makeModel}, ${ownerName}`,
             status: 'pending',
-            requestedAt: Date.now()
         };
 
         await vehicle.save();
@@ -308,18 +307,20 @@ export const requestUpdateVehicle = async (req, res) => {
     }
 };
 
-
+// Approve vehicle update request controller
 export const approveUpdateVehicle = async (req, res) => {
     const { id } = req.body;
 
     try {
-
+        // Validate request body
         if (!id) {
             return res.status(400).json({ message: "Vehicle ID is required" });
         }
 
+        // Find the vehicle by id
         const vehicle = await Vehicle.findById(id);
 
+        // Check if vehicle exists and has an update request
         if (!vehicle || !vehicle.updateRequest) {
             return res.status(404).json({ message: "Vehicle not found or update request not found" });
         }
@@ -342,6 +343,51 @@ export const approveUpdateVehicle = async (req, res) => {
         });
     } catch (error) {
         console.error("Error in updateVehicleRequest controller:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const requestDeleteVehicle = async (req, res) => {
+    const { id, makeModel, ownerName, plateNumber  } = req.body;
+    const reqUser = req.user;
+
+    try {
+        // Validate request body
+        if (!id || !makeModel || !ownerName || !plateNumber) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        if (reqUser.isAdmin) {
+            return res.status(403).json({ message: "Admins don't need to request vehicle updates" });
+        }
+
+        // Find the vehicle by id
+        const vehicle = await Vehicle.findById(id);
+
+        // Check if vehicle exists
+        if (!vehicle) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+
+        // Ensure vehicle is approved
+        if (!vehicle.isApproved) {
+            return res.status(400).json({ message: "Vehicle registration must be approved before deleting" });
+        }
+
+        vehicle.deleteRequest = {
+            requestedBy: reqUser.id,
+            reason: `Requesting deletion for vehicle: ${vehicle.makeModel}, ${vehicle.ownerName}`,
+            status: 'pending',
+        };
+
+        await vehicle.save();
+
+        res.status(200).json({
+            message: "Vehicle deletion request submitted successfully",
+            vehicle
+        });
+    } catch (error) {
+        console.error("Error in requestDeleteVehicle controller:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
