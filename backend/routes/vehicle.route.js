@@ -12,6 +12,7 @@ import {
     viewBlacklistedVehicles, 
     requestUpdateVehicle,
     deleteVehicle,
+    approveUpdateVehicle,
 } from "../controllers/vehicle.controller.js";
 
 // Import middleware
@@ -29,6 +30,7 @@ router.put("/update-vehicle", protectRoute, adminRoute, updateVehicle);
 router.put("/request-update-vehicle", protectRoute, requestUpdateVehicle);
 router.patch("/blacklist-unblacklist-vehicle", protectRoute, blackListOrUnblacklistVehicle);
 router.patch("/approve-add-vehicle-request", protectRoute, adminRoute, approveVehicleRequest);
+router.patch("/approve-update-vehicle-request", protectRoute, adminRoute, approveUpdateVehicle);
 router.delete("/delete-vehicle", protectRoute, adminRoute, deleteVehicle);
 
 // Export router
