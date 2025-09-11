@@ -348,13 +348,13 @@ export const approveUpdateVehicleRequest = async (req, res) => {
 };
 
 export const requestDeleteVehicle = async (req, res) => {
-    const { id, makeModel, ownerName, plateNumber } = req.body;
+    const { id} = req.body;
     const reqUser = req.user;
 
     try {
         // Validate request body
-        if (!id || !makeModel || !ownerName || !plateNumber) {
-            return res.status(400).json({ message: "All fields are required" });
+        if (!id ) {
+            return res.status(400).json({ message: "ID is required" });
         }
 
         if (reqUser.isAdmin) {
@@ -418,6 +418,28 @@ export const approveDeleteVehicleRequest = async (req, res) => {
     } catch (error) {
         // Log the error
         console.error("Error in approveDeleteVehicleRequest controller:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const viewUpdateAndDeleteVehicleRequests = async (req, res) => {
+    try {
+        const vehicles = await Vehicle.find({
+            $or: [
+                { updateRequest: { $exists: true } },
+                { deleteRequest: { $exists: true } }
+            ]
+        });
+
+        const totalRequests = vehicles.length;
+
+        res.status(200).json({
+            message: "Vehicle requests retrieved successfully",
+            vehicles,
+            totalRequests
+        });
+    } catch (error) {
+        console.error("Error in viewVehicleRequests controller:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
