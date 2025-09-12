@@ -5,14 +5,47 @@ import { Link } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
 
 const NavBar = () => {
+    useEffect(() => {
+        const details = document.querySelectorAll("details");
+
+        // Accordion behavior
+        details.forEach((targetDetail) => {
+            targetDetail.addEventListener("toggle", () => {
+                if (targetDetail.open) {
+                    details.forEach((detail) => {
+                        if (detail !== targetDetail) {
+                            detail.removeAttribute("open");
+                        }
+                    });
+                }
+            });
+        });
+
+        // Close all dropdowns when clicking outside
+        const handleClickOutside = (event) => {
+            details.forEach((detail) => {
+                if (detail.open && !detail.contains(event.target)) {
+                    detail.removeAttribute("open");
+                }
+            });
+        };
+
+        document.addEventListener("click", handleClickOutside);
+
+        // Cleanup
+        return () => {
+            document.removeEventListener("click", handleClickOutside);
+        };
+    }, []);
+
 
     const { logout, user } = useUserStore();
 
 
     return (
-        <div className="navbar shadow-sm bg-primary text-primary-content py-5 font-medium text-xl">
+        <div className="navbar shadow-sm bg-primary text-primary-content py-5 font-medium text-xl ">
             {/* Navbar Start (Logo + Mobile Menu) */}
-            <div className="navbar-start">
+            <div className="navbar-start ">
                 {/* Mobile Dropdown */}
                 <div className="dropdown">
                     <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -38,15 +71,7 @@ const NavBar = () => {
                                     </li>
 
                                     <li>
-                                        <a>Vehicle Management</a>
-                                        <ul className="p-2">
-                                            <li><a>View Vehicles</a></li>
-                                            <li><a>Register Vehicle</a></li>
-                                            <li><a>Update Vehicle</a></li>
-                                            <li><a>Delete Vehicle</a></li>
-                                            <li><a>Blacklisted Vehicle</a></li>
-                                            <li><a>Requests</a></li>
-                                        </ul>
+                                        <Link to="/vehicle-management">Vehicle Management</Link>
                                     </li>
                                     <li>
                                         <Link to="/user-management">User Management</Link>
@@ -135,17 +160,7 @@ const NavBar = () => {
                                 </details>
                             </li>
                             <li>
-                                <details>
-                                    <summary>Vehicle Management</summary>
-                                    <ul className="p-2 bg-primary rounded-none">
-                                        <li><a>View Vehicles</a></li>
-                                        <li><a>Register Vehicle</a></li>
-                                        <li><a>Update Vehicle</a></li>
-                                        <li><a>Delete Vehicle</a></li>
-                                        <li><a>Blacklisted Vehicle</a></li>
-                                        <li><a>Requests</a></li>
-                                    </ul>
-                                </details>
+                                    <Link to="/vehicle-management">Vehicle Management</Link>
                             </li>
                             <li><Link to="/user-management">User Management</Link></li>
                         </>
