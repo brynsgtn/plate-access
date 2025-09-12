@@ -1,0 +1,85 @@
+import { useState } from "react";
+import { Car, CarFront, CircleParkingOff, FilePen, Plus } from "lucide-react";
+
+import AddVehicleForm from "../components/AddVehicleForm";
+import VehicleList from "../components/VehicleList";
+import BlacklistedVehicleList from "../components/BlacklistedVehicleList";
+import VehicleRequestList from "../components/VehicleRequestList";
+
+
+const tabs = [
+    { id: "add", label: "Add Vehicle", icon: Plus },
+    { id: "view", label: "View Vehicles", icon: Car },
+    { id: "blacklisted", label: "Blacklisted Vehicles", icon: CircleParkingOff },
+    { id: "requests", label: "Vehicle Requests", icon: FilePen },
+];
+
+const VehicleManagementPage = () => {
+    const [activeTab, setActiveTab] = useState("add");
+
+    const totalVehicles = 25;
+    const blacklistedVehicles = 3;
+    const vehicleRequests = 5;
+
+    return (
+        <div className="min-h-screen relative overflow-hidden bg-base-100">
+            <div className="relative z-10 container mx-auto px-4 pt-16 mb-10 max-w-6xl">
+                <h1 className="text-4xl font-bold mb-8 text-primary drop-shadow autumn-gradient-text text-center">
+                    Vehicle Management
+                </h1>
+                <p className="text-center text-base-content/70">
+                    Manage your vehicle fleet efficiently with our comprehensive tools.
+                </p>
+            </div>
+            <div className="w-full flex justify-center">
+                <div className="stats stats-vertical lg:stats-horizontal shadow-xl bg-base-200 rounded-xl border border-base-300 w-full max-w-6xl">
+                    <div className="stat p-6">
+                        <div className="stat-figure text-primary">
+                            <CarFront className="inline-block h-10 w-10 stroke-current" />
+                        </div>
+                        <div className="stat-title text-lg font-bold text-base-content/80">Total Vehicles</div>
+                        <div className="stat-value text-primary">{totalVehicles}</div>
+                    </div>
+                    <div className="stat p-6">
+                        <div className="stat-figure text-error">
+                            <CircleParkingOff className="inline-block h-10 w-10 stroke-current" />
+                        </div>
+                        <div className="stat-title text-lg font-bold text-base-content/80">Blacklisted Vehicles</div>
+                        <div className="stat-value text-error">{blacklistedVehicles}</div>
+                    </div>
+                    <div className="stat p-6">
+                        <div className="stat-figure text-accent">
+                            <FilePen className="inline-block h-10 w-10 stroke-current" />
+                        </div>
+                        <div className="stat-title text-lg font-bold text-base-content/80">Vehicle Requests</div>
+                        <div className="stat-value text-accent">{vehicleRequests}</div>
+                    </div>
+                </div>
+            </div>
+            <div className="shadow-xl m-8 max-w-6xl mx-auto rounded-xl border border-base-300 bg-base-200">
+                <div className="container mx-auto px-4  bg-accent rounded-t-xl">
+                    <h3 className="text-xl font-semibold text-secondary p-5">Quick Actions</h3>
+                </div>
+                <div className="flex flex-col lg:flex-row w-full justify-center items-center space-y-4 lg:space-y-0 lg:space-x-6 py-8 bg-base-100 rounded-b-xl">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            className={`btn btn-wide shadow-md ${tab.id === "add" ? "btn-primary" : tab.id === "view" ? "btn-secondary" : tab.id === "blacklisted" ? "btn-error" : "btn-accent"}`}
+                            onClick={() => setActiveTab(tab.id)}
+                        >
+                            <tab.icon className="h-5 w-5" />
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            {activeTab === "add" && <AddVehicleForm />}
+            {activeTab === "view" && <VehicleList />}
+            {activeTab === "blacklisted" && <BlacklistedVehicleList />}
+            {activeTab === "requests" && <VehicleRequestList />}
+
+        </div>
+    );
+};
+
+export default VehicleManagementPage;
