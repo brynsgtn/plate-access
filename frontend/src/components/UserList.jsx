@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Trash, UserCog } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
 
 const USERS_PER_PAGE = 5;
 
 const UserList = () => {
-  const { users, updateUser, deleteUser } = useUserStore();
+  const { users, updateUser, deleteUser, fetchAllUsers } = useUserStore();
+
+  useEffect(() => {
+    fetchAllUsers();
+  }, [users]);
+
+
   const [page, setPage] = useState(1);
 
   const totalPages = users ? Math.ceil(users.length / USERS_PER_PAGE) : 1;
