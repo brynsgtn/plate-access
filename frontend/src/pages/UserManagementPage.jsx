@@ -14,10 +14,10 @@ const tabs = [
 
 const UserManagementPage = () => {
 
-    const { fetchAllUsers, users } = useUserStore();   
+    const { fetchAllUsers } = useUserStore();   
     useEffect( () => {
          fetchAllUsers();
-    }, [fetchAllUsers, users]);
+    }, [fetchAllUsers]);
 
     const [activeTab, setActiveTab] = useState("create");
     return (
@@ -28,6 +28,9 @@ const UserManagementPage = () => {
                 >
                     User Management
                 </h1>
+                <p className='text-center text-base-content/70'>
+                    Manage your users efficiently with our comprehensive tools.
+                </p>
             </div>
             <div className='flex justify-center mb-8'>
                 <div
