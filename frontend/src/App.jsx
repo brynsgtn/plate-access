@@ -14,6 +14,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import UserManagementPage from './pages/UserManagementPage';
+import VehicleManagementPage from './pages/VehicleManagementPage';
 
 import LoadingSpinner from './components/LoadingSpinner';
 
@@ -52,6 +53,7 @@ function App() {
           <Route path="/dashboard" element={ !user ? <Navigate to="/login" /> : <DashboardPage />} />
           <Route path="/profile" element={ !user ? <Navigate to="/login" /> : <ProfilePage />} />
           <Route path="/user-management" element={ !user ? <Navigate to="/login" /> : <UserManagementPage />} />
+          <Route path="/vehicle-management" element={ !user ? <Navigate to="/login" /> : <VehicleManagementPage />} />
         </Routes>
       </main>
       <Footer />
@@ -65,9 +67,19 @@ export default App;
 
 
 // TODO: 
+// Vehicle Management Page - functionality and styling (backend integration)
+// Add blacklistedSince in vehicle model and update the blacklistOrUnblocklist controller for dates
+// integrate addVehicle component
+// integrate viewVehicle component and add a blacklist feature (Add subheading, pagination, searchbar?, filter?)
+// integrate blacklistedVehicleList component (only blacklisted vehicles will appear, add subheading, pagination, searchbar?, filter?)
+// integrate vehicleRequestList component (replace button text with icons, pagination, searchbar?, filter?)
+
+
+
+
 // User Management - styling
-// CreateUserForm - functionality and styling (intergrate backend)
-// UserList - functionality and styling (intergrate backend)
+// CreateUserForm - styling 
+// UserList - styling
 // Navbar - functionality and styling (to remove dropdown)
 // HomePage - functionality, and styling
 // Dashboard page, route and component (Admin and Parking Staff)
