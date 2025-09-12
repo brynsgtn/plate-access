@@ -46,4 +46,4 @@ app.listen(PORT,  () => {
 });
 
 
-// TODO: Set up models (Vehicle and Log)
+// TODO: Set up models (Log)
