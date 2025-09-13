@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "../lib/axios";
 import toast from "react-hot-toast";
+import { deleteVehicle } from "../../../backend/controllers/vehicle.controller";
 
 
 export const useVehicleStore = create((set, get) => ({
@@ -58,5 +59,18 @@ export const useVehicleStore = create((set, get) => ({
             set({ editLoading: false });
             toast.error(error.response?.data?.message || "Failed to update vehicle.");
         }
-    }
+    },
+    deleteVehicle: async (vehicleId) => {
+        try {
+            const response = await axios.delete(`/vehicle/delete-vehicle`, { data: { id: vehicleId } });
+            console.log("Vehicle deleted:", response.data);
+            set((prevState) => ({
+                vehicles: prevState.vehicles.filter((vehicle) => vehicle._id !== vehicleId)
+            }));
+            toast.success(response?.data?.message || "Vehicle deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting vehicle:", error);
+            toast.error(error.response?.data?.message || "Failed to delete vehicle.");
+        }
+    },
 }));
