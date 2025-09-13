@@ -1,161 +1,9 @@
 import { useState } from "react";
 import { Edit, Trash2, ShieldBan, PlusCircle, Loader } from "lucide-react";
 
-// Mock vehicle data
-const mockVehicles = [
-    {
-        id: "1",
-        plateNumber: "ABC1234",
-        makeModel: "Toyota Corolla",
-        ownerName: "John Doe",
-        isBlacklisted: false,
-        isApproved: true,
-        updateRequest: {
-            requestedBy: "staff1",
-            requestedAt: "2024-09-05T09:30:00Z",
-            approvedOrDeclinedAt: "2024-09-06T14:00:00Z",
-            reason: "Update owner name spelling",
-            status: "approved"
-        },
-        deleteRequest: null,
-        createdAt: "2024-09-01T10:00:00Z"
-    },
-    {
-        id: "2",
-        plateNumber: "XYZ5678",
-        makeModel: "Honda Civic",
-        ownerName: "Jane Smith",
-        isBlacklisted: false,
-        isApproved: false,
-        updateRequest: {
-            requestedBy: "staff2",
-            requestedAt: "2024-09-08T11:20:00Z",
-            approvedOrDeclinedAt: null,
-            reason: "Change color info",
-            status: "pending"
-        },
-        deleteRequest: null,
-        createdAt: "2024-09-05T14:30:00Z"
-    },
-    {
-        id: "3",
-        plateNumber: "LMN2468",
-        makeModel: "Ford Explorer",
-        ownerName: "Robert Brown",
-        isBlacklisted: true,
-        isApproved: true,
-        updateRequest: null,
-        deleteRequest: {
-            requestedBy: "staff3",
-            approvedOrDeclinedAt: null,
-            reason: "Duplicate record",
-            status: "pending"
-        },
-        createdAt: "2024-09-10T08:15:00Z"
-    },
-    {
-        id: "4",
-        plateNumber: "JKL1357",
-        makeModel: "Nissan Altima",
-        ownerName: "Alice Johnson",
-        isBlacklisted: false,
-        isApproved: true,
-        updateRequest: null,
-        deleteRequest: null,
-        createdAt: "2024-09-12T12:45:00Z"
-    },
-    {
-        id: "5",
-        plateNumber: "PQR7890",
-        makeModel: "Chevrolet Malibu",
-        ownerName: "Michael Green",
-        isBlacklisted: false,
-        isApproved: false,
-        updateRequest: {
-            requestedBy: "staff1",
-            requestedAt: "2024-09-15T10:05:00Z",
-            approvedOrDeclinedAt: null,
-            reason: "Update plate format",
-            status: "pending"
-        },
-        deleteRequest: null,
-        createdAt: "2024-09-15T18:45:00Z"
-    },
-    {
-        id: "6",
-        plateNumber: "TUV4321",
-        makeModel: "Hyundai Elantra",
-        ownerName: "Emily Davis",
-        isBlacklisted: false,
-        isApproved: true,
-        updateRequest: null,
-        deleteRequest: null,
-        createdAt: "2024-09-18T09:40:00Z"
-    },
-    {
-        id: "7",
-        plateNumber: "WXY6543",
-        makeModel: "Kia Sorento",
-        ownerName: "Daniel Martinez",
-        isBlacklisted: false,
-        isApproved: true,
-        updateRequest: null,
-        deleteRequest: {
-            requestedBy: "staff4",
-            approvedOrDeclinedAt: "2024-09-20T15:10:00Z",
-            reason: "Owner requested removal",
-            status: "approved"
-        },
-        createdAt: "2024-09-20T12:20:00Z"
-    },
-    {
-        id: "8",
-        plateNumber: "EFG1111",
-        makeModel: "Mazda CX-5",
-        ownerName: "Sophia Wilson",
-        isBlacklisted: false,
-        isApproved: false,
-        updateRequest: {
-            requestedBy: "staff2",
-            requestedAt: "2024-09-22T13:50:00Z",
-            approvedOrDeclinedAt: null,
-            reason: "Update VIN number",
-            status: "pending"
-        },
-        deleteRequest: null,
-        createdAt: "2024-09-22T16:00:00Z"
-    },
-    {
-        id: "9",
-        plateNumber: "HIJ2222",
-        makeModel: "Tesla Model 3",
-        ownerName: "William Taylor",
-        isBlacklisted: false,
-        isApproved: true,
-        updateRequest: null,
-        deleteRequest: null,
-        createdAt: "2024-09-25T09:10:00Z"
-    },
-    {
-        id: "10",
-        plateNumber: "OPQ3333",
-        makeModel: "Jeep Wrangler",
-        ownerName: "Olivia Harris",
-        isBlacklisted: false,
-        isApproved: false,
-        updateRequest: null,
-        deleteRequest: {
-            requestedBy: "staff5",
-            approvedOrDeclinedAt: null,
-            reason: "Vehicle sold",
-            status: "pending"
-        },
-        createdAt: "2024-09-28T16:55:00Z"
-    }
-];
+import { useVehicleStore } from "../stores/useVehicleStore";
 
 const VehicleList = () => {
-    const [vehicles, setVehicles] = useState(mockVehicles);
 
     const [editModal, setEditModal] = useState(false);
 
@@ -164,11 +12,12 @@ const VehicleList = () => {
         makeModel: "",
         ownerName: "",
     });
-    
 
+    const { vehicles } = useVehicleStore();
+    const loadingVehicles = true
     const handleEdit = (id) => {
         // Implement edit logic here
-        const vehicleToEdit = vehicles.find((v) => v.id === id);
+        const vehicleToEdit = vehicles.find((v) => v._id === id);
         setFormData({
             plateNumber: vehicleToEdit.plateNumber,
             makeModel: vehicleToEdit.makeModel,
@@ -180,7 +29,7 @@ const VehicleList = () => {
 
     const handleDelete = (id) => {
         // Implement delete logic here
-        setVehicles((prev) => prev.filter((v) => v.id !== id));
+        // setVehicles((prev) => prev.filter((v) => v.id !== id));
     };
 
     const handleSubmit = (e) => {
@@ -191,6 +40,13 @@ const VehicleList = () => {
 
     const loading = false;
 
+    if (loadingVehicles) {
+        return (
+            <div className="flex items-center justify-center py-10 h-96">
+                <Loader className="h-8 w-8 animate-spin" />
+            </div>
+        );
+    }
     return (
         <>
             <div className="overflow-x-auto max-w-6xl mx-auto my-10 rounded-xl shadow-lg bg-base-100 border border-base-300">
@@ -215,7 +71,7 @@ const VehicleList = () => {
                             </tr>
                         )}
                         {vehicles.map((vehicle, idx) => (
-                            <tr key={vehicle.id} className="hover:bg-base-200 transition">
+                            <tr key={vehicle._id} className="hover:bg-base-200 transition">
                                 <th>{idx + 1}</th>
                                 <td>{vehicle.plateNumber}</td>
                                 <td>{vehicle.makeModel}</td>
@@ -249,7 +105,7 @@ const VehicleList = () => {
                                 <td className="flex gap-2">
                                     <button
                                         onClick={() => {
-                                            handleEdit(vehicle.id);
+                                            handleEdit(vehicle._id);
                                         }}
                                         className="btn btn-xs btn-ghost text-primary hover:bg-primary/10"
                                         title="Edit"
@@ -258,7 +114,7 @@ const VehicleList = () => {
                                     </button>
 
                                     <button
-                                        onClick={() => handleDelete(vehicle.id)}
+                                        onClick={() => handleDelete(vehicle._id)}
                                         className="btn btn-xs btn-ghost text-red-500 hover:bg-red-100 hover:text-red-700"
                                         title="Delete"
                                     >
