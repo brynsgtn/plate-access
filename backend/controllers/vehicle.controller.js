@@ -165,6 +165,13 @@ export const blackListOrUnblacklistVehicle = async (req, res) => {
         // Toggle the isBlacklisted status
         vehicle.isBlacklisted = !vehicle.isBlacklisted;
 
+        // Update the isBlacklistedAt field if the vehicle is blacklisted
+        if (vehicle.isBlacklisted) {
+            vehicle.isBlacklistedAt = new Date();
+        } else {
+            vehicle.isBlacklistedAt = null;
+        }
+
         // Save the updated vehicle
         await vehicle.save();
 
