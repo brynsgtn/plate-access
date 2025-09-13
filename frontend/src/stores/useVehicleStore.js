@@ -5,9 +5,9 @@ import toast from "react-hot-toast";
 
 export const useVehicleStore = create((set, get) => ({
     vehicles: [],
-    totalVehicles: 0,
-    loading: false,
+    loadingVehicles: false,
     addLoading: false,
+    editLoading: false,
 
     addVehicle: async (vehicleData) => {
         set({ addLoading: true });
@@ -15,7 +15,6 @@ export const useVehicleStore = create((set, get) => ({
             const response = await axios.post("/vehicle/add-vehicle", vehicleData);
             set((prevState) => ({
                 vehicles: [...prevState.vehicles, response.data.vehicle],
-                totalVehicles: prevState.totalVehicles + 1,
                 addLoading: false
             }));
             toast.success(response?.data?.message || "Vehicle added successfully!");
@@ -26,14 +25,38 @@ export const useVehicleStore = create((set, get) => ({
         }
     },
     viewVehicles: async () => {
-        set({ loading: true });
+        set({ loadingVehicles: true });
         try {
             const response = await axios.get("/vehicle/view-vehicle");
-            console.log("Vehicles:", response.data.vehicles);
-            set({ vehicles: response.data.vehicles, totalVehicles: response.data.totalVehicles,loading: false });
+            console.log("Vehicles:", response.data);
+            set({ vehicles: response.data.vehicles, loadingVehicles: false });
         } catch (error) {
             console.error("Error viewing vehicles:", error);
-            set({ loading: false });
+            set({ loadingVehicles: false });
+        }
+    },
+    updateVehicle: async (vehicleId, updatedData) => {
+        set({ editLoading: true });
+        try {
+            const response = await axios.put(`/vehicle/update-vehicle`, {
+
+                plateNumber: updatedData.plateNumber,
+                makeModel: updatedData.makeModel,
+                ownerName: updatedData.ownerName,
+                id: vehicleId,
+            });
+            console.log("Vehicle updated:", response.data);
+            set((prevState) => ({
+                vehicles: prevState.vehicles.map((vehicle) =>
+                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
+                ),
+                editLoading: false
+            }));
+            toast.success(response?.data?.message || "Vehicle updated successfully!");
+        } catch (error) {
+            console.error("Error updating vehicle:", error);
+            set({ editLoading: false });
+            toast.error(error.response?.data?.message || "Failed to update vehicle.");
         }
     }
 }));
