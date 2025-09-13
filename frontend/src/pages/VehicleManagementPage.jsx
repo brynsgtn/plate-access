@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Car, CarFront, CircleParkingOff, FilePen, Plus } from "lucide-react";
 
 import AddVehicleForm from "../components/AddVehicleForm";
 import VehicleList from "../components/VehicleList";
 import BlacklistedVehicleList from "../components/BlacklistedVehicleList";
 import VehicleRequestList from "../components/VehicleRequestList";
+import { useVehicleStore } from "../stores/useVehicleStore";
+
 
 
 const tabs = [
@@ -17,7 +19,18 @@ const tabs = [
 const VehicleManagementPage = () => {
     const [activeTab, setActiveTab] = useState("add");
 
-    const totalVehicles = 25;
+    const { viewVehicles, vehicles, totalVehicles } = useVehicleStore();
+
+    useEffect(() => {
+        // Fetch vehicle data when the component mounts
+        viewVehicles();
+    }, [viewVehicles]);
+
+    // Separate useEffect to log vehicles when they change
+    useEffect(() => {
+        console.log("Vehicles:", vehicles);
+    }, [vehicles]);
+
     const blacklistedVehicles = 3;
     const vehicleRequests = 5;
 
