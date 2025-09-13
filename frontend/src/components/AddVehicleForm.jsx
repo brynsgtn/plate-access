@@ -12,7 +12,7 @@ const AddVehicleForm = () => {
         ownerName: "",
     });
 
-    const { addVehicle, addLoading } = useVehicleStore();
+    const { addVehicle, addLoading, viewVehicles } = useVehicleStore();
     
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -23,6 +23,7 @@ const AddVehicleForm = () => {
             makeModel: "",
             ownerName: "",
         });
+        viewVehicles();
     };
 
 
