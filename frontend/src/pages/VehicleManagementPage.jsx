@@ -19,7 +19,7 @@ const tabs = [
 const VehicleManagementPage = () => {
     const [activeTab, setActiveTab] = useState("add");
 
-    const { viewVehicles, vehicles, totalVehicles } = useVehicleStore();
+    const { viewVehicles, vehicles } = useVehicleStore();
 
     useEffect(() => {
         // Fetch vehicle data when the component mounts
@@ -31,6 +31,7 @@ const VehicleManagementPage = () => {
         console.log("Vehicles:", vehicles);
     }, [vehicles]);
 
+    const totalVehicles = Array.isArray(vehicles) ? vehicles.filter((vehicle) => vehicle.isApproved).length : 0;
     const blacklistedVehicles = 3;
     const vehicleRequests = 5;
 
