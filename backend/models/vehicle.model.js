@@ -25,6 +25,11 @@ const vehicleSchema = new mongoose.Schema(
             type: Boolean,
             default: false
         },
+        // Date when the vehicle was blacklisted
+        isBlacklistedAt: {
+            type: Date,
+            default: null
+        },
         //Requests made my parking staff
         // Vehicle's registration approval status - for parking staff
         isApproved: {
