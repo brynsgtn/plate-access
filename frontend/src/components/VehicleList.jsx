@@ -20,7 +20,7 @@ const VehicleList = () => {
         console.log("Form Data:", formData);
     }, [formData]);
 
-    const { vehicles, loadingVehicles, updateVehicle } = useVehicleStore();
+    const { vehicles, loadingVehicles, updateVehicle, deleteVehicle } = useVehicleStore();
 
     const handleEdit = (id) => {
         // Implement edit logic here
@@ -37,7 +37,8 @@ const VehicleList = () => {
 
     const handleDelete = (id) => {
         // Implement delete logic here
-        // setVehicles((prev) => prev.filter((v) => v.id !== id));
+        deleteVehicle(id);
+        console.log(`Delete vehicle with id: ${id}`);
     };
 
     const handleSubmit = (e) => {
