@@ -68,9 +68,7 @@ export default App;
 
 // TODO: 
 // Vehicle Management Page - functionality and styling (backend integration)
-// Add blacklistedSince in vehicle model and update the blacklistOrUnblocklist controller for dates
-// integrate addVehicle component
-// integrate viewVehicle component and add a blacklist feature (Add subheading, pagination, searchbar?, filter?)
+// add a blacklist feature on view vehicles component (Add subheading, pagination, searchbar?, filter?)
 // integrate blacklistedVehicleList component (only blacklisted vehicles will appear, add subheading, pagination, searchbar?, filter?)
 // integrate vehicleRequestList component (replace button text with icons, pagination, searchbar?, filter?)
 
