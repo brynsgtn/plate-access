@@ -2,23 +2,31 @@ import { useState } from "react";
 import { Edit, Trash2, ShieldBan, PlusCircle, Loader } from "lucide-react";
 
 import { useVehicleStore } from "../stores/useVehicleStore";
+import LoadingSpinner from "./LoadingSpinner";
+import { useEffect } from "react";
 
 const VehicleList = () => {
 
     const [editModal, setEditModal] = useState(false);
 
     const [formData, setFormData] = useState({
+        id: "",
         plateNumber: "",
         makeModel: "",
         ownerName: "",
     });
 
-    const { vehicles } = useVehicleStore();
-    const loadingVehicles = true
+    useEffect(() => {
+        console.log("Form Data:", formData);
+    }, [formData]);
+
+    const { vehicles, loadingVehicles, updateVehicle } = useVehicleStore();
+
     const handleEdit = (id) => {
         // Implement edit logic here
         const vehicleToEdit = vehicles.find((v) => v._id === id);
         setFormData({
+            id: vehicleToEdit._id,
             plateNumber: vehicleToEdit.plateNumber,
             makeModel: vehicleToEdit.makeModel,
             ownerName: vehicleToEdit.ownerName,
@@ -35,7 +43,9 @@ const VehicleList = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         // Implement form submission logic here
-        console.log(formData);
+        updateVehicle(formData.id, formData);
+        console.log("Updated data:", formData);
+        setEditModal(false);
     };
 
     const loading = false;
@@ -43,7 +53,7 @@ const VehicleList = () => {
     if (loadingVehicles) {
         return (
             <div className="flex items-center justify-center py-10 h-96">
-                <Loader className="h-8 w-8 animate-spin" />
+                <LoadingSpinner className="h-8 w-8 animate-spin" />
             </div>
         );
     }
