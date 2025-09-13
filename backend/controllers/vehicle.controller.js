@@ -6,9 +6,8 @@ export const viewVehicles = async (req, res) => {
     try {
         // Fetch all vehicles
         const vehicles = await Vehicle.find({ isApproved: true });
-        const totalVehicles = await Vehicle.countDocuments({ isApproved: true });
         // Respond with the list of vehicles
-        res.status(200).json({ vehicles, totalVehicles });
+        res.status(200).json({ vehicles });
     } catch (error) {
         // Handle errors
         console.error("Error in viewVehicles controller:", error);
@@ -37,43 +36,25 @@ export const addVehicle = async (req, res) => {
         // Create a new vehicle
 
         // If admin, set isApproved to true
-        if (isAdmin) {
-            const newVehicle = new Vehicle({
-                plateNumber,
-                makeModel,
-                ownerName,
-                isApproved: true
-            });
+        const newVehicle = new Vehicle({
+            plateNumber,
+            makeModel,
+            ownerName,
+            isApproved: isAdmin ? true : false,
+        });
+        // Save the vehicle to the database
+        await newVehicle.save();
 
-            // Save the vehicle to the database
-            await newVehicle.save();
-
-            // Respond with the created vehicle
-            res.status(201).json({
-                message: "Vehicle added successfully",
-                vehicle: newVehicle
-            });
-        } else {
-            // If not admin, set isApproved to false
-            const newVehicle = new Vehicle({
-                plateNumber,
-                makeModel,
-                ownerName,
-            });
-            // Save the vehicle to the database
-            await newVehicle.save();
-
-            // Respond with the created vehicle
-            res.status(201).json({
-                message: "Vehicle added successfully",
-                vehicle: newVehicle
-            });
-        };
+        // Respond with the created vehicle
+        res.status(201).json({
+            message: "Vehicle added successfully",
+            vehicle: newVehicle
+        });
     } catch (error) {
-        // Handle errors
-        console.error("Error in addVehicle controller:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
+    // Handle errors
+    console.error("Error in addVehicle controller:", error);
+    res.status(500).json({ message: "Internal server error" });
+}
 };
 
 // Update vehicle controller
@@ -355,12 +336,12 @@ export const approveUpdateVehicleRequest = async (req, res) => {
 };
 
 export const requestDeleteVehicle = async (req, res) => {
-    const { id} = req.body;
+    const { id } = req.body;
     const reqUser = req.user;
 
     try {
         // Validate request body
-        if (!id ) {
+        if (!id) {
             return res.status(400).json({ message: "ID is required" });
         }
 
