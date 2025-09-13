@@ -1,5 +1,5 @@
 // Import Vehicle Model
-import Vehicle from "../models/Vehicle.model.js";
+import Vehicle from "../models/vehicle.model.js";
 
 // View vehicle controller
 export const viewVehicles = async (req, res) => {
