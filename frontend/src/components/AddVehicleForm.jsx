@@ -1,6 +1,10 @@
 import { useState } from "react";
 
+import { useVehicleStore } from "../stores/useVehicleStore";
+
 import { PlusCircle, Loader } from "lucide-react";
+
+
 const AddVehicleForm = () => {
     const [formData, setFormData] = useState({
         plateNumber: "",
@@ -8,11 +12,20 @@ const AddVehicleForm = () => {
         ownerName: "",
     });
 
+    const { addVehicle, addLoading } = useVehicleStore();
+    
     const handleSubmit = (e) => {
-        console.log(formData);
+        e.preventDefault();
+        addVehicle(formData);
+        console.log("Added vehicle:", formData);
+        setFormData({
+            plateNumber: "",
+            makeModel: "",
+            ownerName: "",
+        });
     };
 
-    const loading = false;
+
     return (
         <div
             className='bg-primary shadow-lg rounded-lg p-8 mb-8 max-w-6xl mx-auto'
@@ -73,9 +86,9 @@ const AddVehicleForm = () => {
                     className='w-full flex justify-center py-2 px-4 mt-8 border border-transparent rounded-md 
 					shadow-sm text-sm font-medium text-primary-content bg-accent hover:bg-warning cursor-pointer
 					focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50'
-                    disabled={loading}
+                    disabled={addLoading}
                 >
-                    {loading ? (
+                    {addLoading ? (
                         <>
                             <Loader className='mr-2 h-5 w-5 animate-spin' aria-hidden='true' />
                             Loading...
