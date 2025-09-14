@@ -168,7 +168,7 @@ export const blackListOrUnblacklistVehicle = async (req, res) => {
     }
 };
 
-// View blacklisted vehicles
+// View blacklisted vehicles (not sure if im gonna use this)
 export const viewBlacklistedVehicles = async (req, res) => {
     try {
         // Find all blacklisted vehicles
