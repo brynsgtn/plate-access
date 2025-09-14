@@ -38,7 +38,7 @@ const VehicleBlacklistTable = () => {
             <div className="overflow-x-auto max-w-6xl mx-auto my-10 rounded-xl shadow-lg bg-base-100 border border-base-300">
                 {/* Header with Search */}
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 border-b border-base-300">
-                    <h2 className="text-xl font-bold text-primary">Blacklist Vehicle List</h2>
+                    <h2 className="text-xl font-bold text-primary">Blacklisted Vehicle List</h2>
 
                     <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                         {/* Search Bar */}
