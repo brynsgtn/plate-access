@@ -32,8 +32,8 @@ const VehicleManagementPage = () => {
     }, [vehicles]);
 
     const totalVehicles = Array.isArray(vehicles) ? vehicles.filter((vehicle) => vehicle.isApproved).length : 0;
-    const blacklistedVehicles = 3;
-    const vehicleRequests = 5;
+    const blacklistedVehicles = Array.isArray(vehicles) ? vehicles.filter((vehicle) => vehicle.isBlacklisted).length : 0;
+    const vehicleRequests = Array.isArray(vehicles) ? vehicles.filter((vehicle) => !vehicle.isApproved).length : 0;
 
     return (
         <div className="min-h-screen relative overflow-hidden bg-base-100">
