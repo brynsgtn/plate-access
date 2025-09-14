@@ -73,4 +73,19 @@ export const useVehicleStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Failed to delete vehicle.");
         }
     },
+    blacklistOrUnblacklistVehicle: async (vehicleId) => {
+        try {
+            const response = await axios.patch(`/vehicle/blacklist-unblacklist-vehicle`, { id: vehicleId });
+            console.log("Vehicle blacklisted:", response.data);
+            set((prevState) => ({
+                vehicles: prevState.vehicles.map((vehicle) =>
+                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
+                )
+            }));
+            toast.success(response?.data?.message || "Vehicle blacklisted successfully!");
+        } catch (error) {
+            console.error("Error blacklisting vehicle:", error);
+            toast.error(error.response?.data?.message || "Failed to blacklist vehicle.");
+        }
+    }
 }));
