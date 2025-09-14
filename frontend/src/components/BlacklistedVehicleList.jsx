@@ -1,43 +1,15 @@
-import { useState } from "react";
-import { ShieldBan, ShieldCheck } from "lucide-react";
+import { useVehicleStore } from "../stores/useVehicleStore";
 
-// Mock data for demonstration
-const mockVehicles = [
-    {
-        _id: "1",
-        plateNumber: "ABC123",
-        makeModel: "Toyota Corolla",
-        ownerName: "John Doe",
-        isBlacklisted: true,
-        blacklistedAt: "2024-08-15T10:30:00Z"
-    },
-    {
-        _id: "2",
-        plateNumber: "XYZ789",
-        makeModel: "Honda Civic",
-        ownerName: "Jane Smith",
-        isBlacklisted: false,
-        blacklistedAt: null
-    },
-    {
-        _id: "3",
-        plateNumber: "LMN456",
-        makeModel: "Ford Focus",
-        ownerName: "Alice Johnson",
-        isBlacklisted: true,
-        blacklistedAt: "2024-09-01T14:20:00Z"
-    }
-];
 
 const VehicleBlacklistTable = () => {
-    const [vehicles, setVehicles] = useState(mockVehicles);
 
+
+    const { vehicles, blacklistOrUnblacklistVehicle } = useVehicleStore();
+    const blacklistedVehicles = vehicles.filter((vehicle) => vehicle.isBlacklisted);
+    
     const handleUnblacklist = (id) => {
-        setVehicles((prev) =>
-            prev.map((v) =>
-                v._id === id ? { ...v, isBlacklisted: false, blacklistedAt: null } : v
-            )
-        );
+        blacklistOrUnblacklistVehicle(id);
+        console.log("Unblacklisting vehicle with ID:", id);
     };
 
     return (
@@ -54,35 +26,31 @@ const VehicleBlacklistTable = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {vehicles.length === 0 && (
+                    {blacklistedVehicles.length === 0 && (
                         <tr>
                             <td colSpan={6} className="text-center py-8 text-base-content/70">
-                                No vehicles found.
+                                No blacklisted vehicles found.
                             </td>
                         </tr>
                     )}
-                    {vehicles.map((vehicle, idx) => (
+                    {blacklistedVehicles.map((vehicle, idx) => (
                         <tr key={vehicle._id} className="hover:bg-base-200 transition">
                             <th>{idx + 1}</th>
                             <td>{vehicle.plateNumber}</td>
                             <td>{vehicle.makeModel}</td>
                             <td>{vehicle.ownerName}</td>
                             <td>
-                                {vehicle.blacklistedAt
-                                    ? new Date(vehicle.blacklistedAt).toLocaleDateString()
+                                {vehicle.isBlacklistedAt
+                                    ? new Date(vehicle.isBlacklistedAt).toLocaleDateString()
                                     : "-"}
                             </td>
                             <td>
-                                {vehicle.isBlacklisted ? (
-                                    <button
-                                        onClick={() => handleUnblacklist(vehicle._id)}
-                                        className="btn btn-xs btn-success"
-                                    >
-                                        Unblacklist
-                                    </button>
-                                ) : (
-                                    <span className="text-base-content/50 text-xs">—</span>
-                                )}
+                                <button
+                                    onClick={() => handleUnblacklist(vehicle._id)}
+                                    className="btn btn-xs btn-success"
+                                >
+                                    Unblacklist
+                                </button>
                             </td>
                         </tr>
                     ))}
