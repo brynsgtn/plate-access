@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Edit, Trash2, ShieldBan, PlusCircle, Loader } from "lucide-react";
+import { Edit, Trash2, PlusCircle, Loader } from "lucide-react";
 
 import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
@@ -20,7 +20,7 @@ const VehicleList = () => {
         console.log("Form Data:", formData);
     }, [formData]);
 
-    const { vehicles, loadingVehicles, updateVehicle, deleteVehicle } = useVehicleStore();
+    const { vehicles, loadingVehicles, updateVehicle, deleteVehicle, blacklistOrUnblacklistVehicle } = useVehicleStore();
 
     const handleEdit = (id) => {
         // Implement edit logic here
@@ -40,6 +40,12 @@ const VehicleList = () => {
         deleteVehicle(id);
         console.log(`Delete vehicle with id: ${id}`);
     };
+
+    const handleBlacklist = (id) => {
+        // Implement blacklist logic here
+        blacklistOrUnblacklistVehicle(id);
+        console.log(`Blacklist vehicle with id: ${id}`);
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -88,26 +94,23 @@ const VehicleList = () => {
                                 <td>{vehicle.makeModel}</td>
                                 <td>{vehicle.ownerName}</td>
                                 <td>
-                                    <span
-                                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold
-                    ${vehicle.isBlacklisted
-                                                ? "bg-error text-error-content border border-error"
-                                                : vehicle.isApproved
-                                                    ? "bg-success text-success-content border border-success"
-                                                    : "bg-warning text-warning-content border border-warning"
-                                            }`}
-                                    >
-                                        {vehicle.isBlacklisted ? (
-                                            <>
-                                                <ShieldBan className="h-4 w-4" /> Blacklisted
-                                            </>
-                                        ) : vehicle.isApproved ? (
-                                            "Approved"
-                                        ) : (
-                                            "Pending"
-                                        )}
-                                    </span>
+                                    {vehicle.isBlacklisted ? (
+                                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold 
+      bg-error text-error-content border border-error shadow-sm">
+                                            Blacklisted
+                                        </span>
+                                    ) : (
+                                        <div className="tooltip" data-tip="Blacklist this vehicle">
+                                            <button
+                                                onClick={() => handleBlacklist(vehicle._id)}
+                                                className="btn btn-xs btn-outline btn-success gap-1"
+                                            >
+                                                Authorized
+                                            </button>
+                                        </div>
+                                    )}
                                 </td>
+
                                 <td>
                                     {vehicle.createdAt
                                         ? new Date(vehicle.createdAt).toLocaleDateString()
@@ -118,7 +121,7 @@ const VehicleList = () => {
                                         onClick={() => {
                                             handleEdit(vehicle._id);
                                         }}
-                                        className="btn btn-xs btn-ghost text-primary hover:bg-primary/10"
+                                        className="btn btn-xs btn-ghost text-primary bg-transparent border-none"
                                         title="Edit"
                                     >
                                         <Edit className="h-4 w-4" />
@@ -126,7 +129,7 @@ const VehicleList = () => {
 
                                     <button
                                         onClick={() => handleDelete(vehicle._id)}
-                                        className="btn btn-xs btn-ghost text-red-500 hover:bg-red-100 hover:text-red-700"
+                                        className="btn btn-xs btn-ghost text-red-500 bg-transparent border-none hover:text-red-700 "
                                         title="Delete"
                                     >
                                         <Trash2 className="h-4 w-4" />
@@ -137,6 +140,8 @@ const VehicleList = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* Edit Modal */}
             {editModal && (
                 <div className="modal modal-open backdrop-blur-md"
                     onClick={() => setEditModal(false)}   // click outside closes modal
@@ -218,13 +223,13 @@ const VehicleList = () => {
                         <div className="modal-action">
                             <button
                                 onClick={() => setEditModal(false)}
-                                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+                                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
                             >
                                 ✕
                             </button>
                         </div>
                     </div>
-                </div >
+                </div>
             )}
 
         </>
