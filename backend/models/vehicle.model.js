@@ -36,52 +36,33 @@ const vehicleSchema = new mongoose.Schema(
             type: Boolean,
             default: false
         },
-        // Request to update request details - for parking staff
-        updateRequest: {
-            type: Object,
-            requestedBy: {
-                type: String,
-                required: true
-            },
-            requestedAt: {
-                type: Date,
-                default: Date.now
-            },
-            approvedOrDeclinedAt: {
-                type: Date,
-                default: null
-            },
-            reason: {
-                type: String,
-                required: true
-            },
-            status: {
-                type: String,
-                enum: ['pending', 'approved', 'rejected'],
-                default: null
-            }
+        addedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
         },
-        // Request to delete vehicle - for parking staff
+
+        updateRequest: {
+            type: new mongoose.Schema({
+                requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+                requestedAt: { type: Date, default: Date.now },
+                approvedOrDeclinedAt: { type: Date, default: null },
+                reason: { type: String },
+                status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
+            }, { _id: false }),
+            default: null
+        },
+
         deleteRequest: {
-            type: Object,
-            properties: {
-                requestedBy: {
-                    type: String, required: true
-                },
-                approvedOrDeclinedAt: {
-                    type: Date,
-                    default: null
-                },
-                reason: {
-                    type: String, required: true
-                },
-                status: {
-                    type: String,
-                    enum: ['pending', 'approved', 'rejected'],
-                    default: 'pending'
-                }
-            }
+            type: new mongoose.Schema({
+                requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+                requestedAt: { type: Date, default: Date.now },
+                approvedOrDeclinedAt: { type: Date, default: null },
+                reason: { type: String },
+                status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
+            }, { _id: false }),
+            default: null
         }
+
     },
     {
         timestamps: true, // Created at, updated at, etc..
