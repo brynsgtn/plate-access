@@ -50,9 +50,9 @@ const VehicleList = () => {
     };
 
 
-
+    const vehicleList = vehicles.filter((vehicle) => vehicle.isApproved);
     // Filter vehicles by plate number
-    const filteredVehicles = vehicles.filter((vehicle) =>
+    const filteredVehicles = vehicleList.filter((vehicle) =>
         vehicle.plateNumber.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
