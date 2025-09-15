@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import axios from "../lib/axios";
 import toast from "react-hot-toast";
-import { deleteVehicle } from "../../../backend/controllers/vehicle.controller";
 
 
 export const useVehicleStore = create((set, get) => ({
@@ -86,6 +85,21 @@ export const useVehicleStore = create((set, get) => ({
         } catch (error) {
             console.error("Error blacklisting vehicle:", error);
             toast.error(error.response?.data?.message || "Failed to blacklist vehicle.");
+        }
+    },
+    approveVehicleRequest: async (vehicleId) => {
+        try {
+            const response = await axios.patch(`/vehicle/approve-add-vehicle-request`, { id: vehicleId });
+            console.log("Vehicle request approved:", response.data);
+            set((prevState) => ({
+                vehicles: prevState.vehicles.map((vehicle) =>
+                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
+                )
+            }));
+            toast.success(response?.data?.message || "Vehicle request approved successfully!");
+        } catch (error) {
+            console.error("Error approving vehicle request:", error);
+            toast.error(error.response?.data?.message || "Failed to approve vehicle request.");
         }
     }
 }));
