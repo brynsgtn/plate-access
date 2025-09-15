@@ -192,7 +192,7 @@ export const viewBlacklistedVehicles = async (req, res) => {
     }
 };
 
-// View vehicle requests
+// View vehicle requests (probably not gonna use this)
 export const viewVehicleRequests = async (req, res) => {
     try {
         // Find all vehicle requests
