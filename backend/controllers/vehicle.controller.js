@@ -3,16 +3,20 @@ import Vehicle from "../models/vehicle.model.js";
 
 // View vehicle controller
 export const viewVehicles = async (req, res) => {
-    try {
-        // Fetch all vehicles
-        const vehicles = await Vehicle.find({ isApproved: true });
-        // Respond with the list of vehicles
-        res.status(200).json({ vehicles });
-    } catch (error) {
-        // Handle errors
-        console.error("Error in viewVehicles controller:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
+  try {
+    // Fetch all vehicles with populated user references
+    const vehicles = await Vehicle.find({})
+      .populate('addedBy', 'username email') // Populate addedBy field
+      .populate('updateRequest.requestedBy', 'username email') // Populate updateRequest.requestedBy
+      .populate('deleteRequest.requestedBy', 'username email'); // Populate deleteRequest.requestedBy
+
+    // Respond with the list of vehicles
+    res.status(200).json({ vehicles });
+  } catch (error) {
+    // Handle errors
+    console.error("Error in viewVehicles controller:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 // Add vehicle controller
@@ -20,6 +24,7 @@ export const addVehicle = async (req, res) => {
     const { plateNumber, makeModel, ownerName } = req.body;
     console.log(req.user)
     const isAdmin = req.user.isAdmin;
+    const userId = req.user._id
 
     // Validate request body
     if (!plateNumber || !makeModel || !ownerName) {
@@ -41,6 +46,7 @@ export const addVehicle = async (req, res) => {
             makeModel,
             ownerName,
             isApproved: isAdmin ? true : false,
+            addedBy: userId
         });
         // Save the vehicle to the database
         await newVehicle.save();
@@ -51,10 +57,10 @@ export const addVehicle = async (req, res) => {
             vehicle: newVehicle
         });
     } catch (error) {
-    // Handle errors
-    console.error("Error in addVehicle controller:", error);
-    res.status(500).json({ message: "Internal server error" });
-}
+        // Handle errors
+        console.error("Error in addVehicle controller:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 };
 
 // Update vehicle controller
