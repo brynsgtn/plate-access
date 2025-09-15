@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
 const VehicleRequestList = () => {
-  const { vehicles, loadingVehicles, approveVehicleRequest} = useVehicleStore();
+  const { vehicles, loadingVehicles, approveVehicleRequest } = useVehicleStore();
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [requestType, setRequestType] = useState(null);
 
@@ -12,11 +12,20 @@ const VehicleRequestList = () => {
     console.log("VehicleRequestList", vehicles);
   }, [vehicles]);
 
-  const handleApprove = (vehicleId) => {
+  const handleApproveVehicleRegistration = (vehicleId) => {
     // Implement the logic to approve the vehicle
     approveVehicleRequest(vehicleId);
+
     console.log(`Approving vehicle with ID: ${vehicleId}`);
   };
+
+  const handleApproveVehicleUpdate = (vehicleId) => {
+    alert("Update request approved!");
+  }
+
+  const handleDeleteVehicle = (vehicleId) => {
+      alert("Vehicle deleted!");
+  }
   // Open modal for viewing details
   const openModal = (vehicle, type) => {
     setSelectedVehicle(vehicle);
@@ -275,7 +284,15 @@ const VehicleRequestList = () => {
                       <div className="flex gap-2">
                         <div className="tooltip tooltip-top" data-tip="Approve">
                           <button
-                            onClick={ () => handleApprove(row.vehicle._id)}
+                            onClick={() => {
+                              if (row.type === 'registration') {
+                                handleApproveVehicleRegistration(row.vehicle._id);
+                              } else if (row.type === 'update') {
+                                handleApproveVehicleUpdate(row.vehicle._id);
+                              } else {
+                                handleDeleteVehicle(row.vehicle._id);
+                              }
+                            }}
                             className="btn btn-circle btn-sm btn-success hover:bg-success/90"
                           >
                             <Check className="h-4 w-4" />
@@ -463,9 +480,13 @@ const VehicleRequestList = () => {
                 <button
                   onClick={() => {
                     if (requestType === 'registration') {
-                      handleApproveRegistration(selectedVehicle._id);
-                    } else {
-                      handleApprove(selectedVehicle._id, requestType);
+                      handleApproveVehicleRegistration(selectedVehicle._id);
+                    }
+                    else if (requestType === 'update') {
+                      handleApproveVehicleUpdate(selectedVehicle._id);
+                    }
+                    else {
+                      handleApproveDelete(selectedVehicle._id);
                     }
                     closeModal();
                   }}

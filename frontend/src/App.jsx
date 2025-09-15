@@ -68,9 +68,8 @@ export default App;
 
 // TODO: 
 // Vehicle Management Page - functionality and styling (backend integration)
-// add a blacklist feature on view vehicles component (Add subheading, pagination, searchbar?, filter?)
-// integrate blacklistedVehicleList component (only blacklisted vehicles will appear, add subheading, pagination, searchbar?, filter?)
 // integrate vehicleRequestList component (replace button text with icons, pagination, searchbar?, filter?)
+// Replace requestedby string to reference user object and display name
 
 
 
