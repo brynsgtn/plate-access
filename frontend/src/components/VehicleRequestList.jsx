@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
 const VehicleRequestList = () => {
-  const { vehicles, loadingVehicles} = useVehicleStore();
+  const { vehicles, loadingVehicles, approveVehicleRequest} = useVehicleStore();
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [requestType, setRequestType] = useState(null);
 
@@ -12,6 +12,11 @@ const VehicleRequestList = () => {
     console.log("VehicleRequestList", vehicles);
   }, [vehicles]);
 
+  const handleApprove = (vehicleId) => {
+    // Implement the logic to approve the vehicle
+    approveVehicleRequest(vehicleId);
+    console.log(`Approving vehicle with ID: ${vehicleId}`);
+  };
   // Open modal for viewing details
   const openModal = (vehicle, type) => {
     setSelectedVehicle(vehicle);
@@ -270,13 +275,7 @@ const VehicleRequestList = () => {
                       <div className="flex gap-2">
                         <div className="tooltip tooltip-top" data-tip="Approve">
                           <button
-                            onClick={() => {
-                              if (row.type === 'registration') {
-                                handleApproveRegistration(row.vehicle._id);
-                              } else {
-                                handleApprove(row.vehicle._id, row.type);
-                              }
-                            }}
+                            onClick={ () => handleApprove(row.vehicle._id)}
                             className="btn btn-circle btn-sm btn-success hover:bg-success/90"
                           >
                             <Check className="h-4 w-4" />
