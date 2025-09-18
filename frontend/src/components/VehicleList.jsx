@@ -76,23 +76,26 @@ const VehicleList = () => {
         <>
             <div className="overflow-x-auto max-w-6xl mx-auto mt-10 mb-20 rounded-xl shadow-lg bg-base-100 border border-base-300">
                 {/* Header with Search */}
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
-                    <h2 className="text-2xl font-bold text-white">Vehicle List</h2>
-
-                    <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-                        {/* Search Bar */}
-                        <label className="input flex items-center gap-2 w-full md:w-64">
-                            <Search className="w-4 h-4 opacity-70" />
-                            <input
-                                type="text"
-                                className="grow"
-                                placeholder="Search by plate number"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </label>
+                <div className="border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 ">
+                        <h2 className="text-2xl font-bold text-white">Vehicle List</h2>
+                        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                            {/* Search Bar */}
+                            <label className="input flex items-center gap-2 w-full md:w-64">
+                                <Search className="w-4 h-4 opacity-70" />
+                                <input
+                                    type="text"
+                                    className="grow"
+                                    placeholder="Search by plate number"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </label>
+                        </div>
                     </div>
+                    <p className="text-white/80 mt-2">Vehicle details will be displayed here</p>
                 </div>
+
 
                 {/* Stats */}
                 <div className="stats w-full bg-base-100  border-base-300">
