@@ -6,7 +6,15 @@ import LoadingSpinner from "./LoadingSpinner";
 const REQUESTS_PER_PAGE = 10;
 
 const VehicleRequestList = () => {
-  const { vehicles, loadingVehicles, approveVehicleRequest, approveUpdateVehicleRequest, approveDeleteVehicleRequest, denyVehicleRequest } = useVehicleStore();
+  const { 
+    vehicles, 
+    loadingVehicles, 
+    approveVehicleRequest, 
+    approveUpdateVehicleRequest, 
+    approveDeleteVehicleRequest, 
+    denyVehicleRequest,
+    rejectUpdateVehicleRequest 
+  } = useVehicleStore();
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [requestType, setRequestType] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,8 +49,8 @@ const VehicleRequestList = () => {
     console.log(`Rejecting registration for vehicle with ID: ${vehicleId}`);
   };
 
-  const handleReject = (vehicleId, type) => {
-    alert(`${type} request rejected!`);
+  const handleRejectUpdateRequest = (vehicleId, type) => {
+    rejectUpdateVehicleRequest(vehicleId);
     console.log(`Rejecting ${type} for vehicle with ID: ${vehicleId}`);
   };
 
@@ -317,7 +325,7 @@ const VehicleRequestList = () => {
                               if (row.type === 'registration') {
                                 handleRejectRegistration(row.vehicle._id);
                               } else if (row.type === 'update') {
-                              //  handleApproveUpdateVehicle(row.vehicle._id);
+                               handleRejectUpdateRequest(row.vehicle._id);
                               } 
                             }}
                             className="btn btn-circle btn-sm btn-error hover:bg-error/90"
@@ -502,8 +510,8 @@ const VehicleRequestList = () => {
                   onClick={() => {
                     if (requestType === 'registration') {
                       handleRejectRegistration(selectedVehicle._id);
-                    } else {
-                      handleReject(selectedVehicle._id, requestType);
+                    } else if (requestType === 'update') {
+                      handleRejectUpdateRequest(selectedVehicle._id);
                     }
                     closeModal();
                   }}
