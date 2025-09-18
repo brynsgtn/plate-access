@@ -6,7 +6,7 @@ import LoadingSpinner from "./LoadingSpinner";
 const REQUESTS_PER_PAGE = 10;
 
 const VehicleRequestList = () => {
-  const { vehicles, loadingVehicles, approveVehicleRequest, approveUpdateVehicleRequest } = useVehicleStore();
+  const { vehicles, loadingVehicles, approveVehicleRequest, approveUpdateVehicleRequest, approveDeleteVehicleRequest } = useVehicleStore();
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [requestType, setRequestType] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,13 +26,14 @@ const VehicleRequestList = () => {
     console.log(`Approving vehicle with ID: ${vehicleId}`);
   };
 
-  const handleApproveVehicleUpdate = (vehicleId) => {
+  const handleApproveUpdateVehicle = (vehicleId) => {
     approveUpdateVehicleRequest(vehicleId);
     console.log(`Approving update for vehicle with ID: ${vehicleId}`);
   };
 
-  const handleDeleteVehicle = (vehicleId) => {
-    alert("Vehicle deleted!");
+  const handleApproveDeleteVehicle = (vehicleId) => {
+    approveDeleteVehicleRequest(vehicleId);
+    console.log(`Approving delete for vehicle with ID: ${vehicleId}`);
   };
 
   // Add missing function definitions
@@ -301,9 +302,9 @@ const VehicleRequestList = () => {
                               if (row.type === 'registration') {
                                 handleApproveVehicleRegistration(row.vehicle._id);
                               } else if (row.type === 'update') {
-                                handleApproveVehicleUpdate(row.vehicle._id);
+                                handleApproveUpdateVehicle(row.vehicle._id);
                               } else {
-                                handleDeleteVehicle(row.vehicle._id);
+                                handleApproveDeleteVehicle(row.vehicle._id);
                               }
                             }}
                             className="btn btn-circle btn-sm btn-success hover:bg-success/90"
@@ -317,7 +318,7 @@ const VehicleRequestList = () => {
                               if (row.type === 'registration') {
                                 handleRejectRegistration(row.vehicle._id);
                               } else if (row.type === 'update') {
-                               handleApproveVehicleUpdate(row.vehicle._id);
+                              //  handleApproveUpdateVehicle(row.vehicle._id);
                               } 
                             }}
                             className="btn btn-circle btn-sm btn-error hover:bg-error/90"
@@ -518,10 +519,10 @@ const VehicleRequestList = () => {
                       handleApproveVehicleRegistration(selectedVehicle._id);
                     }
                     else if (requestType === 'update') {
-                      handleApproveVehicleUpdate(selectedVehicle._id);
+                      handleApproveUpdateVehicle(selectedVehicle._id);
                     }
                     else {
-                      handleApproveDelete(selectedVehicle._id);
+                      handleApproveDeleteVehicle(selectedVehicle._id);
                     }
                     closeModal();
                   }}
