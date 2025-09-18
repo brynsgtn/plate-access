@@ -6,7 +6,7 @@ import LoadingSpinner from "./LoadingSpinner";
 const REQUESTS_PER_PAGE = 10;
 
 const VehicleRequestList = () => {
-  const { vehicles, loadingVehicles, approveVehicleRequest, approveUpdateVehicleRequest, approveDeleteVehicleRequest } = useVehicleStore();
+  const { vehicles, loadingVehicles, approveVehicleRequest, approveUpdateVehicleRequest, approveDeleteVehicleRequest, denyVehicleRequest } = useVehicleStore();
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [requestType, setRequestType] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,9 +36,8 @@ const VehicleRequestList = () => {
     console.log(`Approving delete for vehicle with ID: ${vehicleId}`);
   };
 
-  // Add missing function definitions
   const handleRejectRegistration = (vehicleId) => {
-    alert("Registration request rejected!");
+    denyVehicleRequest(vehicleId);
     console.log(`Rejecting registration for vehicle with ID: ${vehicleId}`);
   };
 
