@@ -29,9 +29,10 @@ const AddVehicleForm = () => {
 
     return (
         <div
-            className='bg-primary shadow-lg rounded-lg p-8 mb-8 max-w-6xl mx-auto'
+            className='bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg p-8 mb-20 max-w-6xl mx-auto'
         >
-            <h2 className='text-2xl font-semibold mb-6 text-primary-content'>Add New Vehicle</h2>
+            <h2 className='text-2xl font-semibold text-white mb-2'>Add New Vehicle</h2>
+            <p className='text-white/80 mb-6'>Enter the details of the vehicle you want to add:</p>
             <form onSubmit={handleSubmit} className='space-y-4'>
                 <div>
                     <label htmlFor='plateNumber' className='block text-sm font-medium text-gray-300'>
