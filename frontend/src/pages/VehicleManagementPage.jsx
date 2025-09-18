@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Car, CarFront, CircleParkingOff, FilePen, Plus } from "lucide-react";
+import { Car, CarFront, CircleParkingOff, FilePen, Plus, CirclePlusIcon } from "lucide-react";
 
 import AddVehicleForm from "../components/AddVehicleForm";
 import VehicleList from "../components/VehicleList";
@@ -17,9 +17,27 @@ const tabs = [
 ];
 
 const VehicleManagementPage = () => {
-    const [activeTab, setActiveTab] = useState("add");
+    const [activeTab, setActiveTab] = useState(() => {
+        // Try to get the saved tab from localStorage
+        const savedTab = localStorage.getItem("activeTab");
+        return savedTab || "add"; // Fallback to "add" if nothing saved
+    });
 
     const { viewVehicles, vehicles } = useVehicleStore();
+
+    // Restore active tab from localStorage on mount
+    useEffect(() => {
+        const savedTab = localStorage.getItem("activeTab");
+        if (savedTab) {
+            setActiveTab(savedTab);
+        }
+    }, []);
+
+    // Save active tab to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem("activeTab", activeTab);
+    }, [activeTab]);
+
 
     useEffect(() => {
         // Fetch vehicle data when the component mounts
@@ -35,6 +53,22 @@ const VehicleManagementPage = () => {
     const blacklistedVehicles = Array.isArray(vehicles) ? vehicles.filter((vehicle) => vehicle.isBlacklisted).length : 0;
     const vehicleRequests = Array.isArray(vehicles) ? vehicles.filter((vehicle) => !vehicle.isApproved).length : 0;
 
+    const unapprovedVehicles = Array.isArray(vehicles) ? vehicles.filter(v => {
+        // Handle different possible values for isApproved
+        return v.isApproved === false || v.isApproved === "false" || v.isApproved === null || v.isApproved === undefined;
+    }) : [];
+
+    const updateRequests = Array.isArray(vehicles) ? vehicles.filter(v => {
+        return v.updateRequest && (!v.updateRequest.status || v.updateRequest.status === 'pending');
+    }) : [];
+
+    const deleteRequests = Array.isArray(vehicles) ? vehicles.filter(v => {
+        return v.deleteRequest && (!v.deleteRequest.status || v.deleteRequest.status === 'pending');
+    }) : [];
+
+    const editDeleteRequests = updateRequests.length + deleteRequests.length;
+
+
     return (
         <div className="min-h-screen relative overflow-hidden bg-base-100">
             <div className="relative z-10 container mx-auto px-4 pt-16 mb-10 max-w-6xl">
@@ -45,8 +79,14 @@ const VehicleManagementPage = () => {
                     Manage your vehicle fleet efficiently with our comprehensive tools.
                 </p>
             </div>
-            <div className="w-full flex justify-center">
-                <div className="stats stats-vertical lg:stats-horizontal shadow-xl bg-base-200 rounded-xl border border-base-300 w-full max-w-6xl">
+            <div className="container mx-auto max-w-6xl shadow-xl rounded-xl border border-base-300 overflow-hidden">
+
+                <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
+                    <h1 className="text-2xl font-bold text-white">Vehicle Summary</h1>
+                    <p className="text-white/80">Get an overview of your vehicle fleet.</p>
+                </div>
+
+                <div className="stats stats-vertical lg:stats-horizontal  w-full">
                     <div className="stat p-6">
                         <div className="stat-figure text-primary">
                             <CarFront className="inline-block h-10 w-10 stroke-current" />
@@ -54,6 +94,7 @@ const VehicleManagementPage = () => {
                         <div className="stat-title text-lg font-bold text-base-content/80">Total Vehicles</div>
                         <div className="stat-value text-primary">{totalVehicles}</div>
                     </div>
+
                     <div className="stat p-6">
                         <div className="stat-figure text-error">
                             <CircleParkingOff className="inline-block h-10 w-10 stroke-current" />
@@ -61,18 +102,30 @@ const VehicleManagementPage = () => {
                         <div className="stat-title text-lg font-bold text-base-content/80">Blacklisted Vehicles</div>
                         <div className="stat-value text-error">{blacklistedVehicles}</div>
                     </div>
+
+                    <div className="stat p-6">
+                        <div className="stat-figure text-accent">
+                            <CirclePlusIcon className="inline-block h-10 w-10 stroke-current" />
+                        </div>
+                        <div className="stat-title text-lg font-bold text-base-content/80">Registration Requests</div>
+                        <div className="stat-value text-accent">{unapprovedVehicles.length}</div>
+                    </div>
+
                     <div className="stat p-6">
                         <div className="stat-figure text-accent">
                             <FilePen className="inline-block h-10 w-10 stroke-current" />
                         </div>
-                        <div className="stat-title text-lg font-bold text-base-content/80">Vehicle Requests</div>
-                        <div className="stat-value text-accent">{vehicleRequests}</div>
+                        <div className="stat-title text-lg font-bold text-base-content/80">Edit/Delete Requests</div>
+                        <div className="stat-value text-accent">{editDeleteRequests}</div>
                     </div>
                 </div>
             </div>
+
+
             <div className="shadow-xl m-8 max-w-6xl mx-auto rounded-xl border border-base-300 bg-base-200">
-                <div className="container mx-auto px-4  bg-accent rounded-t-xl">
-                    <h3 className="text-xl font-semibold text-secondary p-5">Quick Actions</h3>
+                <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
+                    <h3 className="text-2xl font-bold text-white">Quick Actions</h3>
+                    <p className="text-white/80">Quickly add, view, or manage your vehicle fleet.</p>
                 </div>
                 <div className="flex flex-col lg:flex-row w-full justify-center items-center space-y-4 lg:space-y-0 lg:space-x-6 py-8 bg-base-100 rounded-b-xl">
                     {tabs.map((tab) => (
