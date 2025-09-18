@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useVehicleStore } from "../stores/useVehicleStore";
-import { Search } from "lucide-react";
+import { ParkingCircleOffIcon, Search } from "lucide-react";
 
-const VEHICLES_PER_PAGE = 2;
+const VEHICLES_PER_PAGE = 10;
 
 const VehicleBlacklistTable = () => {
 
@@ -16,7 +16,7 @@ const VehicleBlacklistTable = () => {
     const { vehicles, blacklistOrUnblacklistVehicle } = useVehicleStore();
     const blacklistedVehicles = vehicles.filter((vehicle) => vehicle.isBlacklisted);
 
-     // Filter vehicles by plate number
+    // Filter vehicles by plate number
     const filteredVehicles = blacklistedVehicles.filter((vehicle) =>
         vehicle.plateNumber.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -37,22 +37,39 @@ const VehicleBlacklistTable = () => {
 
             <div className="overflow-x-auto max-w-6xl mx-auto my-10 rounded-xl shadow-lg bg-base-100 border border-base-300">
                 {/* Header with Search */}
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 border-b border-base-300">
-                    <h2 className="text-xl font-bold text-primary">Blacklisted Vehicle List</h2>
-
-                    <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-                        {/* Search Bar */}
-                        <label className="input flex items-center gap-2 w-full md:w-64">
-                            <Search className="w-4 h-4 opacity-70" />
-                            <input
-                                type="text"
-                                className="grow"
-                                placeholder="Search by plate number"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </label>
+                <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4  ">
+                        <h2 className="text-2xl font-bold text-white">Blacklisted Vehicle List</h2>
+                        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                            {/* Search Bar */}
+                            <label className="input flex items-center gap-2 w-full md:w-64">
+                                <Search className="w-4 h-4 opacity-70" />
+                                <input
+                                    type="text"
+                                    className="grow"
+                                    placeholder="Search by plate number"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </label>
+                        </div>
                     </div>
+                    <p className="text-white/80 mt-2">Blacklisted vehicles will be displayed here</p>
+                </div>
+
+                {/* Stats */}
+                <div className="stats w-full bg-base-100  border-base-300">
+
+                    <div className="stat flex flex-row items-center justify-around">
+                        <div className="text-warning">
+                            <ParkingCircleOffIcon className="h-8 w-8" />
+                        </div>
+                        <div className="text-xl font-semibold">Total Blacklist Vehicles</div>
+                        <div className="stat-value text-error">
+                       {blacklistedVehicles.length}
+                        </div>
+                    </div>
+
                 </div>
                 <table className="table table-zebra w-full">
                     <thead className="bg-base-200">
