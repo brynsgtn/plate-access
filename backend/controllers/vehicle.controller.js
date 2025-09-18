@@ -495,6 +495,42 @@ export const approveDeleteVehicleRequest = async (req, res) => {
     }
 };
 
+// Reject vehicle delete request controller
+export const rejectDeleteVehicleRequest = async (req, res) => {
+    const { id } = req.body;
+
+    try {
+
+        // Validate request body
+        if (!id) {
+            return res.status(400).json({ message: "No delete request pending" });
+        }
+
+        // Find the vehicle by id
+        const vehicle = await Vehicle.findById(id); 
+
+        // Check if vehicle exists and has a delete request
+        if (!vehicle || !vehicle.deleteRequest) {
+            return res.status(404).json({ message: "Vehicle not found or delete request not found" });          
+        }
+
+        // Clear the delete request
+        vehicle.deleteRequest = null;
+
+        // Save the updated vehicle
+        await vehicle.save();
+
+        // Respond with the updated vehicle
+        res.status(200).json({
+            message: "Vehicle delete request rejected successfully",
+            vehicle
+        });
+    } catch (error) {
+        console.error("Error in rejectDeleteVehicleRequest controller:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 export const viewUpdateAndDeleteVehicleRequests = async (req, res) => {
     try {
         const vehicles = await Vehicle.find({
