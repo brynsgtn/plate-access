@@ -380,6 +380,41 @@ export const approveUpdateVehicleRequest = async (req, res) => {
     }
 };
 
+// Reject vehicle update request controller
+export const rejectUpdateVehicleRequest = async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        // Validate request body
+        if (!id) {
+            return res.status(400).json({ message: "Vehicle ID is required" });
+        }
+
+        // Find the vehicle by id
+        const vehicle = await Vehicle.findById(id);
+
+        // Check if vehicle exists and has an update request
+        if (!vehicle || !vehicle.updateRequest) {
+            return res.status(404).json({ message: "Vehicle not found or update request not found" });
+        }
+
+        // Clear the update request
+        vehicle.updateRequest = null;
+
+        // Save the updated vehicle
+        await vehicle.save();
+
+        // Respond with the updated vehicle
+        res.status(200).json({
+            message: "Vehicle update request rejected successfully",
+            vehicle
+        });
+    } catch (error) {
+        console.error("Error in updateVehicleRequest controller:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 export const requestDeleteVehicle = async (req, res) => {
     const { id } = req.body;
     const reqUser = req.user;
