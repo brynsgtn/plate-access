@@ -368,6 +368,11 @@ export const requestDeleteVehicle = async (req, res) => {
             return res.status(400).json({ message: "Vehicle registration must be approved before deleting" });
         }
 
+        // Check if there is already a pending delete request
+        if (vehicle.deleteRequest && vehicle.deleteRequest.status === 'pending') {
+            return res.status(400).json({ message: "There is already a pending delete request for this vehicle" });
+        }
+
         vehicle.deleteRequest = {
             requestedBy: reqUser.id,
             reason: `Requesting deletion for vehicle: ${vehicle.makeModel}, ${vehicle.ownerName}`,
