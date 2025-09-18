@@ -1,126 +1,176 @@
 import { useVehicleStore } from "../stores/useVehicleStore";
-import { Check, X, Eye, Edit3, Trash2, Calendar, User, FileText, UserPlus } from "lucide-react";
+import { Check, X, Eye, Edit3, Trash2, FileText, UserPlus, Search, User, CirclePlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
+const REQUESTS_PER_PAGE = 10;
+
 const VehicleRequestList = () => {
-  const { vehicles, loadingVehicles, approveVehicleRequest } = useVehicleStore();
+  const { vehicles, loadingVehicles, approveVehicleRequest, approveUpdateVehicleRequest } = useVehicleStore();
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [requestType, setRequestType] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     console.log("VehicleRequestList", vehicles);
   }, [vehicles]);
 
-  const handleApproveVehicleRegistration = (vehicleId) => {
-    // Implement the logic to approve the vehicle
-    approveVehicleRequest(vehicleId);
+  // Reset page if search changes and removes items
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
 
+  const handleApproveVehicleRegistration = (vehicleId) => {
+    approveVehicleRequest(vehicleId);
     console.log(`Approving vehicle with ID: ${vehicleId}`);
   };
 
   const handleApproveVehicleUpdate = (vehicleId) => {
-    alert("Update request approved!");
-  }
+    approveUpdateVehicleRequest(vehicleId);
+    console.log(`Approving update for vehicle with ID: ${vehicleId}`);
+  };
 
   const handleDeleteVehicle = (vehicleId) => {
-      alert("Vehicle deleted!");
-  }
-  // Open modal for viewing details
+    alert("Vehicle deleted!");
+  };
+
+  // Add missing function definitions
+  const handleRejectRegistration = (vehicleId) => {
+    alert("Registration request rejected!");
+    console.log(`Rejecting registration for vehicle with ID: ${vehicleId}`);
+  };
+
+  const handleReject = (vehicleId, type) => {
+    alert(`${type} request rejected!`);
+    console.log(`Rejecting ${type} for vehicle with ID: ${vehicleId}`);
+  };
+
+  const handleApproveDelete = (vehicleId) => {
+    alert("Delete request approved!");
+    console.log(`Approving delete for vehicle with ID: ${vehicleId}`);
+  };
+
+  // Open/close modal
   const openModal = (vehicle, type) => {
     setSelectedVehicle(vehicle);
     setRequestType(type);
-    document.getElementById('request_modal').showModal();
+    document.getElementById("request_modal").showModal();
   };
 
   const closeModal = () => {
     setSelectedVehicle(null);
     setRequestType(null);
-    document.getElementById('request_modal').close();
+    document.getElementById("request_modal").close();
   };
 
+  // Get request data helper function
   const getRequestData = (vehicle, type) => {
-    if (type === "update") return vehicle.updateRequest;
-    if (type === "delete") return vehicle.deleteRequest;
-    if (type === "registration") {
-      // Get the addedBy user name for registration requests
-      const addedByName = vehicle.addedBy.username
+    if (!vehicle) return null;
 
-      return {
-        requestedAt: vehicle.createdAt,
-        reason: "New vehicle registration",
-        requestedBy: addedByName
-      };
+    if (type === "registration") {
+      return { requestedAt: vehicle.createdAt, reason: "New vehicle registration" };
+    }
+    if (type === "update") {
+      return vehicle.updateRequest;
+    }
+    if (type === "delete") {
+      return vehicle.deleteRequest;
     }
     return null;
   };
 
+  // --- existing filtering for requests ---
+  const unapprovedVehicles = Array.isArray(vehicles)
+    ? vehicles.filter(
+        (v) =>
+          v.isApproved === false ||
+          v.isApproved === "false" ||
+          v.isApproved === null ||
+          v.isApproved === undefined
+      )
+    : [];
 
-  // Calculate all request counts with better filtering
-  const unapprovedVehicles = Array.isArray(vehicles) ? vehicles.filter(v => {
-    // Handle different possible values for isApproved
-    return v.isApproved === false || v.isApproved === "false" || v.isApproved === null || v.isApproved === undefined;
-  }) : [];
+  const updateRequests = Array.isArray(vehicles)
+    ? vehicles.filter(
+        (v) =>
+          v.updateRequest &&
+          (!v.updateRequest.status || v.updateRequest.status === "pending")
+      )
+    : [];
 
-  const updateRequests = Array.isArray(vehicles) ? vehicles.filter(v => {
-    return v.updateRequest && (!v.updateRequest.status || v.updateRequest.status === 'pending');
-  }) : [];
+  const deleteRequests = Array.isArray(vehicles)
+    ? vehicles.filter(
+        (v) =>
+          v.deleteRequest &&
+          (!v.deleteRequest.status || v.deleteRequest.status === "pending")
+      )
+    : [];
 
-  const deleteRequests = Array.isArray(vehicles) ? vehicles.filter(v => {
-    return v.deleteRequest && (!v.deleteRequest.status || v.deleteRequest.status === 'pending');
-  }) : [];
+  const totalRequests =
+    unapprovedVehicles.length + updateRequests.length + deleteRequests.length;
 
-  const totalRequests = unapprovedVehicles.length + updateRequests.length + deleteRequests.length;
-
-
-
-  // Generate all request rows
+  // Build rows
   const getAllRequestRows = () => {
     const rows = [];
     let rowIndex = 1;
 
-    // Add unapproved vehicle rows
     unapprovedVehicles.forEach((vehicle) => {
       rows.push({
         id: `${vehicle._id}-registration`,
         vehicle,
-        type: 'registration',
+        type: "registration",
         rowNumber: rowIndex++,
-        badge: { text: 'Registration', class: 'badge-warning' },
+        badge: { text: "Registration", class: "badge-warning" },
         requestedBy: vehicle.addedBy?.username,
-        requestData: { requestedAt: vehicle.createdAt, reason: 'New vehicle registration' }
+        requestData: { requestedAt: vehicle.createdAt, reason: "New vehicle registration" },
       });
     });
 
-    // Add update request rows
     updateRequests.forEach((vehicle) => {
       rows.push({
         id: `${vehicle._id}-update`,
         vehicle,
-        type: 'update',
+        type: "update",
         rowNumber: rowIndex++,
-        badge: { text: 'Edit Request', class: 'badge-info' },
+        badge: { text: "Edit Request", class: "badge-info" },
         requestedBy: vehicle.updateRequest?.requestedBy?.username,
-        requestData: vehicle.updateRequest
+        requestData: vehicle.updateRequest,
       });
     });
 
-    // Add delete request rows
     deleteRequests.forEach((vehicle) => {
       rows.push({
         id: `${vehicle._id}-delete`,
         vehicle,
-        type: 'delete',
+        type: "delete",
         rowNumber: rowIndex++,
-        badge: { text: 'Delete Request', class: 'badge-error' },
+        badge: { text: "Delete Request", class: "badge-error" },
         requestedBy: vehicle.deleteRequest?.requestedBy?.username,
-        requestData: vehicle.deleteRequest
+        requestData: vehicle.deleteRequest,
       });
     });
 
     return rows;
   };
 
+  // --- apply search ---
+  const allRequestRows = getAllRequestRows();
+  const filteredRows = allRequestRows.filter((row) =>
+    row.vehicle.plateNumber.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // --- apply pagination ---
+  const totalPages = Math.ceil(filteredRows.length / REQUESTS_PER_PAGE) || 1;
+  const paginatedRows = filteredRows.slice(
+    (page - 1) * REQUESTS_PER_PAGE,
+    page * REQUESTS_PER_PAGE
+  );
+
+  // Get request data for selected vehicle
+  const requestData = selectedVehicle ? getRequestData(selectedVehicle, requestType) : null;
+
+  // Move the loading check to the end to avoid hooks order issues
   if (loadingVehicles) {
     return (
       <div className="flex items-center justify-center py-10 h-100">
@@ -129,29 +179,36 @@ const VehicleRequestList = () => {
     );
   }
 
-  const allRequestRows = getAllRequestRows();
-
   return (
     <>
       <div className="overflow-x-auto max-w-6xl mx-auto my-10 rounded-xl shadow-lg bg-base-100 border border-base-300">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/20 rounded-lg">
-              <FileText className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-white">Vehicle Requests</h2>
-              <p className="text-white/80">Manage registration, edit and delete requests</p>
-            </div>
+        <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl flex flex-col md:flex-row justify-between items-center gap-3">
+          <div>
+            <h2 className="text-2xl font-bold text-white">Vehicle Requests</h2>
+            <p className="text-white/80 mt-2">Manage registration, edit and delete requests</p>
+          </div>
+
+          {/* Search Bar */}
+          <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+            <label className="input flex items-center gap-2 w-full md:w-64">
+              <Search className="w-4 h-4 opacity-70" />
+              <input
+                type="text"
+                className="grow"
+                placeholder="Search by plate number"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </label>
           </div>
         </div>
 
-        {/* Enhanced Stats */}
-        <div className="stats w-full bg-base-100 border-b border-base-300">
+        {/* Stats */}
+        <div className="stats w-full bg-base-100 border-base-300">
           <div className="stat">
             <div className="stat-figure text-warning">
-              <UserPlus className="h-8 w-8" />
+              <CirclePlusIcon className="h-8 w-8" />
             </div>
             <div className="stat-title">Registration Requests</div>
             <div className="stat-value text-warning">
@@ -195,90 +252,46 @@ const VehicleRequestList = () => {
           <table className="table table-zebra w-full">
             <thead className="bg-base-200">
               <tr>
-                <th className="text-base-content font-semibold">
-                  <div className="flex items-center gap-2">
-                    <span>#</span>
-                  </div>
-                </th>
-                <th className="text-base-content font-semibold">
-                  <div className="flex items-center gap-2">
-                    <span>Request Type</span>
-                  </div>
-                </th>
-                <th className="text-base-content font-semibold">
-                  <div className="flex items-center gap-2">
-                    <span>Vehicle</span>
-                  </div>
-                </th>
-                <th className="text-base-content font-semibold">
-                  <div className="flex items-center gap-2">
-                    <span>Requested By</span>
-                  </div>
-                </th>
-                <th className="text-base-content font-semibold">
-                  <div className="flex items-center gap-2">
-                    <span>Details</span>
-                  </div>
-                </th>
-                <th className="text-base-content font-semibold">Actions</th>
+                <th>#</th>
+                <th>Request Type</th>
+                <th>Vehicle</th>
+                <th>Requested By</th>
+                <th>Details</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {allRequestRows.length === 0 ? (
+              {paginatedRows.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="text-center py-12">
                     <div className="flex flex-col items-center gap-3 text-base-content/60">
                       <FileText className="h-16 w-16" />
                       <p className="text-lg font-medium">No requests found</p>
-                      <p className="text-sm">All vehicle requests have been processed</p>
+                      <p className="text-sm">Try adjusting your search</p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                allRequestRows.map((row) => (
-                  <tr key={row.id} className="hover:bg-base-200/50 transition-colors">
-                    <th className="font-medium">{row.rowNumber}</th>
+                paginatedRows.map((row) => (
+                  <tr key={row.id}>
+                    <td>{row.rowNumber}</td>
                     <td>
-                      <div className="flex items-center gap-3">
-                        <div>
-                          <div className={`badge ${row.badge.class} badge-sm`}>
-                            {row.badge.text}
-                          </div>
-                        </div>
+                      <div className={`badge ${row.badge.class} badge-xs`}>
+                        {row.badge.text}
                       </div>
                     </td>
                     <td>
-                      <div className="flex items-center gap-3">
-                        <div>
-                          <div className="font-bold text-base-content">
-                            {row.vehicle.plateNumber}
-                          </div>
-                          <div className="text-sm text-base-content/60">
-                            {row.vehicle.makeModel}
-                          </div>
-                        </div>
-                      </div>
+                      <div className="font-bold">{row.vehicle.plateNumber}</div>
+                      <div className="text-sm text-base-content/60">{row.vehicle.makeModel}</div>
                     </td>
+                    <td>{row.requestedBy}</td>
                     <td>
-                      <div className="flex items-center gap-3">
-                        <div>
-                          <div className="font-bold text-base-content">
-                            {row.requestedBy}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="flex items-center gap-2">
-                        <div className="tooltip tooltip-top" data-tip="View Details">
-                          <button
-                            onClick={() => openModal(row.vehicle, row.type)}
-                            className="btn btn-circle btn-sm btn-ghost hover:bg-info/20 hover:text-info"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
+                      <button
+                        onClick={() => openModal(row.vehicle, row.type)}
+                        className="btn btn-circle btn-sm btn-ghost  hover:bg-transparent border-none"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
                     </td>
                     <td>
                       <div className="flex gap-2">
@@ -303,9 +316,9 @@ const VehicleRequestList = () => {
                             onClick={() => {
                               if (row.type === 'registration') {
                                 handleRejectRegistration(row.vehicle._id);
-                              } else {
-                                handleReject(row.vehicle._id, row.type);
-                              }
+                              } else if (row.type === 'update') {
+                               handleApproveVehicleUpdate(row.vehicle._id);
+                              } 
                             }}
                             className="btn btn-circle btn-sm btn-error hover:bg-error/90"
                           >
@@ -320,9 +333,29 @@ const VehicleRequestList = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center mb-6 mt-4">
+            <div className="join">
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <input
+                  key={i}
+                  className="join-item btn btn-square"
+                  type="radio"
+                  name="user-pagination"
+                  aria-label={String(i + 1)}
+                  checked={page === i + 1}
+                  onChange={() => setPage(i + 1)}
+                  readOnly
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Enhanced Modal */}
+      {/* Request Modal */}
       <dialog id="request_modal" className="modal">
         <div className="modal-box max-w-2xl">
           <button
@@ -386,44 +419,46 @@ const VehicleRequestList = () => {
                 </div>
 
                 {/* Request Info */}
-                {(() => {
-                  const requestData = getRequestData(selectedVehicle, requestType);
-                  return (
-                    <div className="card bg-base-200 p-4">
-                      <h4 className="font-semibold text-base-content mb-3 flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        Request Information
-                      </h4>
-                      <div className="grid gap-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="label label-text-alt text-base-content/60">Requested By</label>
-                            <div className="bg-base-100 p-2 rounded text-sm font-semibold">
-                              {requestType === "registration" ? selectedVehicle.addedBy?.username : requestType === "update" ? selectedVehicle.updateRequest?.requestedBy.username : selectedVehicle.deleteRequest?.requestedBy.username}
-                            </div>
-                          </div>
-                          <div>
-                            <label className="label label-text-alt text-base-content/60">Requested At</label>
-                            <div className="bg-base-100 p-2 rounded text-sm">
-                              {requestData?.requestedAt ?
-                                new Date(requestData.requestedAt).toLocaleDateString('en-US', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric',
-                                }) : '-'}
-                            </div>
+                {requestData && (
+                  <div className="card bg-base-200 p-4">
+                    <h4 className="font-semibold text-base-content mb-3 flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Request Information
+                    </h4>
+                    <div className="grid gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="label label-text-alt text-base-content/60">Requested By</label>
+                          <div className="bg-base-100 p-2 rounded text-sm font-semibold">
+                            {requestType === "registration"
+                              ? selectedVehicle.addedBy?.username
+                              : requestType === "update"
+                                ? selectedVehicle.updateRequest?.requestedBy?.username
+                                : selectedVehicle.deleteRequest?.requestedBy?.username}
                           </div>
                         </div>
                         <div>
-                          <label className="label label-text-alt text-base-content/60">Reason</label>
-                          <div className="bg-base-100 p-3 rounded text-sm min-h-16">
-                            {requestData?.reason || 'No reason provided'}
+                          <label className="label label-text-alt text-base-content/60">Requested At</label>
+                          <div className="bg-base-100 p-2 rounded text-sm">
+                            {requestData?.requestedAt
+                              ? new Date(requestData.requestedAt).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })
+                              : "-"}
                           </div>
                         </div>
                       </div>
+                      <div>
+                        <label className="label label-text-alt text-base-content/60">Reason</label>
+                        <div className="bg-base-100 p-3 rounded text-sm min-h-16">
+                          {requestData?.reason || "No reason provided"}
+                        </div>
+                      </div>
                     </div>
-                  );
-                })()}
+                  </div>
+                )}
 
                 {/* Changes Preview (for update requests) */}
                 {requestType === 'update' && selectedVehicle.updateRequest && (
