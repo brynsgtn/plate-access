@@ -118,4 +118,17 @@ export const useVehicleStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Failed to approve vehicle request.");
         }
     },
+    approveDeleteVehicleRequest: async (vehicleId) => {
+        try {
+            const response = await axios.delete(`/vehicle/approve-delete-vehicle-request`, { data: { id: vehicleId } });
+            console.log("Vehicle request approved:", response.data);
+            set((prevState) => ({
+                vehicles: prevState.vehicles.filter((vehicle) => vehicle._id !== vehicleId)
+            }));
+            toast.success(response?.data?.message || "Vehicle request approved successfully!");
+        } catch (error) {
+            console.error("Error approving vehicle request:", error);
+            toast.error(error.response?.data?.message || "Failed to approve vehicle request.");
+        }
+    }
 }));
