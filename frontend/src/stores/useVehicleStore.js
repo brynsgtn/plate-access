@@ -8,6 +8,7 @@ export const useVehicleStore = create((set, get) => ({
     loadingVehicles: false,
     addLoading: false,
     editLoading: false,
+    approveAddLoading: false,
 
     addVehicle: async (vehicleData) => {
         set({ addLoading: true });
@@ -101,5 +102,20 @@ export const useVehicleStore = create((set, get) => ({
             console.error("Error approving vehicle request:", error);
             toast.error(error.response?.data?.message || "Failed to approve vehicle request.");
         }
-    }
+    },
+    approveUpdateVehicleRequest: async (vehicleId) => {
+        try {
+            const response = await axios.patch(`/vehicle/approve-update-vehicle-request`, { id: vehicleId });
+            console.log("Vehicle request approved:", response.data);
+            set((prevState) => ({
+                vehicles: prevState.vehicles.map((vehicle) =>
+                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
+                )
+            }));
+            toast.success(response?.data?.message || "Vehicle request approved successfully!");
+        } catch (error) {
+            console.error("Error approving vehicle request:", error);
+            toast.error(error.response?.data?.message || "Failed to approve vehicle request.");
+        }
+    },
 }));
