@@ -13,7 +13,8 @@ const VehicleRequestList = () => {
     approveUpdateVehicleRequest, 
     approveDeleteVehicleRequest, 
     denyVehicleRequest,
-    rejectUpdateVehicleRequest 
+    rejectUpdateVehicleRequest,
+    rejectDeleteVehicleRequest 
   } = useVehicleStore();
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [requestType, setRequestType] = useState(null);
@@ -54,8 +55,8 @@ const VehicleRequestList = () => {
     console.log(`Rejecting ${type} for vehicle with ID: ${vehicleId}`);
   };
 
-  const handleApproveDelete = (vehicleId) => {
-    alert("Delete request approved!");
+  const handleRejectDeleteRequest = (vehicleId) => {
+    rejectDeleteVehicleRequest(vehicleId);
     console.log(`Approving delete for vehicle with ID: ${vehicleId}`);
   };
 
@@ -326,7 +327,9 @@ const VehicleRequestList = () => {
                                 handleRejectRegistration(row.vehicle._id);
                               } else if (row.type === 'update') {
                                handleRejectUpdateRequest(row.vehicle._id);
-                              } 
+                              } else {
+                                handleRejectDeleteRequest(row.vehicle._id);
+                              }
                             }}
                             className="btn btn-circle btn-sm btn-error hover:bg-error/90"
                           >
@@ -512,6 +515,8 @@ const VehicleRequestList = () => {
                       handleRejectRegistration(selectedVehicle._id);
                     } else if (requestType === 'update') {
                       handleRejectUpdateRequest(selectedVehicle._id);
+                    } else {
+                      handleRejectDeleteRequest(selectedVehicle._id);
                     }
                     closeModal();
                   }}
