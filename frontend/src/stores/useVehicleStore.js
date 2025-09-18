@@ -130,5 +130,18 @@ export const useVehicleStore = create((set, get) => ({
             console.error("Error approving vehicle request:", error);
             toast.error(error.response?.data?.message || "Failed to approve vehicle request.");
         }
+    },
+    denyVehicleRequest: async (vehicleId) => {
+        try {
+            const response = await axios.delete(`/vehicle/deny-vehicle-request`, { data: { id: vehicleId } });
+            console.log("Vehicle request denied:", response.data);
+            set((prevState) => ({
+                vehicles: prevState.vehicles.filter((vehicle) => vehicle._id !== vehicleId)
+            }));
+            toast.success(response?.data?.message || "Vehicle request denied successfully!");
+        } catch (error) {
+            console.error("Error denying vehicle request:", error);
+            toast.error(error.response?.data?.message || "Failed to deny vehicle request.");
+        }
     }
 }));
