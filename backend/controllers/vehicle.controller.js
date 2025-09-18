@@ -246,6 +246,45 @@ export const approveVehicleRequest = async (req, res) => {
     }
 };
 
+// Deny vehicle registration request
+export const denyVehicleRequest = async (req, res) => {
+    const { id } = req.body;
+
+    // Validate request body
+    if (!id) {
+        return res.status(400).json({ message: "Vehicle ID is required" });
+    }
+
+    // Check if the user is an admin
+    if (!req.user.isAdmin) {
+        return res.status(403).json({ message: "Only admins can deny vehicle requests" });
+    }
+
+    try {
+        // Find the vehicle by id
+        const vehicle = await Vehicle.findOne({ _id: id });
+        if (!vehicle) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+
+        // Check if status is approved
+        if (vehicle.isApproved) {
+            return res.status(400).json({ message: "Vehicle is already approved" });
+        }
+
+        // Delete the vehicle
+        await vehicle.deleteOne();
+
+        // Respond with a success message
+        res.status(200).json({ message: "Vehicle denied successfully" });
+    } catch (error) {
+        // Handle errors
+        console.error("Error in denyVehicleRequest controller:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+
+};
+
 // Request vehicle update controller
 export const requestUpdateVehicle = async (req, res) => {
     const { id, makeModel, ownerName, plateNumber } = req.body;
