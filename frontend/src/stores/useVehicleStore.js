@@ -143,5 +143,20 @@ export const useVehicleStore = create((set, get) => ({
             console.error("Error denying vehicle request:", error);
             toast.error(error.response?.data?.message || "Failed to deny vehicle request.");
         }
+    },
+    rejectUpdateVehicleRequest: async (vehicleId) => {
+        try {
+            const response = await axios.patch(`/vehicle/reject-update-vehicle-request`, { id: vehicleId });
+            console.log("Vehicle request rejected:", response.data);
+            set((prevState) => ({
+                vehicles: prevState.vehicles.map((vehicle) =>
+                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
+                )
+            }));
+            toast.success(response?.data?.message || "Vehicle request rejected successfully!");
+        } catch (error) {
+            console.error("Error rejecting vehicle request:", error);
+            toast.error(error.response?.data?.message || "Failed to reject vehicle request.");
+        }
     }
 }));
