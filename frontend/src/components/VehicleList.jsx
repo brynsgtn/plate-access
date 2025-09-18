@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Edit, Trash2, Search } from "lucide-react";
+import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, PlusCircle } from "lucide-react";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
 
@@ -61,6 +61,8 @@ const VehicleList = () => {
         ? filteredVehicles.slice((page - 1) * VEHICLES_PER_PAGE, page * VEHICLES_PER_PAGE)
         : [];
 
+    const approvedVehicles = vehicles.filter((vehicle) => !vehicle.isBlacklisted);
+    const blacklistedVehicles = vehicles.filter((vehicle) => vehicle.isBlacklisted);
 
     if (loadingVehicles) {
         return (
@@ -72,10 +74,10 @@ const VehicleList = () => {
 
     return (
         <>
-            <div className="overflow-x-auto max-w-6xl mx-auto my-10 rounded-xl shadow-lg bg-base-100 border border-base-300">
+            <div className="overflow-x-auto max-w-6xl mx-auto mt-10 mb-20 rounded-xl shadow-lg bg-base-100 border border-base-300">
                 {/* Header with Search */}
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 border-b border-base-300">
-                    <h2 className="text-xl font-bold text-primary">Vehicle List</h2>
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
+                    <h2 className="text-2xl font-bold text-white">Vehicle List</h2>
 
                     <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                         {/* Search Bar */}
@@ -92,17 +94,52 @@ const VehicleList = () => {
                     </div>
                 </div>
 
+                {/* Stats */}
+                <div className="stats w-full bg-base-100  border-base-300">
+
+                    <div className="stat">
+                        <div className="stat-figure text-warning">
+                            <CarFrontIcon className="h-8 w-8" />
+                        </div>
+                        <div className="stat-title">Total Vehicles</div>
+                        <div className="stat-value text-warning">
+                            {vehicleList.length}
+                        </div>
+                    </div>
+
+                    <div className="stat">
+                        <div className="stat-figure text-warning">
+                            <ParkingCircleIcon className="h-8 w-8" />
+                        </div>
+                        <div className="stat-title">Authorized Vehicles</div>
+                        <div className="stat-value text-warning">
+                            {approvedVehicles.length}
+                        </div>
+                    </div>
+
+                    <div className="stat">
+                        <div className="stat-figure text-primary">
+                            <ParkingCircleOffIcon className="h-8 w-8" />
+                        </div>
+                        <div className="stat-title">Blacklisted Vehicles</div>
+                        <div className="stat-value text-primary">
+                            {blacklistedVehicles.length}
+                        </div>
+                    </div>
+
+                </div>
+
                 {/* Vehicle Table */}
                 <table className="table table-zebra w-full">
                     <thead className="bg-base-200">
                         <tr>
-                            <th>#</th>
-                            <th>Plate Number</th>
-                            <th>Make & Model</th>
-                            <th>Owner</th>
-                            <th>Status</th>
-                            <th>Created At</th>
-                            <th>Actions</th>
+                            <th className="text-base font-semibold text-base-content">#</th>
+                            <th className="text-base font-semibold text-base-content">Plate Number</th>
+                            <th className="text-base font-semibold text-base-content">Make & Model</th>
+                            <th className="text-base font-semibold text-base-content">Owner</th>
+                            <th className="text-base font-semibold text-base-content">Status</th>
+                            <th className="text-base font-semibold text-base-content">Created At</th>
+                            <th className="text-base font-semibold text-base-content">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -115,11 +152,11 @@ const VehicleList = () => {
                         ) : (
                             paginatedVehicles.map((vehicle, idx) => (
                                 <tr key={vehicle._id} className="hover:bg-base-200 transition">
-                                    <th>{idx + 1}</th>
-                                    <td>{vehicle.plateNumber}</td>
-                                    <td>{vehicle.makeModel}</td>
-                                    <td>{vehicle.ownerName}</td>
-                                    <td>
+                                    <th className="py-4">{idx + 1}</th>
+                                    <td className="py-4">{vehicle.plateNumber}</td>
+                                    <td className="py-4">{vehicle.makeModel}</td>
+                                    <td className="py-4">{vehicle.ownerName}</td>
+                                    <td className="py-4">
                                         {vehicle.isBlacklisted ? (
                                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold 
                                             bg-error text-error-content border border-error shadow-sm">
@@ -138,8 +175,11 @@ const VehicleList = () => {
                                     </td>
                                     <td>
                                         {vehicle.createdAt
-                                            ? new Date(vehicle.createdAt).toLocaleDateString()
-                                            : "-"}
+                                            ? new Date(vehicle.createdAt).toLocaleDateString('en-US', {
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric',
+                                            }) : '-'}
                                     </td>
                                     <td className="flex gap-2">
                                         <button
@@ -191,10 +231,10 @@ const VehicleList = () => {
                 <div className="modal modal-open backdrop-blur-md"
                     onClick={() => setEditModal(false)}   // click outside closes modal
                 >
-                    <div className="modal-box bg-primary shadow-lg rounded-lg"
+                    <div className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
                         onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
                     >
-                        <h3 className="text-2xl font-semibold mb-6 text-primary-content">Edit Vehicle</h3>
+                        <h3 className="text-2xl font-semibold mb-6 text-white">Edit Vehicle</h3>
                         <form onSubmit={handleSubmit} className='space-y-4'>
                             <div>
                                 <label htmlFor='plateNumber' className='block text-sm font-medium text-gray-300'>
@@ -250,9 +290,9 @@ const VehicleList = () => {
                                 className='w-full flex justify-center py-2 px-4 mt-8 border border-transparent rounded-md 
 					shadow-sm text-sm font-medium text-primary-content bg-accent hover:bg-warning cursor-pointer
 					focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50'
-                                disabled={loading}
+                                disabled={loadingVehicles}
                             >
-                                {loading ? (
+                                {loadingVehicles ? (
                                     <>
                                         <Loader className='mr-2 h-5 w-5 animate-spin' aria-hidden='true' />
                                         Loading...
@@ -268,7 +308,7 @@ const VehicleList = () => {
                         <div className="modal-action">
                             <button
                                 onClick={() => setEditModal(false)}
-                                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 "
+                                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-white"
                             >
                                 ✕
                             </button>
