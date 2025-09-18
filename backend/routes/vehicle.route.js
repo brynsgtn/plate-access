@@ -16,7 +16,8 @@ import {
     requestDeleteVehicle,
     approveDeleteVehicleRequest,
     viewUpdateAndDeleteVehicleRequests,
-    denyVehicleRequest
+    denyVehicleRequest,
+    rejectUpdateVehicleRequest
 } from "../controllers/vehicle.controller.js";
 
 // Import middleware
@@ -59,6 +60,9 @@ router.patch("/approve-add-vehicle-request", protectRoute, adminRoute, approveVe
 
 // Approve update vehicle request (admin only)
 router.patch("/approve-update-vehicle-request", protectRoute, adminRoute, approveUpdateVehicleRequest);
+
+// Reject update vehicle request (admin only)
+router.patch("/reject-update-vehicle-request", protectRoute, adminRoute, rejectUpdateVehicleRequest);
 
 // Delete a vehicle (admin only)
 router.delete("/delete-vehicle", protectRoute, adminRoute, deleteVehicle);
