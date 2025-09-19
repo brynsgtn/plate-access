@@ -12,8 +12,7 @@ const AddVehicleForm = () => {
         ownerName: "",
     });
 
-    const { addVehicle, addLoading, viewVehicles } = useVehicleStore();
-    
+    const { addVehicle,  addLoading } = useVehicleStore();
     const handleSubmit = (e) => {
         e.preventDefault();
         addVehicle(formData);
@@ -23,7 +22,6 @@ const AddVehicleForm = () => {
             makeModel: "",
             ownerName: "",
         });
-        viewVehicles();
     };
 
 
@@ -85,9 +83,9 @@ const AddVehicleForm = () => {
                 </div>
                 <button
                     type='submit'
-                    className='w-full flex justify-center py-2 px-4 mt-8 border border-transparent rounded-md 
-					shadow-sm text-sm font-medium text-primary-content bg-accent hover:bg-warning cursor-pointer
-					focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50'
+                    className={`w-full flex justify-center py-2 px-4 mt-8 border border-transparent rounded-md 
+					shadow-sm text-sm font-medium text-primary-content bg-accent 
+					focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50 ${addLoading ? 'cursor-not-allowed' : 'hover:bg-warning cursor-pointer'}`}
                     disabled={addLoading}
                 >
                     {addLoading ? (
