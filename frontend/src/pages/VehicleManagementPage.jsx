@@ -83,7 +83,7 @@ const VehicleManagementPage = () => {
 
                 <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                     <h1 className="text-2xl font-bold text-white">Vehicle Summary</h1>
-                    <p className="text-white/80">Get an overview of your vehicle fleet.</p>
+                    <p className="text-white/80 mt-2">Get an overview of your vehicle fleet.</p>
                 </div>
 
                 <div className="stats stats-vertical lg:stats-horizontal  w-full">
@@ -125,7 +125,7 @@ const VehicleManagementPage = () => {
             <div className="shadow-xl m-8 max-w-6xl mx-auto rounded-xl border border-base-300 bg-base-200">
                 <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                     <h3 className="text-2xl font-bold text-white">Quick Actions</h3>
-                    <p className="text-white/80">Quickly add, view, or manage your vehicle fleet.</p>
+                    <p className="text-white/80 mt-2">Quickly add, view, or manage your vehicle fleet.</p>
                 </div>
                 <div className="flex flex-col lg:flex-row w-full justify-center items-center space-y-4 lg:space-y-0 lg:space-x-6 py-8 bg-base-100 rounded-b-xl">
                     {tabs.map((tab) => (
