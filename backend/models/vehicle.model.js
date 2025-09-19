@@ -61,6 +61,17 @@ const vehicleSchema = new mongoose.Schema(
                 status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
             }, { _id: false }),
             default: null
+        },
+
+        blacklistRequest: {
+            type: new mongoose.Schema({
+                requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+                requestedAt: { type: Date, default: Date.now },
+                approvedOrDeclinedAt: { type: Date, default: null },
+                reason: { type: String },
+                status: { type: String, default: 'pending' }
+            }, { _id: false }),
+            default: null
         }
 
     },
