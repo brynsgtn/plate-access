@@ -53,7 +53,7 @@ export const addVehicle = async (req, res) => {
 
         // Respond with the created vehicle
         res.status(201).json({
-            message: "Vehicle added successfully",
+            message: isAdmin ? "Vehicle added successfully" : "Vehicle registration request sent",
             vehicle: newVehicle
         });
     } catch (error) {
