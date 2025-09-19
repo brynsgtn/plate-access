@@ -3,12 +3,14 @@ import axios from "../lib/axios";
 import toast from "react-hot-toast";
 
 
+
 export const useVehicleStore = create((set, get) => ({
     vehicles: [],
     loadingVehicles: false,
     addLoading: false,
     editLoading: false,
     approveAddLoading: false,
+    requestBlacklistLoading: false,
 
     addVehicle: async (vehicleData) => {
         set({ addLoading: true });
@@ -88,7 +90,23 @@ export const useVehicleStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Failed to blacklist vehicle.");
         }
     },
+    blacklistVehicleRequest: async (vehicleId, reason) => {
+        try {
+            const response = await axios.put(`/vehicle/request-blacklist-vehicle`, { id: vehicleId, reason: reason });
+            console.log("Vehicle backlist request sent:", response.data);
+            set((prevState) => ({
+                vehicles: prevState.vehicles.map((vehicle) =>
+                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
+                )
+            }))
+            toast.success(response?.data?.message || "Vehicle blacklist request sent successfully!");
+        } catch (error) {
+            console.error("Error sending vehicle blacklist request:", error);
+            toast.error(error.response?.data?.message || "Failed to send vehicle blacklist request.");      
+        }
+    },
     approveVehicleRequest: async (vehicleId) => {
+        set( { requestBlacklistLoading: true });
         try {
             const response = await axios.patch(`/vehicle/approve-add-vehicle-request`, { id: vehicleId });
             console.log("Vehicle request approved:", response.data);
@@ -97,10 +115,12 @@ export const useVehicleStore = create((set, get) => ({
                     vehicle._id === vehicleId ? response.data.vehicle : vehicle
                 )
             }));
+            set({ requestBlacklistLoading: false });
             toast.success(response?.data?.message || "Vehicle request approved successfully!");
         } catch (error) {
             console.error("Error approving vehicle request:", error);
             toast.error(error.response?.data?.message || "Failed to approve vehicle request.");
+            set({ requestBlacklistLoading: false });
         }
     },
     approveUpdateVehicleRequest: async (vehicleId) => {
