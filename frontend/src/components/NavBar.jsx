@@ -189,14 +189,7 @@ const NavBar = () => {
                                 </details>
                             </li>
                             <li>
-                                <details>
-                                    <summary>Blacklisted Vehicles</summary>
-                                    <ul className="p-2 bg-primary rounded-none">
-                                        <li><a>View Blacklisted Vehicles</a></li>
-                                        <li><a>Add to Blacklist</a></li>
-                                        <li><a>Remove from Blacklist</a></li>
-                                    </ul>
-                                </details>
+                                <Link to="/vehicle-management">Vehicle Management</Link>
                             </li>
                             <li>
                                 <details>
