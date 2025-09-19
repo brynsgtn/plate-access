@@ -18,7 +18,8 @@ import {
     viewUpdateAndDeleteVehicleRequests,
     denyVehicleRequest,
     rejectUpdateVehicleRequest,
-    rejectDeleteVehicleRequest
+    rejectDeleteVehicleRequest,
+    requestBlacklistVehicle
 } from "../controllers/vehicle.controller.js";
 
 // Import middleware
@@ -52,6 +53,9 @@ router.put("/request-update-vehicle", protectRoute, requestUpdateVehicle);
 
 // Request to delete a vehicle (user, requires admin approval)
 router.put("/request-delete-vehicle", protectRoute, requestDeleteVehicle);
+
+// Request to blacklist a vehicle (user, requires admin approval)
+router.put("/request-blacklist-vehicle", protectRoute, requestBlacklistVehicle);
 
 // Blacklist or unblacklist a vehicle (admin only)
 router.patch("/blacklist-unblacklist-vehicle", protectRoute, blackListOrUnblacklistVehicle);
