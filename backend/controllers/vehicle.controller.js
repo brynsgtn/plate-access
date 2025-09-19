@@ -3,20 +3,20 @@ import Vehicle from "../models/vehicle.model.js";
 
 // View vehicle controller
 export const viewVehicles = async (req, res) => {
-  try {
-    // Fetch all vehicles with populated user references
-    const vehicles = await Vehicle.find({})
-      .populate('addedBy', 'username email') // Populate addedBy field
-      .populate('updateRequest.requestedBy', 'username email') // Populate updateRequest.requestedBy
-      .populate('deleteRequest.requestedBy', 'username email'); // Populate deleteRequest.requestedBy
+    try {
+        // Fetch all vehicles with populated user references
+        const vehicles = await Vehicle.find({})
+            .populate('addedBy', 'username email') // Populate addedBy field
+            .populate('updateRequest.requestedBy', 'username email') // Populate updateRequest.requestedBy
+            .populate('deleteRequest.requestedBy', 'username email'); // Populate deleteRequest.requestedBy
 
-    // Respond with the list of vehicles
-    res.status(200).json({ vehicles });
-  } catch (error) {
-    // Handle errors
-    console.error("Error in viewVehicles controller:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
+        // Respond with the list of vehicles
+        res.status(200).json({ vehicles });
+    } catch (error) {
+        // Handle errors
+        console.error("Error in viewVehicles controller:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 };
 
 // Add vehicle controller
@@ -173,6 +173,58 @@ export const blackListOrUnblacklistVehicle = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+// Request blacklist vehicle
+export const requestBlacklistVehicle = async (req, res) => {
+    const { id, reason } = req.body;
+    const userId = req.user._id;
+
+    try {
+        // Validate request body
+        if (!id || !reason) {
+            return res.status(400).json({ message: "Vehicle ID and reason are required" });
+        }
+
+        // Find the vehicle by id
+        const vehicle = await Vehicle.findById(id);
+        if (!vehicle) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+
+        // Check if vehicle is already blacklisted
+        if (vehicle.isBlacklisted) {
+            return res.status(400).json({ message: "Vehicle is already blacklisted" });
+        }
+
+        // Check if there's already a pending blacklist request
+        if (vehicle.blacklistRequest && vehicle.blacklistRequest.status === 'pending') {
+            return res.status(400).json({ message: "Blacklist request already pending" });
+        }
+
+        // Create blacklist request
+        vehicle.blacklistRequest = {
+            requestedBy: userId,
+            requestedAt: new Date(),
+            reason: reason,
+            status: 'pending'
+        };
+
+        // Save the vehicle
+        await vehicle.save();
+
+        // Populate the requestedBy field for response
+        await vehicle.populate('blacklistRequest.requestedBy', 'username');
+
+        res.status(200).json({
+            message: "Blacklist request submitted successfully",
+            vehicle
+        });
+    } catch (error) {
+        console.error("Error in requestBlacklistVehicle controller:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 
 // View blacklisted vehicles (not sure if im gonna use this)
 export const viewBlacklistedVehicles = async (req, res) => {
@@ -507,11 +559,11 @@ export const rejectDeleteVehicleRequest = async (req, res) => {
         }
 
         // Find the vehicle by id
-        const vehicle = await Vehicle.findById(id); 
+        const vehicle = await Vehicle.findById(id);
 
         // Check if vehicle exists and has a delete request
         if (!vehicle || !vehicle.deleteRequest) {
-            return res.status(404).json({ message: "Vehicle not found or delete request not found" });          
+            return res.status(404).json({ message: "Vehicle not found or delete request not found" });
         }
 
         // Clear the delete request
