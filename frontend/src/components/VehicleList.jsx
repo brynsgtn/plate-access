@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, PlusCircle } from "lucide-react";
+import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, PlusCircle, X } from "lucide-react";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
+import { useUserStore } from "../stores/useUserStore";
 
 const VEHICLES_PER_PAGE = 10;
 
@@ -9,12 +10,14 @@ const VehicleList = () => {
     const [editModal, setEditModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
+    const [blacklistRequestModal, setBlacklistRequestModal] = useState(false);
 
     const [formData, setFormData] = useState({
         id: "",
         plateNumber: "",
         makeModel: "",
         ownerName: "",
+        reason: "",
     });
 
     useEffect(() => {
@@ -22,7 +25,8 @@ const VehicleList = () => {
         console.log("Search Data:", searchTerm);
     }, [formData, searchTerm]);
 
-    const { vehicles, loadingVehicles, updateVehicle, deleteVehicle, blacklistOrUnblacklistVehicle } = useVehicleStore();
+    const { vehicles, loadingVehicles, updateVehicle, deleteVehicle, blacklistOrUnblacklistVehicle, blacklistVehicleRequest, requestBlacklistLoading } = useVehicleStore();
+    const { user } = useUserStore();
 
     const handleEdit = (id) => {
         const vehicleToEdit = vehicles.find((v) => v._id === id);
@@ -40,8 +44,26 @@ const VehicleList = () => {
     };
 
     const handleBlacklist = (id) => {
-        blacklistOrUnblacklistVehicle(id);
+        if (user.isAdmin) {
+            blacklistOrUnblacklistVehicle(id);
+        } else {
+            const vehicleToBlacklist = vehicles.find((v) => v._id === id);
+            setFormData({
+                id: vehicleToBlacklist._id,
+                plateNumber: vehicleToBlacklist.plateNumber,
+                makeModel: vehicleToBlacklist.makeModel,
+                ownerName: vehicleToBlacklist.ownerName,
+            });
+            setBlacklistRequestModal(true);
+        }
+
     };
+
+    const handleBlacklistRequest = (e) => {
+        e.preventDefault();
+        blacklistVehicleRequest(formData.id, formData.reason);
+        setBlacklistRequestModal(false);
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -61,8 +83,9 @@ const VehicleList = () => {
         ? filteredVehicles.slice((page - 1) * VEHICLES_PER_PAGE, page * VEHICLES_PER_PAGE)
         : [];
 
-    const approvedVehicles = vehicles.filter((vehicle) => !vehicle.isBlacklisted);
+    const approvedVehicles = vehicles.filter((vehicle) => (vehicle.isApproved && !vehicle.isBlacklisted));
     const blacklistedVehicles = vehicles.filter((vehicle) => vehicle.isBlacklisted);
+    const blacklistRequests = vehicles.filter((vehicle) => (vehicle.isApproved && vehicle.blacklistRequest));
 
     if (loadingVehicles) {
         return (
@@ -130,6 +153,16 @@ const VehicleList = () => {
                         </div>
                     </div>
 
+                    <div className="stat">
+                        <div className="stat-figure text-primary">
+                            <ParkingCircleOffIcon className="h-8 w-8" />
+                        </div>
+                        <div className="stat-title">Blacklist Requests</div>
+                        <div className="stat-value text-primary">
+                            {blacklistRequests.length}
+                        </div>
+                    </div>
+
                 </div>
 
                 {/* Vehicle Table */}
@@ -160,19 +193,28 @@ const VehicleList = () => {
                                     <td className="py-4">{vehicle.makeModel}</td>
                                     <td className="py-4">{vehicle.ownerName}</td>
                                     <td className="py-4">
-                                        {vehicle.isBlacklisted ? (
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold 
-                                            bg-error text-error-content border border-error shadow-sm">
-                                                Blacklisted
-                                            </span>
-                                        ) : (
-                                            <div className="tooltip" data-tip="Blacklist this vehicle">
-                                                <button
+                                        {/* Status badge */}
+                                        {(vehicle.isBlacklisted ? (
+                                            <div className="tooltip" data-tip='This vehicle is blacklisted'>
+                                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
+                                            text-error border border-error shadow-sm">
+                                                    Blacklisted
+                                                </span>
+                                            </div>
+
+                                        ) :
+                                            <div className="tooltip" data-tip={vehicle.blacklistRequest ? 'With pending blacklist request' : `Blacklist this vehicle`}>
+                                                {vehicle.blacklistRequest ? (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
+                                             text-warning border border-warning shadow-sm ">
+                                                        Authorized
+                                                    </span>
+                                                ) : (<button
                                                     onClick={() => handleBlacklist(vehicle._id)}
                                                     className="btn btn-xs btn-outline btn-success gap-1"
                                                 >
                                                     Authorized
-                                                </button>
+                                                </button>)}
                                             </div>
                                         )}
                                     </td>
@@ -319,6 +361,105 @@ const VehicleList = () => {
                     </div>
                 </div>
             )}
+
+            {/* Blacklist Request Modal */}
+            {blacklistRequestModal && (
+                <div
+                    className="modal modal-open backdrop-blur-md"
+                    onClick={() => setBlacklistRequestModal(false)} // click outside closes modal
+                >
+                    <div
+                        className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
+                        onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+                    >
+                        <h3 className="text-2xl font-semibold mb-6 text-white">
+                            Blacklist Request
+                        </h3>
+
+                        <form onSubmit={handleBlacklistRequest} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300">
+                                    Plate Number
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.plateNumber}
+                                    disabled
+                                    className="mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2 px-3 opacity-70"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300">
+                                    Make & Model
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.makeModel}
+                                    disabled
+                                    className="mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2 px-3 opacity-70"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300">
+                                    Owner&apos;s Name
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.ownerName}
+                                    disabled
+                                    className="mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2 px-3 opacity-70"
+                                />
+                            </div>
+
+                            <div>
+                                <label htmlFor="reason" className="block text-sm font-medium text-gray-300">
+                                    Reason for Blacklist
+                                </label>
+                                <textarea
+                                    id="reason"
+                                    name="reason"
+                                    value={formData.reason}
+                                    onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                                    rows="3"
+                                    placeholder="Enter reason..."
+                                    className="mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent"
+                                    required
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="w-full flex justify-center py-2 px-4 mt-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-content bg-error hover:bg-warning cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-50"
+                                disabled={loadingVehicles}
+                            >
+                                {requestBlacklistLoading ? (
+                                    <>
+                                        <Loader className="mr-2 h-5 w-5 animate-spin" aria-hidden="true" />
+                                        Submitting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <X className="mr-2 h-5 w-5" />
+                                        Submit Blacklist Request
+                                    </>
+                                )}
+                            </button>
+                        </form>
+
+                        <div className="modal-action">
+                            <button
+                                onClick={() => setBlacklistRequestModal(false)}
+                                className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 text-white"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
         </>
 
