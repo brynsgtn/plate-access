@@ -102,11 +102,11 @@ export const useVehicleStore = create((set, get) => ({
             toast.success(response?.data?.message || "Vehicle blacklist request sent successfully!");
         } catch (error) {
             console.error("Error sending vehicle blacklist request:", error);
-            toast.error(error.response?.data?.message || "Failed to send vehicle blacklist request.");      
+            toast.error(error.response?.data?.message || "Failed to send vehicle blacklist request.");
         }
     },
     approveVehicleRequest: async (vehicleId) => {
-        set( { requestBlacklistLoading: true });
+        set({ requestBlacklistLoading: true });
         try {
             const response = await axios.patch(`/vehicle/approve-add-vehicle-request`, { id: vehicleId });
             console.log("Vehicle request approved:", response.data);
@@ -207,6 +207,24 @@ export const useVehicleStore = create((set, get) => ({
         } catch (error) {
             console.error("Error sending vehicle update request:", error);
             toast.error(error.response?.data?.message || "Failed to send vehicle update request.");
+        }
+    },
+    requestDeleteVehicle: async (vehicleId, reason) => {
+        try {
+            const response = await axios.put(`/vehicle/request-delete-vehicle`, {
+                id: vehicleId,
+                reason
+            });
+            console.log("Vehicle delete request sent:", response.data);
+            set((prevState) => ({
+                vehicles: prevState.vehicles.map((vehicle) =>
+                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
+                )
+            }));
+            toast.success(response?.data?.message || "Vehicle delete request sent successfully!");
+        } catch (error) {
+            console.error("Error sending vehicle delete request:", error);
+            toast.error(error.response?.data?.message || "Failed to send vehicle delete request.");
         }
     }
 }));
