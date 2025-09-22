@@ -11,6 +11,9 @@ const VehicleList = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
     const [blacklistRequestModal, setBlacklistRequestModal] = useState(false);
+    const [deleteModal, setDeleteModal] = useState(false);
+    const [deleteReason, setDeleteReason] = useState("");
+
 
     const [formData, setFormData] = useState({
         id: "",
@@ -25,15 +28,16 @@ const VehicleList = () => {
         console.log("Search Data:", searchTerm);
     }, [formData, searchTerm]);
 
-    const { 
-        vehicles, 
-        loadingVehicles, 
-        updateVehicle, 
-        deleteVehicle, 
-        blacklistOrUnblacklistVehicle, 
-        blacklistVehicleRequest, 
+    const {
+        vehicles,
+        loadingVehicles,
+        updateVehicle,
+        deleteVehicle,
+        blacklistOrUnblacklistVehicle,
+        blacklistVehicleRequest,
         requestBlacklistLoading,
         requestUpdateVehicle,
+        requestDeleteVehicle
     } = useVehicleStore();
     const { user } = useUserStore();
 
@@ -49,8 +53,26 @@ const VehicleList = () => {
     };
 
     const handleDelete = (id) => {
-        deleteVehicle(id);
+        const vehicleToDelete = vehicles.find((v) => v._id === id);
+        setFormData({
+            id: vehicleToDelete._id,
+            plateNumber: vehicleToDelete.plateNumber,
+            makeModel: vehicleToDelete.makeModel,
+            ownerName: vehicleToDelete.ownerName,
+        });
+        setDeleteReason("");
+        setDeleteModal(true);
     };
+
+    const handleConfirmDelete = () => {
+        if (user.isAdmin) {
+           requestDeleteVehicle(formData.id);
+        } else {
+            requestDeleteVehicle(formData.id, deleteReason);
+        }  
+        setDeleteModal(false);
+    };
+
 
     const handleBlacklist = (id) => {
         if (user.isAdmin) {
@@ -350,14 +372,14 @@ const VehicleList = () => {
                                     Reason
                                 </label>
                                 <textarea
-                                    id='reason' 
+                                    id='reason'
                                     name='reason'
                                     value={formData.reason}
                                     onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
                                     className='mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2
                          px-3 focus:outline-none focus:ring-2
                          focus:ring-accent focus:border-accent'
-                         placeholder="Reason for editing the vehicle"
+                                    placeholder="Reason for editing the vehicle"
                                 />
                             </div>
                             <button
@@ -489,6 +511,55 @@ const VehicleList = () => {
                     </div>
                 </div>
             )}
+
+            {deleteModal && (
+                <div
+                    className="modal modal-open backdrop-blur-md"
+                    onClick={() => setDeleteModal(false)}
+                >
+                    <div
+                        className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-2xl font-semibold mb-6 text-white">Delete Vehicle</h3>
+
+                        <p className="text-gray-200 mb-4">
+                            Are you sure you want to delete vehicle{" "}
+                            <span className="font-bold">{formData.plateNumber}</span>?
+                        </p>
+
+                        {/* Show reason if not admin */}
+                        {!user.isAdmin && (
+                            <div className="mt-4">
+                                <textarea
+                                    value={deleteReason}
+                                    onChange={(e) => setDeleteReason(e.target.value)}
+                                    rows="3"
+                                    placeholder="Enter reason..."
+                                    className="mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2 px-3"
+                                    required
+                                />
+                            </div>
+                        )}
+
+                        <div className="modal-action">
+                            <button
+                                onClick={() => setDeleteModal(false)}
+                                className="btn btn-sm btn-ghost text-white"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleConfirmDelete}
+                                className="btn btn-error"
+                            >
+                                Request Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
 
         </>
