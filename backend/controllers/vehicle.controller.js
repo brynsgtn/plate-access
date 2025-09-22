@@ -8,7 +8,8 @@ export const viewVehicles = async (req, res) => {
         const vehicles = await Vehicle.find({})
             .populate('addedBy', 'username email') // Populate addedBy field
             .populate('updateRequest.requestedBy', 'username email') // Populate updateRequest.requestedBy
-            .populate('deleteRequest.requestedBy', 'username email'); // Populate deleteRequest.requestedBy
+            .populate('deleteRequest.requestedBy', 'username email') // Populate deleteRequest.requestedBy
+            .populate('blacklistRequest.requestedBy', 'username email');
 
         // Respond with the list of vehicles
         res.status(200).json({ vehicles });
