@@ -225,6 +225,81 @@ export const requestBlacklistVehicle = async (req, res) => {
     }
 };
 
+// NEW: Admin approves blacklist request
+export const approveBlacklistVehicleRequest = async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        // Validate request body
+        if (!id) {
+            return res.status(400).json({ message: "Vehicle ID is required" });
+        }
+
+        // Find the vehicle by id
+        const vehicle = await Vehicle.findById(id);
+
+        // Check if vehicle exists and has a blacklist request
+        if (!vehicle || !vehicle.blacklistRequest) {
+            return res.status(404).json({ message: "Vehicle not found or no blacklist request found" });
+        }
+
+        // Update blacklist status
+        vehicle.isBlacklisted = true;
+        vehicle.isBlacklistedAt = new Date();
+
+        // Clear the blacklist request (set to null)
+        vehicle.blacklistRequest = null;
+
+        // Save the updated vehicle
+        await vehicle.save();
+
+        // Respond with the updated vehicle
+        res.status(200).json({
+            message: "Blacklist request approved successfully",
+            vehicle
+        });
+    } catch (error) {
+        console.error("Error in approveBlacklistVehicleRequest controller:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+// NEW: Admin rejects blacklist request
+export const rejectBlacklistVehicleRequest = async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        // Validate request body
+        if (!id) {
+            return res.status(400).json({ message: "Vehicle ID is required" });
+        }
+
+        // Find the vehicle by id
+        const vehicle = await Vehicle.findById(id);
+
+        // Check if vehicle exists and has a pending blacklist request
+        if (!vehicle || !vehicle.blacklistRequest || vehicle.blacklistRequest.status !== 'pending') {
+            return res.status(404).json({ message: "Vehicle not found or no pending blacklist request" });
+        }
+
+        // Update request status
+        vehicle.blacklistRequest.status = 'rejected';
+        vehicle.blacklistRequest.approvedOrDeclinedAt = new Date();
+
+        // Save the updated vehicle
+        await vehicle.save();
+
+        // Respond with the updated vehicle
+        res.status(200).json({
+            message: "Blacklist request rejected successfully",
+            vehicle
+        });
+    } catch (error) {
+        console.error("Error in rejectBlacklistVehicleRequest controller:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 
 // View blacklisted vehicles (not sure if im gonna use this)
 export const viewBlacklistedVehicles = async (req, res) => {
@@ -339,7 +414,7 @@ export const denyVehicleRequest = async (req, res) => {
 
 // Request vehicle update controller
 export const requestUpdateVehicle = async (req, res) => {
-    const { id, makeModel, ownerName, plateNumber } = req.body;
+    const { id, makeModel, ownerName, plateNumber, reason } = req.body;
     const reqUser = req.user;
 
     try {
@@ -376,7 +451,7 @@ export const requestUpdateVehicle = async (req, res) => {
             makeModel,
             ownerName,
             requestedBy: reqUser.id,
-            reason: `Requesting update for vehicle: ${makeModel}, ${ownerName}`,
+            reason: reason ? reason : `Requesting update for vehicle: ${makeModel}, ${ownerName}`,
             status: 'pending',
         };
 
