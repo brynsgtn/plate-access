@@ -26,6 +26,11 @@ const VehicleRequestList = () => {
     console.log("VehicleRequestList", vehicles);
   }, [vehicles]);
 
+   useEffect(() => {
+    console.log("Selected Vehicle", selectedVehicle);
+  }, [selectedVehicle]);
+
+
     useEffect(() => {
         // Fetch vehicle data when the component mounts
         viewVehicles();
@@ -373,8 +378,8 @@ const VehicleRequestList = () => {
       </div>
 
       {/* Request Modal */}
-      <dialog id="request_modal" className="modal">
-        <div className="modal-box max-w-2xl">
+      <dialog id="request_modal" className="modal backdrop-blur-md">
+        <div className="modal-box max-w-2xl bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg">
           <button
             onClick={closeModal}
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
@@ -385,7 +390,7 @@ const VehicleRequestList = () => {
           {selectedVehicle && (
             <>
               <div className="flex items-center gap-3 mb-6">
-                <div className={`p-3 rounded-lg ${requestType === 'registration' ? 'bg-warning/20' :
+                <div className={`p-3 rounded-lg bg-transparent ${requestType === 'registration' ? 'bg-warning/20' :
                   requestType === 'update' ? 'bg-info/20' : 'bg-error/20'
                   }`}>
                   {requestType === 'registration' ?
@@ -396,11 +401,11 @@ const VehicleRequestList = () => {
                   }
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">
+                  <h3 className="font-bold text-lg text-white">
                     {requestType === 'registration' ? 'Registration Request Details' :
                       requestType === 'update' ? 'Edit Request Details' : 'Delete Request Details'}
                   </h3>
-                  <p className="text-base-content/60">
+                  <p className="text-white/60">
                     Vehicle: {selectedVehicle.plateNumber}
                   </p>
                 </div>
@@ -479,33 +484,33 @@ const VehicleRequestList = () => {
 
                 {/* Changes Preview (for update requests) */}
                 {requestType === 'update' && selectedVehicle.updateRequest && (
-                  <div className="card bg-info/10 border border-info/20 p-4">
+                  <div className="card bg-base-200 border border-info/20 p-4">
                     <h4 className="font-semibold text-info mb-3 flex items-center gap-2">
                       <Edit3 className="h-4 w-4" />
                       Proposed Changes
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {selectedVehicle.updateRequest.plateNumber && (
+                      {selectedVehicle.plateNumber && (
                         <div>
                           <label className="label label-text-alt text-base-content/60">New Plate Number</label>
                           <div className="bg-info/20 text-info-content p-2 rounded text-sm font-mono">
-                            {selectedVehicle.updateRequest.plateNumber}
+                            {selectedVehicle.plateNumber}
                           </div>
                         </div>
                       )}
-                      {selectedVehicle.updateRequest.makeModel && (
+                      {selectedVehicle.makeModel && (
                         <div>
                           <label className="label label-text-alt text-base-content/60">New Make & Model</label>
                           <div className="bg-info/20 text-info-content p-2 rounded text-sm">
-                            {selectedVehicle.updateRequest.makeModel}
+                            {selectedVehicle.makeModel}
                           </div>
                         </div>
                       )}
-                      {selectedVehicle.updateRequest.ownerName && (
+                      {selectedVehicle.ownerName && (
                         <div>
                           <label className="label label-text-alt text-base-content/60">New Owner Name</label>
                           <div className="bg-info/20 text-info-content p-2 rounded text-sm">
-                            {selectedVehicle.updateRequest.ownerName}
+                            {selectedVehicle.ownerName}
                           </div>
                         </div>
                       )}
