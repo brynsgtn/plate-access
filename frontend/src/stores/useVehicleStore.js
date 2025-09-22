@@ -194,4 +194,19 @@ export const useVehicleStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Failed to reject vehicle request.");
         }
     },
+    requestUpdateVehicle: async (vehicleId, updateRequestData) => {
+        try {
+            const response = await axios.put(`/vehicle/request-update-vehicle`, { id: vehicleId, ...updateRequestData });
+            console.log("Vehicle update request sent:", response.data);
+            set((prevState) => ({
+                vehicles: prevState.vehicles.map((vehicle) =>
+                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
+                )
+            }));
+            toast.success(response?.data?.message || "Vehicle update request sent successfully!");
+        } catch (error) {
+            console.error("Error sending vehicle update request:", error);
+            toast.error(error.response?.data?.message || "Failed to send vehicle update request.");
+        }
+    }
 }));
