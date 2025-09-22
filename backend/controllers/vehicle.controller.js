@@ -543,7 +543,7 @@ export const rejectUpdateVehicleRequest = async (req, res) => {
 };
 
 export const requestDeleteVehicle = async (req, res) => {
-    const { id } = req.body;
+    const { id, reason } = req.body;
     const reqUser = req.user;
 
     try {
@@ -576,7 +576,7 @@ export const requestDeleteVehicle = async (req, res) => {
 
         vehicle.deleteRequest = {
             requestedBy: reqUser.id,
-            reason: `Requesting deletion for vehicle: ${vehicle.makeModel}, ${vehicle.ownerName}`,
+            reason: reason ? reason : `Requesting deletion for vehicle: ${vehicle.makeModel}, ${vehicle.ownerName}`,
             status: 'pending',
         };
 
