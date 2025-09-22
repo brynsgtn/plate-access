@@ -25,7 +25,16 @@ const VehicleList = () => {
         console.log("Search Data:", searchTerm);
     }, [formData, searchTerm]);
 
-    const { vehicles, loadingVehicles, updateVehicle, deleteVehicle, blacklistOrUnblacklistVehicle, blacklistVehicleRequest, requestBlacklistLoading } = useVehicleStore();
+    const { 
+        vehicles, 
+        loadingVehicles, 
+        updateVehicle, 
+        deleteVehicle, 
+        blacklistOrUnblacklistVehicle, 
+        blacklistVehicleRequest, 
+        requestBlacklistLoading,
+        requestUpdateVehicle,
+    } = useVehicleStore();
     const { user } = useUserStore();
 
     const handleEdit = (id) => {
@@ -67,7 +76,12 @@ const VehicleList = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        updateVehicle(formData.id, formData);
+
+        if (user.isAdmin) {
+            updateVehicle(formData.id, formData);
+        } else {
+            requestUpdateVehicle(formData.id, formData);
+        }
         setEditModal(false);
     };
 
@@ -330,6 +344,22 @@ const VehicleList = () => {
                                     required
                                 />
                             </div>
+
+                            <div>
+                                <label htmlFor='reason' className='block text-sm font-medium text-gray-300'>
+                                    Reason
+                                </label>
+                                <textarea
+                                    id='reason' 
+                                    name='reason'
+                                    value={formData.reason}
+                                    onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                                    className='mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2
+                         px-3 focus:outline-none focus:ring-2
+                         focus:ring-accent focus:border-accent'
+                         placeholder="Reason for editing the vehicle"
+                                />
+                            </div>
                             <button
                                 type='submit'
                                 className='w-full flex justify-center py-2 px-4 mt-8 border border-transparent rounded-md 
@@ -345,7 +375,7 @@ const VehicleList = () => {
                                 ) : (
                                     <>
                                         <PlusCircle className='mr-2 h-5 w-5' />
-                                        Add Vehicle
+                                        Edit Vehicle
                                     </>
                                 )}
                             </button>
