@@ -14,7 +14,8 @@ const VehicleRequestList = () => {
     approveDeleteVehicleRequest, 
     denyVehicleRequest,
     rejectUpdateVehicleRequest,
-    rejectDeleteVehicleRequest 
+    rejectDeleteVehicleRequest,
+    viewVehicles 
   } = useVehicleStore();
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [requestType, setRequestType] = useState(null);
@@ -24,6 +25,11 @@ const VehicleRequestList = () => {
   useEffect(() => {
     console.log("VehicleRequestList", vehicles);
   }, [vehicles]);
+
+    useEffect(() => {
+        // Fetch vehicle data when the component mounts
+        viewVehicles();
+    }, [viewVehicles]);
 
   // Reset page if search changes and removes items
   useEffect(() => {
