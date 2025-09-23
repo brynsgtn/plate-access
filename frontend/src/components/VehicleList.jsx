@@ -3,7 +3,6 @@ import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFront
 import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
-import { set } from "mongoose";
 
 const VEHICLES_PER_PAGE = 10;
 
