@@ -1,5 +1,5 @@
 import { useVehicleStore } from "../stores/useVehicleStore";
-import { Check, X, Eye, Edit3, Trash2, FileText, UserPlus, Search, User, CirclePlusIcon, ParkingCircleOffIcon } from "lucide-react";
+import { Check, X, Eye, Edit3, Trash2, FileText, UserPlus, Search, User, CirclePlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 
@@ -99,9 +99,6 @@ const VehicleRequestList = () => {
     if (type === "delete") {
       return vehicle.deleteRequest;
     }
-    if (type === "blacklist") {
-      return vehicle.blacklistRequest;
-    }
     return null;
   };
 
@@ -132,15 +129,8 @@ const VehicleRequestList = () => {
     )
     : [];
 
-  const blacklistRequests = Array.isArray(vehicles)
-    ? vehicles.filter(
-      (v) =>
-        v.blacklistRequest &&
-        (!v.blacklistRequest.status || v.blacklistRequest.status === "pending")
-    ) : [];
-
   const totalRequests =
-    unapprovedVehicles.length + updateRequests.length + deleteRequests.length + blacklistRequests.length;
+    unapprovedVehicles.length + updateRequests.length + deleteRequests.length;
 
   // Build rows
   const getAllRequestRows = () => {
@@ -182,18 +172,6 @@ const VehicleRequestList = () => {
         requestData: vehicle.deleteRequest,
       });
     });
-
-    blacklistRequests.forEach((vehicle) => {
-      rows.push({
-        id: `${vehicle._id}-blacklist`,
-        vehicle,
-        type: "blacklist",
-        rowNumber: rowIndex++,
-        badge: { text: "Blacklist Request", class: "badge-secondary" },
-        requestedBy: vehicle.blacklistRequest?.requestedBy?.username,
-        requestData: vehicle.blacklistRequest,
-      })
-    })
 
     return rows;
   };
@@ -281,17 +259,6 @@ const VehicleRequestList = () => {
           </div>
 
           <div className="stat">
-            <div className="stat-figure text-error">
-              <ParkingCircleOffIcon className="h-8 w-8" />
-            </div>
-            <div className="stat-title">Blacklist Requests</div>
-            <div className="stat-value text-error">
-              {blacklistRequests.length}
-            </div>
-          </div>
-
-
-          <div className="stat">
             <div className="stat-figure text-info">
               <FileText className="h-8 w-8" />
             </div>
@@ -359,8 +326,6 @@ const VehicleRequestList = () => {
                                 handleApproveUpdateVehicle(row.vehicle._id);
                               } else if (row.type === 'delete') {
                                 handleApproveDeleteVehicle(row.vehicle._id);
-                              } else {
-                                alert(`Approve blacklist vehicle: ${row.vehicle._id}`);
                               }
                             }}
                             className="btn btn-circle btn-sm btn-success hover:bg-success/90"
@@ -375,10 +340,8 @@ const VehicleRequestList = () => {
                                 handleRejectRegistration(row.vehicle._id);
                               } else if (row.type === 'update') {
                                 handleRejectUpdateRequest(row.vehicle._id);
-                              } else if (row.type === 'delete'){
+                              } else if (row.type === 'delete') {
                                 handleRejectDeleteRequest(row.vehicle._id);
-                              } else {
-                                alert(`Deny blacklist vehicle: ${row.vehicle._id}`);
                               }
                             }}
                             className="btn btn-circle btn-sm btn-error hover:bg-error/90"
@@ -436,17 +399,13 @@ const VehicleRequestList = () => {
                     <UserPlus className="h-6 w-6 text-warning" /> :
                     requestType === 'update' ?
                       <Edit3 className="h-6 w-6 text-info" /> :
-                      requestType === 'delete' ?
-                      <Trash2 className="h-6 w-6 text-error" /> :
-                      <ParkingCircleOffIcon className="h-6 w-6 text-warning" />
+                      <Trash2 className="h-6 w-6 text-error" />
                   }
                 </div>
                 <div>
                   <h3 className="font-bold text-lg text-white">
                     {requestType === 'registration' ? 'Registration Request Details' :
-                      requestType === 'update' ? 'Edit Request Details' : 
-                      requestType === 'delete' ? 'Delete Request Details' :
-                      'Blacklist Request Details'}
+                      requestType === 'update' ? 'Edit Request Details' : 'Delete Request Details'}
                   </h3>
                   <p className="text-white/60">
                     Vehicle: {selectedVehicle.plateNumber}
@@ -499,8 +458,8 @@ const VehicleRequestList = () => {
                               ? selectedVehicle.addedBy?.username
                               : requestType === "update"
                                 ? selectedVehicle.updateRequest?.requestedBy?.username
-                                : requestType === "delete" ? selectedVehicle.deleteRequest?.requestedBy?.username 
-                                : selectedVehicle.blacklistRequest?.requestedBy?.username}
+                                : selectedVehicle.deleteRequest?.requestedBy?.username
+                            }
                           </div>
                         </div>
                         <div>
@@ -534,11 +493,11 @@ const VehicleRequestList = () => {
                       Proposed Changes
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {selectedVehicle.plateNumber && (
+                      {selectedVehicle.updateRequest && (
                         <div>
                           <label className="label label-text-alt text-base-content/60">New Plate Number</label>
                           <div className="bg-info/20 text-info-content p-2 rounded text-sm font-mono">
-                            {selectedVehicle.plateNumber}
+                            {selectedVehicle.updateRequest.requestedPlateNumber}
                           </div>
                         </div>
                       )}
@@ -546,7 +505,7 @@ const VehicleRequestList = () => {
                         <div>
                           <label className="label label-text-alt text-base-content/60">New Make & Model</label>
                           <div className="bg-info/20 text-info-content p-2 rounded text-sm">
-                            {selectedVehicle.makeModel}
+                            {selectedVehicle.updateRequest.requestedModelAndMake}
                           </div>
                         </div>
                       )}
@@ -554,7 +513,7 @@ const VehicleRequestList = () => {
                         <div>
                           <label className="label label-text-alt text-base-content/60">New Owner Name</label>
                           <div className="bg-info/20 text-info-content p-2 rounded text-sm">
-                            {selectedVehicle.ownerName}
+                            {selectedVehicle.updateRequest.requestedOwnerName}
                           </div>
                         </div>
                       )}
@@ -572,8 +531,6 @@ const VehicleRequestList = () => {
                       handleRejectUpdateRequest(selectedVehicle._id);
                     } else if (requestType === 'delete') {
                       handleRejectDeleteRequest(selectedVehicle._id);
-                    } else {
-                      alert(`Reject blacklist vehicle: ${selectedVehicle._id}`);
                     }
                     closeModal();
                   }}
@@ -590,10 +547,8 @@ const VehicleRequestList = () => {
                     else if (requestType === 'update') {
                       handleApproveUpdateVehicle(selectedVehicle._id);
                     }
-                    else if (requestType === 'delete'){
+                    else if (requestType === 'delete') {
                       handleApproveDeleteVehicle(selectedVehicle._id);
-                    } else {
-                      alert(`Approve blacklist vehicle: ${selectedVehicle._id}`);
                     }
                     closeModal();
                   }}
