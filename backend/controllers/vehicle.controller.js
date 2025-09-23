@@ -137,6 +137,12 @@ export const deleteVehicle = async (req, res) => {
 // Blacklist or unblacklist vehicle
 export const blackListOrUnblacklistVehicle = async (req, res) => {
     const { id } = req.body;
+    const isAdmin = req.user.isAdmin;
+
+    // // Check if the user is an admin
+    // if (!isAdmin) {
+    //     return res.status(403).json({ message: "Non-admins need to request blacklist or unblacklist vehicles" });
+    // }
 
     // Validate request body
     if (!id) {
@@ -175,58 +181,7 @@ export const blackListOrUnblacklistVehicle = async (req, res) => {
     }
 };
 
-// Request blacklist vehicle
-export const requestBlacklistVehicle = async (req, res) => {
-    const { id, reason } = req.body;
-    const userId = req.user._id;
-
-    try {
-        // Validate request body
-        if (!id || !reason) {
-            return res.status(400).json({ message: "Vehicle ID and reason are required" });
-        }
-
-        // Find the vehicle by id
-        const vehicle = await Vehicle.findById(id);
-        if (!vehicle) {
-            return res.status(404).json({ message: "Vehicle not found" });
-        }
-
-        // Check if vehicle is already blacklisted
-        if (vehicle.isBlacklisted) {
-            return res.status(400).json({ message: "Vehicle is already blacklisted" });
-        }
-
-        // Check if there's already a pending blacklist request
-        if (vehicle.blacklistRequest && vehicle.blacklistRequest.status === 'pending') {
-            return res.status(400).json({ message: "Blacklist request already pending" });
-        }
-
-        // Create blacklist request
-        vehicle.blacklistRequest = {
-            requestedBy: userId,
-            requestedAt: new Date(),
-            reason: reason,
-            status: 'pending'
-        };
-
-        // Save the vehicle
-        await vehicle.save();
-
-        // Populate the requestedBy field for response
-        await vehicle.populate('blacklistRequest.requestedBy', 'username');
-
-        res.status(200).json({
-            message: "Blacklist request submitted successfully",
-            vehicle
-        });
-    } catch (error) {
-        console.error("Error in requestBlacklistVehicle controller:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
-
-// NEW: Admin approves blacklist request
+// Admin approves blacklist request
 export const approveBlacklistVehicleRequest = async (req, res) => {
     const { id } = req.body;
 
