@@ -67,17 +67,36 @@ export default App;
 
 
 // TODO: 
-// Vehicle Management Page - functionality and styling (backend integration)
-// integrate vehicleRequestList component (replace button text with icons, pagination, searchbar?, filter?)
-// Replace requestedby string to reference user object and display name
+
+// PARKING STAFF
+// Vehicle Management Page (parking staff)  - vehicle requests component (view only, proposed changes details)
+// System Monitoring Page
+// Access Panel Page
+// Gate simulation page
+// Navbar links
+
+// ADMIN
+// System Monitoring Page
 
 
 
 
-// User Management - styling
-// CreateUserForm - styling 
-// UserList - styling
-// Navbar - functionality and styling (to remove dropdown)
 // HomePage - functionality, and styling
 // Dashboard page, route and component (Admin and Parking Staff)
 // Protect routes
+
+
+// Low priority
+// Blacklist feature - shared blacklist list or online blacklist list
+// Vehicle Management Page - improve styling
+// User Management Page- styling
+// CreateUserForm component - styling 
+// UserList component - styling
+// Navbar component -  styling 
+// Footer component - styling
+
+
+
+// Done
+// Modals - confirmation blacklist and delete vehicle
+// view vehicle (add modal for blacklist)
