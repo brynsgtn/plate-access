@@ -2,8 +2,7 @@ import { useVehicleStore } from "../stores/useVehicleStore";
 import { Check, X, Eye, Edit3, Trash2, FileText, UserPlus, Search, User, CirclePlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
-
-
+import { useUserStore } from "../stores/useUserStore";
 
 const REQUESTS_PER_PAGE = 10;
 
@@ -19,6 +18,7 @@ const VehicleRequestList = () => {
     rejectDeleteVehicleRequest,
     viewVehicles
   } = useVehicleStore();
+  const { user } = useUserStore();
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [requestType, setRequestType] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,7 +31,6 @@ const VehicleRequestList = () => {
   useEffect(() => {
     console.log("Selected Vehicle", selectedVehicle);
   }, [selectedVehicle]);
-
 
   useEffect(() => {
     // Fetch vehicle data when the component mounts
@@ -70,7 +69,7 @@ const VehicleRequestList = () => {
 
   const handleRejectDeleteRequest = (vehicleId) => {
     rejectDeleteVehicleRequest(vehicleId);
-    console.log(`Approving delete for vehicle with ID: ${vehicleId}`);
+    console.log(`Rejecting delete for vehicle with ID: ${vehicleId}`);
   };
 
   // Open/close modal
@@ -102,31 +101,52 @@ const VehicleRequestList = () => {
     return null;
   };
 
-  // --- existing filtering for requests ---
+  // Helper function to check if request belongs to current user
+  const isUserRequest = (vehicle, type) => {
+    if (!user) return false;
+
+    switch (type) {
+      case "registration":
+        return vehicle.addedBy?._id === user._id || vehicle.addedBy?.id === user._id;
+      case "update":
+        return vehicle.updateRequest?.requestedBy?._id === user._id ||
+          vehicle.updateRequest?.requestedBy?.id === user._id;
+      case "delete":
+        return vehicle.deleteRequest?.requestedBy?._id === user._id ||
+          vehicle.deleteRequest?.requestedBy?.id === user._id;
+      default:
+        return false;
+    }
+  };
+
+  // --- Filter for current user's requests only (admin sees all) ---
   const unapprovedVehicles = Array.isArray(vehicles)
     ? vehicles.filter(
-      (v) =>
-        v.isApproved === false ||
-        v.isApproved === "false" ||
-        v.isApproved === null ||
-        v.isApproved === undefined
-    )
+        (v) =>
+          (v.isApproved === false ||
+            v.isApproved === "false" ||
+            v.isApproved === null ||
+            v.isApproved === undefined) &&
+          (user.isAdmin || isUserRequest(v, "registration"))
+      )
     : [];
 
   const updateRequests = Array.isArray(vehicles)
     ? vehicles.filter(
-      (v) =>
-        v.updateRequest &&
-        (!v.updateRequest.status || v.updateRequest.status === "pending")
-    )
+        (v) =>
+          v.updateRequest &&
+          (!v.updateRequest.status || v.updateRequest.status === "pending") &&
+          (user.isAdmin || isUserRequest(v, "update"))
+      )
     : [];
 
   const deleteRequests = Array.isArray(vehicles)
     ? vehicles.filter(
-      (v) =>
-        v.deleteRequest &&
-        (!v.deleteRequest.status || v.deleteRequest.status === "pending")
-    )
+        (v) =>
+          v.deleteRequest &&
+          (!v.deleteRequest.status || v.deleteRequest.status === "pending") &&
+          (user.isAdmin || isUserRequest(v, "delete"))
+      )
     : [];
 
   const totalRequests =
@@ -192,7 +212,6 @@ const VehicleRequestList = () => {
   // Get request data for selected vehicle
   const requestData = selectedVehicle ? getRequestData(selectedVehicle, requestType) : null;
 
-  // Move the loading check to the end to avoid hooks order issues
   if (loadingVehicles) {
     return (
       <div className="flex items-center justify-center py-10 h-100">
@@ -207,8 +226,15 @@ const VehicleRequestList = () => {
         {/* Header */}
         <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl flex flex-col md:flex-row justify-between items-center gap-3">
           <div>
-            <h2 className="text-2xl font-bold text-white">Vehicle Requests</h2>
-            <p className="text-white/80 mt-2">Manage registration, edit and delete requests</p>
+            <h2 className="text-2xl font-bold text-white">
+              {user.isAdmin ? "All Vehicle Requests" : "My Vehicle Requests"}
+            </h2>
+            <p className="text-white/80 mt-2">
+              {user.isAdmin
+                ? "Manage all registration, edit and delete requests"
+                : "View your submitted registration, edit and delete requests"
+              }
+            </p>
           </div>
 
           {/* Search Bar */}
@@ -277,19 +303,24 @@ const VehicleRequestList = () => {
                 <th>#</th>
                 <th>Request Type</th>
                 <th>Vehicle</th>
-                <th>Requested By</th>
+                {user.isAdmin && <th>Requested By</th>}
                 <th>Details</th>
-                <th>Actions</th>
+                {user.isAdmin && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
               {paginatedRows.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="text-center py-12">
+                  <td colSpan={user.isAdmin ? 6 : 4} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3 text-base-content/60">
                       <FileText className="h-16 w-16" />
                       <p className="text-lg font-medium">No requests found</p>
-                      <p className="text-sm">Try adjusting your search</p>
+                      <p className="text-sm">
+                        {user.isAdmin 
+                          ? "No pending requests at this time" 
+                          : "You haven't submitted any requests yet"
+                        }
+                      </p>
                     </div>
                   </td>
                 </tr>
@@ -306,51 +337,53 @@ const VehicleRequestList = () => {
                       <div className="font-bold">{row.vehicle.plateNumber}</div>
                       <div className="text-sm text-base-content/60">{row.vehicle.makeModel}</div>
                     </td>
-                    <td>{row.requestedBy}</td>
+                    {user.isAdmin && <td>{row.requestedBy}</td>}
                     <td>
                       <button
                         onClick={() => openModal(row.vehicle, row.type)}
-                        className="btn btn-circle btn-sm btn-ghost  hover:bg-transparent border-none"
+                        className="btn btn-circle btn-sm btn-ghost hover:bg-transparent border-none"
                       >
                         <Eye className="h-4 w-4" />
                       </button>
                     </td>
-                    <td>
-                      <div className="flex gap-2">
-                        <div className="tooltip tooltip-top" data-tip="Approve">
-                          <button
-                            onClick={() => {
-                              if (row.type === 'registration') {
-                                handleApproveVehicleRegistration(row.vehicle._id);
-                              } else if (row.type === 'update') {
-                                handleApproveUpdateVehicle(row.vehicle._id);
-                              } else if (row.type === 'delete') {
-                                handleApproveDeleteVehicle(row.vehicle._id);
-                              }
-                            }}
-                            className="btn btn-circle btn-sm btn-success hover:bg-success/90"
-                          >
-                            <Check className="h-4 w-4" />
-                          </button>
+                    {user.isAdmin && (
+                      <td>
+                        <div className="flex gap-2">
+                          <div className="tooltip tooltip-top" data-tip="Approve">
+                            <button
+                              onClick={() => {
+                                if (row.type === 'registration') {
+                                  handleApproveVehicleRegistration(row.vehicle._id);
+                                } else if (row.type === 'update') {
+                                  handleApproveUpdateVehicle(row.vehicle._id);
+                                } else if (row.type === 'delete') {
+                                  handleApproveDeleteVehicle(row.vehicle._id);
+                                }
+                              }}
+                              className="btn btn-circle btn-sm btn-success hover:bg-success/90"
+                            >
+                              <Check className="h-4 w-4" />
+                            </button>
+                          </div>
+                          <div className="tooltip tooltip-top" data-tip="Reject">
+                            <button
+                              onClick={() => {
+                                if (row.type === 'registration') {
+                                  handleRejectRegistration(row.vehicle._id);
+                                } else if (row.type === 'update') {
+                                  handleRejectUpdateRequest(row.vehicle._id);
+                                } else if (row.type === 'delete') {
+                                  handleRejectDeleteRequest(row.vehicle._id);
+                                }
+                              }}
+                              className="btn btn-circle btn-sm btn-error hover:bg-error/90"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
-                        <div className="tooltip tooltip-top" data-tip="Reject">
-                          <button
-                            onClick={() => {
-                              if (row.type === 'registration') {
-                                handleRejectRegistration(row.vehicle._id);
-                              } else if (row.type === 'update') {
-                                handleRejectUpdateRequest(row.vehicle._id);
-                              } else if (row.type === 'delete') {
-                                handleRejectDeleteRequest(row.vehicle._id);
-                              }
-                            }}
-                            className="btn btn-circle btn-sm btn-error hover:bg-error/90"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </td>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
@@ -521,43 +554,44 @@ const VehicleRequestList = () => {
                   </div>
                 )}
               </div>
-
-              <div className="modal-action">
-                <button
-                  onClick={() => {
-                    if (requestType === 'registration') {
-                      handleRejectRegistration(selectedVehicle._id);
-                    } else if (requestType === 'update') {
-                      handleRejectUpdateRequest(selectedVehicle._id);
-                    } else if (requestType === 'delete') {
-                      handleRejectDeleteRequest(selectedVehicle._id);
-                    }
-                    closeModal();
-                  }}
-                  className="btn btn-error"
-                >
-                  <X className="h-4 w-4" />
-                  Reject
-                </button>
-                <button
-                  onClick={() => {
-                    if (requestType === 'registration') {
-                      handleApproveVehicleRegistration(selectedVehicle._id);
-                    }
-                    else if (requestType === 'update') {
-                      handleApproveUpdateVehicle(selectedVehicle._id);
-                    }
-                    else if (requestType === 'delete') {
-                      handleApproveDeleteVehicle(selectedVehicle._id);
-                    }
-                    closeModal();
-                  }}
-                  className="btn btn-success"
-                >
-                  <Check className="h-4 w-4" />
-                  Approve
-                </button>
-              </div>
+              {user.isAdmin && (
+                <div className="modal-action">
+                  <button
+                    onClick={() => {
+                      if (requestType === 'registration') {
+                        handleRejectRegistration(selectedVehicle._id);
+                      } else if (requestType === 'update') {
+                        handleRejectUpdateRequest(selectedVehicle._id);
+                      } else if (requestType === 'delete') {
+                        handleRejectDeleteRequest(selectedVehicle._id);
+                      }
+                      closeModal();
+                    }}
+                    className="btn btn-error"
+                  >
+                    <X className="h-4 w-4" />
+                    Reject
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (requestType === 'registration') {
+                        handleApproveVehicleRegistration(selectedVehicle._id);
+                      }
+                      else if (requestType === 'update') {
+                        handleApproveUpdateVehicle(selectedVehicle._id);
+                      }
+                      else if (requestType === 'delete') {
+                        handleApproveDeleteVehicle(selectedVehicle._id);
+                      }
+                      closeModal();
+                    }}
+                    className="btn btn-success"
+                  >
+                    <Check className="h-4 w-4" />
+                    Approve
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
