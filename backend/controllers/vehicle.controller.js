@@ -403,9 +403,9 @@ export const requestUpdateVehicle = async (req, res) => {
 
         // Create a new update request
         vehicle.updateRequest = {
-            plateNumber,
-            makeModel,
-            ownerName,
+            requestedPlateNumber: plateNumber,
+            requestedModelAndMake:makeModel,
+            requestedOwnerName: ownerName,
             requestedBy: reqUser.id,
             reason: reason ? reason : `Requesting update for vehicle: ${makeModel}, ${ownerName}`,
             status: 'pending',
@@ -442,9 +442,9 @@ export const approveUpdateVehicleRequest = async (req, res) => {
         }
 
         // Update the vehicle details
-        vehicle.plateNumber = vehicle.updateRequest.plateNumber || vehicle.plateNumber;
-        vehicle.makeModel = vehicle.updateRequest.makeModel || vehicle.makeModel;
-        vehicle.ownerName = vehicle.updateRequest.ownerName || vehicle.ownerName;
+        vehicle.plateNumber = vehicle.updateRequest.requestedPlateNumber || vehicle.plateNumber;
+        vehicle.makeModel = vehicle.updateRequest.requestedModelAndMake || vehicle.makeModel;
+        vehicle.ownerName = vehicle.updateRequest.requestedOwnerName || vehicle.ownerName;
 
         // Clear the update request
         vehicle.updateRequest = null;
