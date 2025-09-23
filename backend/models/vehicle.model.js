@@ -43,6 +43,9 @@ const vehicleSchema = new mongoose.Schema(
 
         updateRequest: {
             type: new mongoose.Schema({
+                requestedPlateNumber: { type: String },
+                requestedModelAndMake: { type: String },
+                requestedOwnerName: { type: String },
                 requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
                 requestedAt: { type: Date, default: Date.now },
                 approvedOrDeclinedAt: { type: Date, default: null },
