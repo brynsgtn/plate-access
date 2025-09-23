@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { useUserStore } from "../stores/useUserStore";
 import { useVehicleStore } from "../stores/useVehicleStore";
-import { ParkingCircleOffIcon, Search } from "lucide-react";
+import { ParkingCircleOffIcon, Search, X } from "lucide-react";
+import toast from "react-hot-toast";
 
 const VEHICLES_PER_PAGE = 10;
 
@@ -13,6 +15,7 @@ const VehicleBlacklistTable = () => {
         console.log("Search Data:", searchTerm);
     }, [searchTerm]);
 
+    const { user } = useUserStore();
     const { vehicles, blacklistOrUnblacklistVehicle } = useVehicleStore();
     const blacklistedVehicles = vehicles.filter((vehicle) => vehicle.isBlacklisted);
 
@@ -28,9 +31,13 @@ const VehicleBlacklistTable = () => {
         : [];
 
     const handleUnblacklist = (id) => {
-        blacklistOrUnblacklistVehicle(id);
+        if (user.isAdmin) {
+            blacklistOrUnblacklistVehicle(id)
+        } else {
+            toast.error("You are not authorized to unblacklist vehicles.");
+        };
         console.log("Unblacklisting vehicle with ID:", id);
-    };
+    }
 
     return (
         <>
@@ -66,7 +73,7 @@ const VehicleBlacklistTable = () => {
                         </div>
                         <div className="text-xl font-semibold">Total Blacklist Vehicles</div>
                         <div className="stat-value text-error">
-                       {blacklistedVehicles.length}
+                            {blacklistedVehicles.length}
                         </div>
                     </div>
 
@@ -79,7 +86,7 @@ const VehicleBlacklistTable = () => {
                             <th className="text-base font-semibold text-base-content">Make & Model</th>
                             <th className="text-base font-semibold text-base-content">Owner</th>
                             <th className="text-base font-semibold text-base-content">Blacklisted Date</th>
-                            <th className="text-base font-semibold text-base-content">Action</th>
+                            {user.isAdmin && <th className="text-base font-semibold text-base-content">Action</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -101,14 +108,16 @@ const VehicleBlacklistTable = () => {
                                         ? new Date(vehicle.isBlacklistedAt).toLocaleDateString()
                                         : "-"}
                                 </td>
-                                <td>
-                                    <button
-                                        onClick={() => handleUnblacklist(vehicle._id)}
-                                        className="btn btn-xs btn-success"
-                                    >
-                                        Unblacklist
-                                    </button>
-                                </td>
+                               {user.isAdmin && (
+                                    <td>
+                                        <button
+                                            onClick={() => handleUnblacklist(vehicle._id)}
+                                            className="btn btn-xs btn-success"
+                                        >
+                                            Unblacklist
+                                        </button>
+                                    </td>
+                                )}
                             </tr>
                         ))}
                     </tbody>
@@ -135,6 +144,7 @@ const VehicleBlacklistTable = () => {
                     </div>
                 )
             }
+
         </>
     );
 };
