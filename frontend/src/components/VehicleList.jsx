@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, PlusCircle} from "lucide-react";
+import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, PlusCircle } from "lucide-react";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
+import { set } from "mongoose";
 
 const VEHICLES_PER_PAGE = 10;
 
@@ -11,6 +12,7 @@ const VehicleList = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
     const [deleteModal, setDeleteModal] = useState(false);
+    const [blacklistModal, setBlacklistModal] = useState(false);
     const [deleteReason, setDeleteReason] = useState("");
 
 
@@ -72,13 +74,20 @@ const VehicleList = () => {
         } else {
             requestDeleteVehicle(formData.id, deleteReason);
         }
+        setFormData({
+            id: "", plateNumber: "", makeModel: "", ownerName: "", reason: "",
+        })
         setDeleteModal(false);
     };
 
 
-    const handleBlacklist = (id) => {
-            blacklistOrUnblacklistVehicle(id);
-            console.log("Blacklisting vehicle with ID:", id);
+    const handleBlacklist = () => {
+        blacklistOrUnblacklistVehicle(formData.id);
+        console.log("Blacklisting vehicle with ID:", formData.id);
+        setFormData({
+            id: "", plateNumber: "", makeModel: "", ownerName: "", reason: "",
+        })
+        setBlacklistModal(false);
     };
 
     const handleSubmit = (e) => {
@@ -90,7 +99,21 @@ const VehicleList = () => {
             requestUpdateVehicle(formData.id, formData);
         }
         setEditModal(false);
+        setFormData({
+            id: "", plateNumber: "", makeModel: "", ownerName: "", reason: "",
+        })
     };
+
+    const handleopenBlacklistModal = (id) => {
+        const vehicleToBlacklist = vehicles.find((v) => v._id === id);
+        setFormData({
+            id: vehicleToBlacklist._id,
+            plateNumber: vehicleToBlacklist.plateNumber,
+            makeModel: vehicleToBlacklist.makeModel,
+            ownerName: vehicleToBlacklist.ownerName,
+        })
+        setBlacklistModal(true);
+    }
 
 
     const vehicleList = vehicles.filter((vehicle) => vehicle.isApproved);
@@ -215,7 +238,7 @@ const VehicleList = () => {
                                         ) :
                                             <div className="tooltip" data-tip="Blacklist this vehicle">
                                                 <button
-                                                    onClick={() => handleBlacklist(vehicle._id)}
+                                                    onClick={() => handleopenBlacklistModal(vehicle._id)}
                                                     className="btn btn-xs btn-outline btn-success gap-1"
                                                 >
                                                     Authorized
@@ -425,6 +448,40 @@ const VehicleList = () => {
                                 className="btn btn-error"
                             >
                                 Request Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {blacklistModal && (
+                <div
+                    className="modal modal-open backdrop-blur-md"
+                    onClick={() => setBlacklistModal(false)}
+                >
+                    <div
+                        className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-2xl font-semibold mb-6 text-white">Blacklist Vehicle</h3>
+
+                        <p className="text-gray-200 mb-4">
+                            Are you sure you want to blacklist vehicle{" "}
+                            <span className="font-bold">{formData.plateNumber}</span>?
+                        </p>
+
+                        <div className="modal-action">
+                            <button
+                                onClick={() => setBlacklistModal(false)}
+                                className="btn btn-sm btn-ghost text-white"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleBlacklist}
+                                className="btn btn-error"
+                            >
+                                Blacklist Vehicle
                             </button>
                         </div>
                     </div>
