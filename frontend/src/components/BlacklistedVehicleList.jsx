@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useUserStore } from "../stores/useUserStore";
 import { useVehicleStore } from "../stores/useVehicleStore";
-import { ParkingCircleOffIcon, Search, X } from "lucide-react";
+import { ParkingCircleOffIcon, Search } from "lucide-react";
 import toast from "react-hot-toast";
+import LoadingSpinner from "./LoadingSpinner";
 
 const VEHICLES_PER_PAGE = 10;
 
@@ -16,8 +17,13 @@ const VehicleBlacklistTable = () => {
     }, [searchTerm]);
 
     const { user } = useUserStore();
-    const { vehicles, blacklistOrUnblacklistVehicle } = useVehicleStore();
+    const { vehicles, blacklistOrUnblacklistVehicle, viewVehicles, loadingVehicles } = useVehicleStore();
     const blacklistedVehicles = vehicles.filter((vehicle) => vehicle.isBlacklisted);
+
+
+    useEffect(() => {
+        viewVehicles();
+    }, [viewVehicles]);
 
     // Filter vehicles by plate number
     const filteredVehicles = blacklistedVehicles.filter((vehicle) =>
@@ -37,6 +43,14 @@ const VehicleBlacklistTable = () => {
             toast.error("You are not authorized to unblacklist vehicles.");
         };
         console.log("Unblacklisting vehicle with ID:", id);
+    }
+
+    if (loadingVehicles) {
+        return (
+            <div className="flex items-center justify-center py-10 h-96">
+                <LoadingSpinner className="h-8 w-8 animate-spin" />
+            </div>
+        );
     }
 
     return (
@@ -108,7 +122,7 @@ const VehicleBlacklistTable = () => {
                                         ? new Date(vehicle.isBlacklistedAt).toLocaleDateString()
                                         : "-"}
                                 </td>
-                               {user.isAdmin && (
+                                {user.isAdmin && (
                                     <td>
                                         <button
                                             onClick={() => handleUnblacklist(vehicle._id)}
