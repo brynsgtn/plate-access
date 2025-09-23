@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 
 
 
+
 export const useVehicleStore = create((set, get) => ({
     vehicles: [],
     loadingVehicles: false,
@@ -88,21 +89,6 @@ export const useVehicleStore = create((set, get) => ({
         } catch (error) {
             console.error("Error blacklisting vehicle:", error);
             toast.error(error.response?.data?.message || "Failed to blacklist vehicle.");
-        }
-    },
-    blacklistVehicleRequest: async (vehicleId, reason) => {
-        try {
-            const response = await axios.put(`/vehicle/request-blacklist-vehicle`, { id: vehicleId, reason: reason });
-            console.log("Vehicle backlist request sent:", response.data);
-            set((prevState) => ({
-                vehicles: prevState.vehicles.map((vehicle) =>
-                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
-                )
-            }))
-            toast.success(response?.data?.message || "Vehicle blacklist request sent successfully!");
-        } catch (error) {
-            console.error("Error sending vehicle blacklist request:", error);
-            toast.error(error.response?.data?.message || "Failed to send vehicle blacklist request.");
         }
     },
     approveVehicleRequest: async (vehicleId) => {
@@ -226,5 +212,6 @@ export const useVehicleStore = create((set, get) => ({
             console.error("Error sending vehicle delete request:", error);
             toast.error(error.response?.data?.message || "Failed to send vehicle delete request.");
         }
-    }
+    },
+
 }));
