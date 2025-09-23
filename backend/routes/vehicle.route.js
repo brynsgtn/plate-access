@@ -19,7 +19,6 @@ import {
     denyVehicleRequest,
     rejectUpdateVehicleRequest,
     rejectDeleteVehicleRequest,
-    requestBlacklistVehicle,
     approveBlacklistVehicleRequest
 } from "../controllers/vehicle.controller.js";
 
