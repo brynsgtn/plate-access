@@ -16,6 +16,7 @@ import ProfilePage from './pages/ProfilePage';
 import UserManagementPage from './pages/UserManagementPage';
 import VehicleManagementPage from './pages/VehicleManagementPage';
 
+
 import LoadingSpinner from './components/LoadingSpinner';
 
 import { useUserStore } from './stores/useUserStore';
@@ -35,7 +36,7 @@ function App() {
     console.log("Logged in user:", user);
   }, [user]);
 
-  
+
   if (checkingAuth) {
     return (
       <div data-theme="autumn" className="min-h-screen flex items-center justify-center bg-base-100">
@@ -49,11 +50,12 @@ function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={ user ? <Navigate to="/dashboard" /> : <LoginPage />} />
-          <Route path="/dashboard" element={ !user ? <Navigate to="/login" /> : <DashboardPage />} />
-          <Route path="/profile" element={ !user ? <Navigate to="/login" /> : <ProfilePage />} />
-          <Route path="/user-management" element={ !user ? <Navigate to="/login" /> : <UserManagementPage />} />
-          <Route path="/vehicle-management" element={ !user ? <Navigate to="/login" /> : <VehicleManagementPage />} />
+          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
+          <Route path="/dashboard" element={!user ? <Navigate to="/login" /> : <DashboardPage />} />
+          <Route path="/profile" element={!user ? <Navigate to="/login" /> : <ProfilePage />} />
+          <Route path="/user-management" element={!user ? <Navigate to="/login" /> : <UserManagementPage />} />
+          <Route path="/vehicle-management" element={!user ? <Navigate to="/login" /> : <VehicleManagementPage />} />
+
         </Routes>
       </main>
       <Footer />
