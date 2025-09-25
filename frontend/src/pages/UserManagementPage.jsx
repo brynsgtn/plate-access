@@ -7,7 +7,7 @@ import UserList from "../components/UserList";
 import { useUserStore } from "../stores/useUserStore";
 
 const tabs = [
-    { id: "create", label: "Create User", icon: UserPlus },
+    { id: "create", label: "Add User", icon: UserPlus },
     { id: "users", label: "Users", icon: Users },
 ];
 
