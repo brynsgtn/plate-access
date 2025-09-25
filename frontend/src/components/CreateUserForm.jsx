@@ -31,9 +31,10 @@ const CreateUserForm = () => {
 
     return (
         <div
-            className='bg-primary shadow-lg rounded-lg p-8 mb-8 max-w-xl mx-auto'
+            className='bg-primary shadow-lg bg-gradient-to-r from-primary to-secondary p-10 rounded-xl mb-15 max-w-5xl mx-auto'
         >
-            <h2 className='text-2xl font-semibold mb-6 text-primary-content'>Create New Product</h2>
+            <h2 className='text-2xl font-bold mb-6 text-white'>Add New User</h2>
+            <p className='text-gray-300 mb-6'>Enter the details of the user you want to add:</p>
             <form onSubmit={handleSubmit} className='space-y-4'>
                 <div>
                     <label htmlFor='username' className='block text-sm font-medium text-gray-300'>
@@ -140,7 +141,7 @@ const CreateUserForm = () => {
                     ) : (
                         <>
                             <PlusCircle className='mr-2 h-5 w-5' />
-                            Create User
+                            Add User
                         </>
                     )}
                 </button>
