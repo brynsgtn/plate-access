@@ -51,7 +51,6 @@ const VehicleManagementPage = () => {
 
     const totalVehicles = Array.isArray(vehicles) ? vehicles.filter((vehicle) => vehicle.isApproved).length : 0;
     const blacklistedVehicles = Array.isArray(vehicles) ? vehicles.filter((vehicle) => vehicle.isBlacklisted).length : 0;
-    const vehicleRequests = Array.isArray(vehicles) ? vehicles.filter((vehicle) => !vehicle.isApproved).length : 0;
 
     const unapprovedVehicles = Array.isArray(vehicles) ? vehicles.filter(v => {
         // Handle different possible values for isApproved
