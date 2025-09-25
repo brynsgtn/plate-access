@@ -8,6 +8,7 @@ export const useUserStore = create((set, get) => ({
     user: null,
     users: null,
     loading: false,
+    usersLoading: false,
     checkingAuth: true,
 
     login: async (usernameOrEmail, password) => {
@@ -58,12 +59,12 @@ export const useUserStore = create((set, get) => ({
         }
     },
     fetchAllUsers: async () => {
-        set({ loading: true });
+        set({ usersLoading: true });
         try {
             const response = await axios.get("/user/get-users");
-            set({ users: response.data, loading: false });
+            set({ users: response.data, usersLoading: false });
         } catch (error) {
-            set({ loading: false });
+            set({ usersloading: false });
             console.error("Fetch users failed:", error);
         }
     },
