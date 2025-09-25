@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Trash, UserCog } from "lucide-react";
+import { Trash, UserCog, Users, UserStarIcon, UserSearchIcon } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
+import LoadingSpinner from "./LoadingSpinner";
 
-const USERS_PER_PAGE = 5;
-
+const USERS_PER_PAGE = 10;
 const UserList = () => {
-  const { users, updateUser, deleteUser, fetchAllUsers } = useUserStore();
+  const { users, updateUser, deleteUser, fetchAllUsers  } = useUserStore();
 
   useEffect(() => {
     fetchAllUsers();
@@ -27,10 +27,59 @@ const UserList = () => {
     await deleteUser(id);
   };
 
+  const totalUsers = users.length;
+  const totalAdmins = users.filter((user) => user.isAdmin).length;
+  const totalParkingStaff = users.filter((user) => !user.isAdmin).length;
+
+ 
+
   return (
     <>
-      <div className="overflow-x-auto mx-auto mt-8 p-5 rounded-l shadow-lg bg-base-100 border border-base-300 max-w-5xl">
-        <table className="table table-xs table-pin-rows table-pin-cols">
+      <div className="overflow-x-auto mx-auto mt-10 mb-15 rounded-l shadow-lg bg-base-100 border-none max-w-5xl">
+        <div className="border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 ">
+            <h2 className="text-2xl font-bold text-white">User List</h2>
+            <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+            </div>
+          </div>
+          <p className="text-white/80 mt-2">User details will be displayed here</p>
+        </div>
+
+        {/* Stats */}
+        <div className="stats w-full bg-base-100  border-base-300">
+
+          <div className="stat">
+            <div className="stat-figure text-warning">
+              <Users className="h-8 w-8" />
+            </div>
+            <div className="stat-title">Total Users</div>
+            <div className="stat-value text-warning">
+              {totalUsers}
+            </div>
+          </div>
+
+          <div className="stat">
+            <div className="stat-figure text-warning">
+              <UserStarIcon className="h-8 w-8" />
+            </div>
+            <div className="stat-title">Admins</div>
+            <div className="stat-value text-warning">
+              {totalAdmins}
+            </div>
+          </div>
+
+          <div className="stat">
+            <div className="stat-figure text-primary">
+              <UserSearchIcon className="h-8 w-8" />
+            </div>
+            <div className="stat-title">Parking Staffs</div>
+            <div className="stat-value text-primary">
+              {totalParkingStaff}
+            </div>
+          </div>
+        </div>
+
+        <table className="table table-zebra w-full">
           <thead className="bg-base-200">
             <tr>
               <th className="text-base font-semibold text-base-content">#</th>
@@ -51,10 +100,10 @@ const UserList = () => {
             )}
             {paginatedUsers.map((user, idx) => (
               <tr key={user._id} className="hover:bg-base-200 transition">
-                <th className="font-medium">{(page - 1) * USERS_PER_PAGE + idx + 1}</th>
-                <td>{user.username}</td>
-                <td>{user.email}</td>
-                <td>
+                <th className="py-4">{(page - 1) * USERS_PER_PAGE + idx + 1}</th>
+                <td className="py-4">{user.username}</td>
+                <td className="py-4">{user.email}</td>
+                <td className="py-4">
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold
                     ${user.isAdmin
@@ -98,7 +147,7 @@ const UserList = () => {
       <div>
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex justify-center mt-2">
+          <div className="flex justify-center mb-10">
             <div className="join">
               {Array.from({ length: totalPages }).map((_, i) => (
                 <input
