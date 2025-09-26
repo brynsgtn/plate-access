@@ -1,7 +1,24 @@
-import { Activity, Camera, Shield, Users, TrendingUp, Eye, Lock, Unlock, UserPlus, AlertTriangle, Ban, DoorOpen, CameraOffIcon } from 'lucide-react';
+import {
+    Activity,
+    Camera,
+    Shield,
+    Users,
+    TrendingUp,
+    Eye,
+    Lock,
+    Unlock,
+    UserPlus,
+    AlertTriangle,
+    Ban,
+    DoorOpen,
+    CameraOffIcon
+} from 'lucide-react';
 
+import { useGateStore } from '../stores/useGateStore';
 
 const DashboardPage = () => {
+
+    const { isEntranceGateOpen, isExitGateOpen, lastExitAction, lastEntranceAction } = useGateStore();
     return (
         <>
             <div className='min-h-screen relative overflow-hidden bg-base-100'>
@@ -103,12 +120,19 @@ const DashboardPage = () => {
                             <div className="p-4 bg-base-200 rounded-lg flex flex-col gap-1">
                                 <div className="flex items-center justify-between">
                                     <h3 className="font-semibold text-base-content">Entrance Gate</h3>
-                                    <span className="text-sm font-medium flex items-center text-green-600 gap-1">
-                                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                        OPEN
+                                    <span className={`text-sm font-medium flex items-center gap-1 ${isEntranceGateOpen ? "text-success" : "text-error"
+                                        }`}>
+                                        <div className={`w-2 h-2 ${isEntranceGateOpen ? "bg-success" : "bg-error"} rounded-full animate-pulse`}></div>
+                                        {isEntranceGateOpen ? "OPEN" : "CLOSED"}
                                     </span>
                                 </div>
-                                <p className="text-xs text-base-content/70">Last action: 2:34 PM</p>
+                                 {lastEntranceAction ? (
+                                    <p className="text-xs text-base-content/70">
+                                        Last action: {lastEntranceAction.action} at {lastEntranceAction.time}
+                                    </p>
+                                ) : (
+                                    <p className="text-xs text-base-content/50 italic">No actions yet</p>
+                                )}
                             </div>
 
                             {/* Entrance Camera */}
@@ -140,13 +164,19 @@ const DashboardPage = () => {
                             <div className="p-4 bg-base-200 rounded-lg flex flex-col gap-1">
                                 <div className="flex items-center justify-between">
                                     <h3 className="font-semibold text-base-content">Exit Gate</h3>
-                                    <span className="text-sm font-medium flex items-center text-red-600 gap-1">
-                                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                                        CLOSED
+                                    <span className={`text-sm font-medium flex items-center ${isExitGateOpen ? "text-success" : "text-error"} gap-1`}>
+                                        <div className={`w-2 h-2 ${isExitGateOpen ? "bg-success" : "bg-error"} rounded-full`}></div>
+                                        {isExitGateOpen ? "OPEN" : "CLOSED"}
                                     </span>
                                 </div>
 
-                                <p className="text-xs text-base-content/70">Last action: 3:12 PM</p>
+                                {lastExitAction ? (
+                                    <p className="text-xs text-base-content/70">
+                                        Last action: {lastExitAction.action} at {lastExitAction.time}
+                                    </p>
+                                ) : (
+                                    <p className="text-xs text-base-content/50 italic">No actions yet</p>
+                                )}
                             </div>
 
                             {/* Exit Camera */}
@@ -220,12 +250,12 @@ const DashboardPage = () => {
                         <div className="space-y-6">
                             {/* Verification Alerts */}
                             <div className="bg-base-100 rounded-2xl shadow-lg border border-base-300">
-                            <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl mb-4">
-                                <h2 className="text-2xl font-bold text-white flex items-center">
-                                    <Eye className="mr-3 h-5 w-5 text-white" />
-                                    Verification Alerts
-                                </h2>
-                            </div>
+                                <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl mb-4">
+                                    <h2 className="text-2xl font-bold text-white flex items-center">
+                                        <Eye className="mr-3 h-5 w-5 text-white" />
+                                        Verification Alerts
+                                    </h2>
+                                </div>
                                 <div className="p-6 space-y-4">
                                     <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-300">
                                         <div className="flex items-start justify-between">
@@ -244,12 +274,12 @@ const DashboardPage = () => {
 
                             {/* Blacklist Alerts */}
                             <div className="bg-base-100 rounded-2xl shadow-lg border border-base-300">
-                            <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl mb-4">
-                                <h2 className="text-2xl font-bold text-white flex items-center">
-                                    <Ban className="mr-3 h-5 w-5 text-white" />
-                                    Blacklist Alerts
-                                </h2>
-                            </div>
+                                <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl mb-4">
+                                    <h2 className="text-2xl font-bold text-white flex items-center">
+                                        <Ban className="mr-3 h-5 w-5 text-white" />
+                                        Blacklist Alerts
+                                    </h2>
+                                </div>
                                 <div className="p-6 space-y-4">
                                     <div className="p-4 bg-red-50 rounded-xl border border-red-300">
                                         <div className="flex items-start justify-between">
