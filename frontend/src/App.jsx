@@ -73,8 +73,9 @@ export default App;
 // TODO: 
 
 // PARKING STAFF
-// Dashboard page - build backend and integrate with frontend, imporve styling (move access controls to gate simulation page?)
-// Gate simulation page - build backend and integrate with frontend
+// Dashboard page - build backend and integrate with frontend (camera, access logs, recent logs, verification alerts, blacklist alerts)
+// Access control page - build backend and integrate with frontend (gate controls - automatic lpr attempt on entrance and exit, and manual controls - gate, camera entry)
+// Access logs backend controllers - viewAllLogs, entryLog, exitLog, manualEntryLog, manualExitLog, blacklistLog, statsLog, add guest vehicle model and controller for it
 // Navbar links
 
 // ADMIN
