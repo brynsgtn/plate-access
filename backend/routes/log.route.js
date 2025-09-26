@@ -4,7 +4,7 @@ import express from "express";
 // Import controllers
 import { 
     viewAllLogs, 
-    entryLog
+    entryLogLPR
  } from "../controllers/log.controller.js";
 
 // Initialize Express router
@@ -12,7 +12,7 @@ const router = express.Router();
 
 // Log routes
 router.get("/view-logs", viewAllLogs);
-router.post("/log-entry", entryLog);
+router.post("/entry-log-lpr", entryLogLPR);
 
 // Export router
 export default router;

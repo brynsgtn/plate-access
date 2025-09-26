@@ -1,44 +1,38 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const LogSchema = new mongoose.Schema({
-    vehicle: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Vehicle', // references Vehicle collection
-        required: true
-    },
-    gateType: {
-        type: String,
-        enum: ['entrance', 'exit'],
-        required: true
-    },
-    action: {
-        type: String,
-        enum: ['open', 'close', 'attempt', 'fail'],
-        required: true
-    },
-    success: {
-        type: Boolean,
-        required: true
-    },
-    timestamp: {
-        type: Date,
-        default: Date.now
-    },
-    method: {
-        type: String,
-        enum: ['manual', 'LPR', 'emergency'],
-        required: true
-    },
-    user: {
-        type: String, // optional admin or staff name/id
-        default: null
-    },
-    notes: {
-        type: String,
-        default: ''
-    }
+const logSchema = new mongoose.Schema({
+  vehicle: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Vehicle",
+    required: false // in case the plate is not registered
+  },
+  plateNumber: {
+    type: String,
+    required: true // always log the attempted plate, even if not in DB
+  },
+  gateType: {
+    type: String,
+    enum: ["entrance", "exit"],
+    required: true
+  },
+  method: {
+    type: String,
+    enum: ["LPR", "manual"],
+    required: true
+  },
+  success: {
+    type: Boolean,
+    required: true
+  },
+  notes: {
+    type: String,
+    default: ""
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now
+  }
 });
 
- const Log = mongoose.model('Log', LogSchema);
-
- export default Log;
+const Log = mongoose.model("Log", logSchema);
+export default Log;
