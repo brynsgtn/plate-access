@@ -2,8 +2,14 @@ import Vehicle from "../models/vehicle.model.js";
 import Log from "../models/log.model.js";
 
 // View logs controller
-export const viewLogs = async (req, res) => {
-    res.send("Log route");
+export const viewAllLogs = async (req, res) => {
+    try {
+        const logs = await Log.find().populate("vehicle");
+        res.json(logs);
+    } catch (error) {
+        console.error("Error in viewLogs controller:", error);
+        res.status(500).json({ message: "Server error" });
+    }
 };
 
 export const entryLog = async (req, res) => {
