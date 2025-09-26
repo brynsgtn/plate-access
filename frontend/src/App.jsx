@@ -15,6 +15,7 @@ import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import UserManagementPage from './pages/UserManagementPage';
 import VehicleManagementPage from './pages/VehicleManagementPage';
+import GateSimulationPage from './pages/GateSimulationPage';
 
 
 import LoadingSpinner from './components/LoadingSpinner';
@@ -52,6 +53,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
           <Route path="/dashboard" element={!user ? <Navigate to="/login" /> : <DashboardPage />} />
+          <Route path="/gate-simulation" element={!user ? <Navigate to="/login" /> : <GateSimulationPage />} />
           <Route path="/profile" element={!user ? <Navigate to="/login" /> : <ProfilePage />} />
           <Route path="/user-management" element={!user ? <Navigate to="/login" /> : <UserManagementPage />} />
           <Route path="/vehicle-management" element={!user ? <Navigate to="/login" /> : <VehicleManagementPage />} />
