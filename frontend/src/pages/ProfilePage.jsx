@@ -26,7 +26,7 @@ const ProfilePage = () => {
                             </div>
 
                             <div className="flex items-center gap-2 group">
-                                <p className="px-4 py-2.5 bg-base-200 rounded-lg flex-grow bg-base-300">
+                                <p className="px-4 py-2.5 rounded-lg flex-grow bg-base-300">
                                     {user.username}
                                 </p>
                             </div>
@@ -38,7 +38,7 @@ const ProfilePage = () => {
                                 <Mail className="w-4 h-4" />
                                 Email Address
                             </div>
-                            <p className="px-4 py-2.5 bg-base-100 rounded-lg bg-base-300">{user.email}</p>
+                            <p className="px-4 py-2.5  rounded-lg bg-base-300">{user.email}</p>
                         </div>
 
                         <div className="space-y-1.5">
@@ -46,7 +46,7 @@ const ProfilePage = () => {
                                 <UserCheck className="w-4 h-4" />
                                 User Access
                             </div>
-                            <p className="px-4 py-2.5 bg-base-100 rounded-lg bg-base-300">{user.isAdmin ? "Admin" : "Parking Staff"}</p>
+                            <p className="px-4 py-2.5  rounded-lg bg-base-300">{user.isAdmin ? "Admin" : "Parking Staff"}</p>
                         </div>
                     </div>
 
