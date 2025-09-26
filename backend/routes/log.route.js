@@ -3,7 +3,7 @@ import express from "express";
 
 // Import controllers
 import { 
-    viewLogs, 
+    viewAllLogs, 
     entryLog
  } from "../controllers/log.controller.js";
 
@@ -11,7 +11,7 @@ import {
 const router = express.Router();
 
 // Log routes
-router.get("/", viewLogs);
+router.get("/view-logs", viewAllLogs);
 router.post("/log-entry", entryLog);
 
 // Export router
