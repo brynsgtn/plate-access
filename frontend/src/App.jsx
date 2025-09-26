@@ -15,7 +15,7 @@ import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import UserManagementPage from './pages/UserManagementPage';
 import VehicleManagementPage from './pages/VehicleManagementPage';
-import GateSimulationPage from './pages/GateSimulationPage';
+import AccessControlPage from './pages/AccessControlPage';
 
 
 import LoadingSpinner from './components/LoadingSpinner';
@@ -53,7 +53,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
           <Route path="/dashboard" element={!user ? <Navigate to="/login" /> : <DashboardPage />} />
-          <Route path="/gate-simulation" element={!user ? <Navigate to="/login" /> : <GateSimulationPage />} />
+          <Route path="/access-control" element={!user ? <Navigate to="/login" /> : <AccessControlPage />} />
           <Route path="/profile" element={!user ? <Navigate to="/login" /> : <ProfilePage />} />
           <Route path="/user-management" element={!user ? <Navigate to="/login" /> : <UserManagementPage />} />
           <Route path="/vehicle-management" element={!user ? <Navigate to="/login" /> : <VehicleManagementPage />} />
@@ -73,14 +73,12 @@ export default App;
 // TODO: 
 
 // PARKING STAFF
-// Vehicle Management Page (parking staff)  - vehicle requests component (view only, proposed changes details)
-// System Monitoring Page
-// Access Panel Page
-// Gate simulation page
+// Dashboard page - build backend and integrate with frontend, imporve styling (move access controls to gate simulation page?)
+// Gate simulation page - build backend and integrate with frontend
 // Navbar links
 
 // ADMIN
-// System Monitoring Page
+// Dashboard page 
 
 
 

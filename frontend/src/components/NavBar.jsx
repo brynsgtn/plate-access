@@ -153,7 +153,7 @@ const NavBar = () => {
                                 <Link to="/dashboard">Dashboard</Link>
                             </li>
                             <li>
-                                <Link to="/gate-simulation">Gate Simulation</Link>
+                                <Link to="/access-control">Access Controls</Link>
                             </li>
                             <li>
                                     <Link to="/vehicle-management">Vehicle Management</Link>

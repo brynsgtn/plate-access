@@ -11,7 +11,7 @@ import {
     Clock
 } from 'lucide-react';
 
-const GateSimulationPage = () => {
+const AccessControlPage = () => {
     const [entranceGate, setEntranceGate] = useState('closed');
     const [exitGate, setExitGate] = useState('closed');
     const [lastActivity, setLastActivity] = useState(null);
@@ -182,4 +182,4 @@ const GateSimulationPage = () => {
     );
 };
 
-export default GateSimulationPage;
+export default AccessControlPage;
