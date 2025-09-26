@@ -7,9 +7,6 @@ import {
     Shield,
     Camera,
     CameraOffIcon,
-    AlertCircle,
-    CheckCircle,
-    Clock
 } from 'lucide-react';
 import { useGateStore } from '../stores/useGateStore';
 
@@ -24,6 +21,8 @@ const AccessControlPage = () => {
     const [entranceGate, setEntranceGate] = useState(isEntranceGateOpen ? 'open' : 'closed');
     const [exitGate, setExitGate] = useState(isExitGateOpen ? 'open' : 'closed');
     const [lastActivity, setLastActivity] = useState(null);
+    const [gateAttempting, setGateAttempting] = useState({ entrance: false, exit: false });
+
 
     // Gate operation functions
     const operateGate = (gateType, action) => {
@@ -47,6 +46,55 @@ const AccessControlPage = () => {
             }, 1500);
         }
     };
+    const handleLPRResult = async (gateType, success) => {
+        // Mark LPR as attempting
+        setGateAttempting(prev => ({ ...prev, [gateType]: true }));
+
+        setLastActivity({ type: gateType, action: 'verifying', time: new Date().toLocaleTimeString() });
+
+        // Simulate LPR verification delay (e.g., API call)
+        setTimeout(() => {
+            setGateAttempting(prev => ({ ...prev, [gateType]: false }));
+
+            if (success) {
+                // Force open immediately
+                if (gateType === 'entrance') {
+                    setEntranceGate('opening');
+                    setTimeout(() => {
+                        setEntranceGate('open');
+                        setIsEntranceGateOpen(true);
+
+                        // Auto-close after 5 sec
+                        setTimeout(() => {
+                            setEntranceGate('closing');
+                            setTimeout(() => {
+                                setEntranceGate('closed');
+                                setIsEntranceGateOpen(false);
+                            }, 1500); // closing animation
+                        }, 5000);
+                    }, 1500); // opening animation
+                } else {
+                    setExitGate('opening');
+                    setTimeout(() => {
+                        setExitGate('open');
+                        setIsExitGateOpen(true);
+
+                        // Auto-close after 5 sec
+                        setTimeout(() => {
+                            setExitGate('closing');
+                            setTimeout(() => {
+                                setExitGate('closed');
+                                setIsExitGateOpen(false);
+                            }, 1500);
+                        }, 5000);
+                    }, 1500);
+                }
+            } else {
+                alert(`${gateType} LPR failed! Access denied.`);
+            }
+        }, 2000);
+    };
+
 
     // Emergency controls
     const openAllGates = () => {
@@ -81,11 +129,12 @@ const AccessControlPage = () => {
                         {isEntrance ? <DoorOpen className="mr-2 h-5 w-5" /> : <DoorClosed className="mr-2 h-5 w-5" />}
                         {isEntrance ? 'Entrance Gate' : 'Exit Gate'}
                     </h3>
-                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${gateState === 'open' ? 'bg-green-100 text-green-800' :
-                        gateState === 'opening' || gateState === 'closing' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${gateAttempting[type] ? 'bg-yellow-200 text-yellow-800' :
+                        gateState === 'open' ? 'bg-green-100 text-green-800' :
+                            gateState === 'opening' || gateState === 'closing' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
                         }`}>
-                        {gateState.toUpperCase()}
+                        {gateAttempting[type] ? 'ATTEMPTING' : gateState.toUpperCase()}
                     </div>
                 </div>
 
@@ -170,6 +219,7 @@ const AccessControlPage = () => {
                         </div>
                     </div> */}
                 </div>
+
             </div>
         );
     };
@@ -239,6 +289,14 @@ const AccessControlPage = () => {
                             <Lock className="h-4 w-4" />
                             Close All
                         </button>
+                        <button onClick={() => handleLPRResult('exit', true)} className="btn btn-success">
+                            Simulate Entrance LPR Success
+                        </button>
+
+                        <button onClick={() => handleLPRResult('entrance', false)} className="btn btn-error">
+                            Simulate Entrance LPR Fail
+                        </button>
+
                     </div>
                 </div>
             </div>
