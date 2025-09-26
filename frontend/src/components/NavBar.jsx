@@ -151,14 +151,9 @@ const NavBar = () => {
                         <>
                             <li>
                                 <Link to="/dashboard">Dashboard</Link>
-                                {/* <details>
-                                    <summary>System Monitoring</summary>
-                                    <ul className="p-2 bg-primary rounded-none">
-                                        <li><a>Access Logs</a></li>
-                                        <li><a>Alerts</a></li>
-                                        <li><a>Camera Status</a></li>
-                                    </ul>
-                                </details> */}
+                            </li>
+                            <li>
+                                <Link to="/gate-simulation">Gate Simulation</Link>
                             </li>
                             <li>
                                     <Link to="/vehicle-management">Vehicle Management</Link>
