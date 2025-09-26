@@ -33,6 +33,7 @@ export const entryLogLPR = async (req, res) => {
                     gateType: "entrance",
                     method: "LPR",
                     success: false,
+                    blacklistHit: true,
                     notes: "Blacklisted registered vehicle"
                 });
                 return res.status(403).json({ message: "Vehicle is blacklisted", log });
@@ -144,6 +145,7 @@ export const entryLogManual = async (req, res) => {
                     gateType: "entrance",
                     method: "manual",
                     success: false,
+                    blacklistHit: true,
                     notes: "Blacklisted registered vehicle"
                 });
                 return res.status(403).json({ message: "Vehicle is blacklisted", log });
