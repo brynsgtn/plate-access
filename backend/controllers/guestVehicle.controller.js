@@ -1,0 +1,50 @@
+import GuestVehicle from "../models/guestVehicle.model.js";
+import Vehicle from "../models/vehicle.model.js";
+
+// View guest vehicle controller
+export const viewGuestVehicles = async (req, res) => {
+    res.send("View guest vehicles route");
+}
+
+// Add guest vehicle controller
+export const addGuestVehicle = async (req, res) => {
+    const { plateNumber, makeModel, ownerName } = req.body;
+    const userId = req.userId
+    console.log("Add guest vehicle user id:", userId)
+
+    try {
+        if (!plateNumber || !makeModel || !ownerName) {
+            return res.status(400).json({ message: "All fields are required" });
+        };
+
+        const registeredVehicleExists = await Vehicle.findOne({ plateNumber });
+        if (registeredVehicleExists) {
+            return res.status(400).json({ message: "Vehicle already registered" });
+        };
+
+        const guestVehicleExists = await GuestVehicle.findOne({ plateNumber });
+        if (guestVehicleExists) {
+            return res.status(400).json({ message: "Guest vehicle already exists" });
+        };
+
+        const newGuestVehicle = new GuestVehicle({
+            plateNumber,
+            makeModel,
+            ownerName,
+            addedBy: userId,
+            validFrom: Date.now(),
+            validUntil: new Date(Date.now() + 24 * 60 * 60 * 1000) // 1 day
+        });
+
+        await newGuestVehicle.save();
+
+        res.status(200).json({
+            message: "Guest vehicle authorized for 1 day",
+            guestVehicle: newGuestVehicle
+        });
+
+    } catch (error) {
+        console.error("Error in addGuestVehicle controller:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
