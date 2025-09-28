@@ -113,7 +113,7 @@ export const entryLogLPR = async (req, res) => {
             return res.status(201).json({ message: "Entry granted", log });
         }
 
-        // Case 4: Unregistered vehicle
+        // Case 7: Unregistered vehicle
         const log = await Log.create({
             plateNumber,
             gateType: "entrance",
@@ -225,7 +225,55 @@ export const entryLogManual = async (req, res) => {
             return res.status(201).json({ message: "Entry granted", log });
         }
 
-        // Case 4: Unregistered vehicle                    
+        // Check if it’s a guest vehicle
+        const guestVehicle = await GuestVehicle.findOne({ plateNumber });
+
+
+        if (guestVehicle) {
+
+            // Case 4: Blacklisted
+            if (guestVehicle.isBlacklisted) {
+                const log = await Log.create({
+                    vehicle: guestVehicle._id,
+                    plateNumber,
+                    gateType: "entrance",
+                    method: "manual",
+                    success: false,
+                    blacklistHit: true,
+                    isGuest: true,
+                    notes: "Blacklisted guest vehicle"
+                });
+                return res.status(403).json({ message: "Guest vehicle is blacklisted", log });
+            }
+
+            // Case 5: Access expired
+            if (guestVehicle.validUntil < new Date()) {
+                const log = await Log.create({
+                    vehicle: guestVehicle._id,
+                    plateNumber,
+                    gateType: "entrance",
+                    method: "manual",
+                    success: false,
+                    isGuest: true,
+                    notes: "Guest vehicle access expired"
+                });
+                return res.status(403).json({ message: "Guest vehicle access expired", log });
+            }
+
+            // Case 6: Success
+            const log = await Log.create({
+                vehicle: guestVehicle._id,
+                plateNumber,
+                gateType: "entrance",
+                method: "manual",
+                success: true,
+                isGuest: true,
+                notes: "Verified by manual entry"
+            });
+            return res.status(201).json({ message: "Entry granted", log });
+        }
+
+        // Case 7: Unregistered vehicle                    
         const log = await Log.create({
             plateNumber,
             gateType: "entrance",
