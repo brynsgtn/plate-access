@@ -14,6 +14,9 @@ import { useLogStore } from '../stores/useLogStore';
 import { useEffect } from 'react';
 
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 
 const DashboardPage = () => {
@@ -25,9 +28,12 @@ const DashboardPage = () => {
     const totalLogs = logs.length;
     const totalEntry = logs.filter((log) => log.gateType === "entrance" && log.success === true).length;
     const totalExit = logs.filter((log) => log.gateType === "exit" && log.success === true).length;
+    const totalEntryFail = logs.filter((log) =>  log.success === false).length;
     const blacklistAlerts = logs.filter((log) => log.blacklistHit === true).length;
 
     const recentLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 5);
+
+    const recentBlacklistLogs = logs.filter((log) => log.blacklistHit === true).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);
 
     useEffect(() => {
         fetchLogs();
@@ -52,7 +58,6 @@ const DashboardPage = () => {
                         <p className="text-center text-base-content/70">
                             Manage and visualize your ALPR system with real-time status, insights, and interactive controls.
                         </p>
-                        <div className="w-50 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mt-6 rounded-full"></div>
                     </div>
                 </div>
 
@@ -110,8 +115,8 @@ const DashboardPage = () => {
                             <div className="stat-figure text-primary">
                                 <Shield className="inline-block h-10 w-10 stroke-current" />
                             </div>
-                            <div className="stat-title text-lg font-bold text-base-content/80">Recognition Rate</div>
-                            <div className="stat-value text-primary">99.2%</div>
+                            <div className="stat-title text-lg font-bold text-base-content/80">Denied</div>
+                            <div className="stat-value text-primary">{totalEntryFail}</div>
                             <div className="stat-desc text-base-content/70">Excellent performance</div>
                         </div>
                     </div>
@@ -228,7 +233,7 @@ const DashboardPage = () => {
                             <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl mb-4">
                                 <h2 className="text-2xl font-bold text-white flex items-center">
                                     <Activity className="mr-3 h-5 w-5 text-white" />
-                                    Recent Access Logs
+                                    Recent Logs
                                 </h2>
                             </div>
                             {/* Recent Log Entries */}
@@ -239,18 +244,28 @@ const DashboardPage = () => {
                                             <div className="flex items-center">
                                                 <div
                                                     className={`w-2 h-2 rounded-full mr-3 ${log.success
-                                                            ? log.gateType === "entrance"
-                                                                ? "bg-green-500" // successful entry
-                                                                : "bg-orange-500" // successful exit
-                                                            : "bg-red-500" // failed attempt
+                                                        ? log.gateType === "entrance"
+                                                            ? "bg-green-500" // successful entry
+                                                            : "bg-orange-500" // successful exit
+                                                        : "bg-red-500" // failed attempt
                                                         }`}
                                                 />
                                                 <div>
                                                     <p className="font-semibold text-base-content">{log.plateNumber}</p>
                                                     <p className="text-sm text-base-content/70">
-                                                        <span>  {log.success ? (log.gateType === "entrance" ? "Entry " : "Exit ") : "Failed "}</span>
-                                                        <span>{dayjs(log.timestamp).format("• MMM D • h:mm A")}</span>
+                                                        <span>{log.success ? (log.gateType === "entrance" ? "Entry • " : "Exit • ") : "Failed • "}</span>
+                                                        <span>{dayjs(log.timestamp).fromNow()}</span>
+                                                        <span>{log.isGuest ? " • (Guest)" : ""}</span>
                                                     </p>
+                                                    {!log.success && (
+                                                        log.blacklistHit ? (
+                                                            <p className="text-sm text-error/80">Blacklisted</p>
+                                                        ) : log.isGuest ? (
+                                                            <p className="text-sm text-error/80">Guest Access Expired</p>
+                                                        ) : (
+                                                            <p className="text-sm text-error/80">Unrecognized Vehicle</p>
+                                                        )
+                                                    )}
                                                 </div>
                                             </div>
                                             <span className={`px-3 py-1 ${log.success ? (log.gateType === "entrance" ? "bg-green-100 text-green-800" : "bg-red-100 text-orange-800") : "bg-error/10 text-error/80"} font-medium text-xs rounded-full`}>{log.gateType === "entrance" ? "ENTRY" : "EXIT"}</span>
@@ -298,18 +313,25 @@ const DashboardPage = () => {
                                     </h2>
                                 </div>
                                 <div className="p-6 space-y-4">
-                                    <div className="p-4 bg-red-50 rounded-xl border border-red-300">
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex items-start">
-                                                <Ban className="h-5 w-5 text-red-600 mr-3 mt-0.5" />
-                                                <div>
-                                                    <p className="font-semibold text-red-800">Blacklisted Vehicle</p>
-                                                    <p className="text-sm text-red-700">Plate: STU-999 - Access Denied</p>
+                                    {recentBlacklistLogs.length > 0 ? (
+                                        recentBlacklistLogs.map((log) => (
+                                            <div key={log._id} className="p-4 bg-red-50 rounded-xl border border-red-300">
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex items-start">
+                                                        <Ban className="h-5 w-5 text-red-600 mr-3 mt-0.5" />
+                                                        <div>
+                                                            <p className="font-semibold text-red-800">Blacklisted Vehicle</p>
+                                                            <p className="text-sm text-red-700">Plate: {log.plateNumber} - Access Denied</p>
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-xs text-red-600">{dayjs(log.timestamp).fromNow()}</span>
                                                 </div>
                                             </div>
-                                            <span className="text-xs text-red-600">15 min ago</span>
-                                        </div>
-                                    </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-base-content/50 italic">No recent blacklist logs yet</p>
+                                    )
+                                    }
                                 </div>
                             </div>
                         </div>
