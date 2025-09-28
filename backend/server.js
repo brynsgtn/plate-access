@@ -9,6 +9,7 @@ import authRoutes from "../backend/routes/auth.route.js";
 import userRoutes from "../backend/routes/user.route.js"
 import vehicleRoutes from "./routes/vehicle.route.js"
 import logRoutes from "./routes/log.route.js"
+import guestVehicleRoutes from "./routes/guestVehicle.route.js"
 
 // Import library functions
 import { connectDB } from "./lib/db.js";
@@ -33,10 +34,13 @@ app.use("/api/auth", authRoutes);
 // Routes for user management (admin-only)
 app.use("/api/user", userRoutes);
 
-// Routes for vehicle information - admin(read and write), staff(read-only)
+// Routes for vehicle  
 app.use("/api/vehicle", vehicleRoutes);
 
-// Routes for vehicle logs - admin(read only), staff(read and write)
+// Routes for guest vehicle  
+app.use("/api/guest-vehicle", guestVehicleRoutes);
+
+// Routes for vehicle logs
 app.use("/api/log", logRoutes);
 
 // Start server and listen on defined port
@@ -44,6 +48,3 @@ app.listen(PORT,  () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     connectDB(); // connects to mongoDB
 });
-
-
-// TODO: Set up models (Log)
