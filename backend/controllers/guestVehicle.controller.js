@@ -3,8 +3,14 @@ import Vehicle from "../models/vehicle.model.js";
 
 // View guest vehicle controller
 export const viewGuestVehicles = async (req, res) => {
-    res.send("View guest vehicles route");
-}
+    try {
+        const guestVehicles = await GuestVehicle.find().populate("addedBy");
+        res.json(guestVehicles);
+    } catch (error) {
+        console.error("Error in viewGuestVehicles controller:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
 
 // Add guest vehicle controller
 export const addGuestVehicle = async (req, res) => {
