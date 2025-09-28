@@ -33,6 +33,10 @@ export const addGuestVehicle = async (req, res) => {
             return res.status(400).json({ message: "Guest vehicle already exists" });
         };
 
+        if (!guestVehicleExists.isBlacklisted) {
+            return res.status(400).json({ message: "Guest vehicle is not blacklisted" });
+        };
+
         const newGuestVehicle = new GuestVehicle({
             plateNumber,
             makeModel,
@@ -54,3 +58,38 @@ export const addGuestVehicle = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+
+// Extend guest vehicle controller
+export const extendGuestVehicle = async (req, res) => {
+    const { plateNumber } = req.body;
+
+    try {
+        const guestVehicle = await GuestVehicle.findOne({ plateNumber });
+
+        if (!plateNumber) {
+            return res.status(400).json({ message: "Plate number is required" });
+        }
+
+        if (!guestVehicle) {
+            return res.status(404).json({ message: "Guest vehicle not found" });
+        }
+
+        // Only allow extension if expired
+        if (guestVehicle.validUntil > Date.now()) {
+            return res.status(400).json({ message: "Guest vehicle is not expired" });
+        }
+
+        // Extend for another day
+        guestVehicle.validUntil = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+        await guestVehicle.save();
+
+        res.status(200).json({
+            message: "Guest vehicle extended for 1 day",
+            guestVehicle
+        });
+
+    } catch (error) {
+        console.error("Error in extendGuestVehicle controller:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+} 
