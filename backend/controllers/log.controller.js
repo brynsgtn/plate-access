@@ -1,4 +1,5 @@
 import Vehicle from "../models/vehicle.model.js";
+import GuestVehicle from "../models/guestVehicle.model.js";
 import Log from "../models/log.model.js";
 
 // View logs controller
@@ -59,6 +60,54 @@ export const entryLogLPR = async (req, res) => {
                 gateType: "entrance",
                 method: "LPR",
                 success: true,
+                notes: "Verified by LPR"
+            });
+            return res.status(201).json({ message: "Entry granted", log });
+        }
+
+        // Check if it’s a guest vehicle
+        const guestVehicle = await GuestVehicle.findOne({ plateNumber });
+
+
+        if (guestVehicle) {
+
+            // Case 4: Blacklisted
+            if (guestVehicle.isBlacklisted) {
+                const log = await Log.create({
+                    vehicle: guestVehicle._id,
+                    plateNumber,
+                    gateType: "entrance",
+                    method: "LPR",
+                    success: false,
+                    blacklistHit: true,
+                    isGuest: true,
+                    notes: "Blacklisted guest vehicle"
+                });
+                return res.status(403).json({ message: "Guest vehicle is blacklisted", log });
+            }
+
+            // Case 5: Access expired
+            if (guestVehicle.validUntil < new Date()) {
+                const log = await Log.create({
+                    vehicle: guestVehicle._id,
+                    plateNumber,
+                    gateType: "entrance",
+                    method: "LPR",
+                    success: false,
+                    isGuest: true,
+                    notes: "Guest vehicle access expired"
+                });
+                return res.status(403).json({ message: "Guest vehicle access expired", log });
+            }
+
+            // Case 6: Success
+            const log = await Log.create({
+                vehicle: guestVehicle._id,
+                plateNumber,
+                gateType: "entrance",
+                method: "LPR",
+                success: true,
+                isGuest: true,
                 notes: "Verified by LPR"
             });
             return res.status(201).json({ message: "Entry granted", log });
@@ -213,8 +262,8 @@ export const exitLogManual = async (req, res) => {
                 success: true,
                 notes: "Verified by manual entry"
             });
-            return res.status(201).json({ message: "Exit granted", log });  
-        } 
+            return res.status(201).json({ message: "Exit granted", log });
+        }
 
         // Case 2: Unrecognized Plate
         const log = await Log.create({
