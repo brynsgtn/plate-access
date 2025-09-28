@@ -24,6 +24,10 @@ const logSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
+    isGuest: {      
+        type: Boolean,
+        default: false
+    },
     blacklistHit: {
         type: Boolean,
         default: false // becomes true if plate is found in blacklist
