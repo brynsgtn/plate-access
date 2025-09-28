@@ -33,10 +33,6 @@ export const addGuestVehicle = async (req, res) => {
             return res.status(400).json({ message: "Guest vehicle already exists" });
         };
 
-        if (!guestVehicleExists.isBlacklisted) {
-            return res.status(400).json({ message: "Guest vehicle is not blacklisted" });
-        };
-
         const newGuestVehicle = new GuestVehicle({
             plateNumber,
             makeModel,
@@ -93,3 +89,26 @@ export const extendGuestVehicle = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 } 
+
+// Delete guest vehicle controller
+export const deleteGuestVehicle = async (req, res) => {
+    const { plateNumber } = req.body;
+
+    try {
+        if (!plateNumber) {
+            return res.status(400).json({ message: "Plate number is required" });
+        }
+
+        const guestVehicle = await GuestVehicle.findOneAndDelete({ plateNumber });
+
+        if (!guestVehicle) {
+            return res.status(404).json({ message: "Guest vehicle not found" });
+        }
+
+        res.status(200).json({ message: "Guest vehicle deleted", guestVehicle });
+
+    } catch (error) {
+        console.error("Error in deleteGuestVehicle controller:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+}
