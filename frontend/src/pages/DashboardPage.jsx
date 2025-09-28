@@ -1,24 +1,43 @@
 import {
     Activity,
-    Camera,
     Shield,
     Users,
     TrendingUp,
     Eye,
-    Lock,
-    Unlock,
-    UserPlus,
     AlertTriangle,
     Ban,
-    DoorOpen,
-    CameraOffIcon
+
 } from 'lucide-react';
 
 import { useGateStore } from '../stores/useGateStore';
+import { useLogStore } from '../stores/useLogStore';
+import { useEffect } from 'react';
+
+import dayjs from "dayjs";
+
 
 const DashboardPage = () => {
 
     const { isEntranceGateOpen, isExitGateOpen, lastExitAction, lastEntranceAction } = useGateStore();
+
+    const { fetchLogs, logs } = useLogStore();
+
+    const totalLogs = logs.length;
+    const totalEntry = logs.filter((log) => log.gateType === "entrance" && log.success === true).length;
+    const totalExit = logs.filter((log) => log.gateType === "exit" && log.success === true).length;
+    const blacklistAlerts = logs.filter((log) => log.blacklistHit === true).length;
+
+    const recentLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 5);
+
+    useEffect(() => {
+        fetchLogs();
+    }, [fetchLogs]);
+
+    useEffect(() => {
+        console.log("logs: ", logs)
+    }, [logs])
+
+
     return (
         <>
             <div className='min-h-screen relative overflow-hidden bg-base-100'>
@@ -51,8 +70,8 @@ const DashboardPage = () => {
                             <div className="stat-figure text-primary">
                                 <Activity className="inline-block h-10 w-10 stroke-current" />
                             </div>
-                            <div className="stat-title text-lg font-bold text-base-content/80">Access Today</div>
-                            <div className="stat-value text-primary">247</div>
+                            <div className="stat-title text-lg font-bold text-base-content/80">Attempts</div>
+                            <div className="stat-value text-primary">{totalLogs}</div>
                             <div className="stat-desc text-base-content/70">+12% from yesterday</div>
                         </div>
 
@@ -62,7 +81,7 @@ const DashboardPage = () => {
                                 <TrendingUp className="inline-block h-10 w-10 stroke-current" />
                             </div>
                             <div className="stat-title text-lg font-bold text-base-content/80">Entries</div>
-                            <div className="stat-value text-secondary">134</div>
+                            <div className="stat-value text-secondary">{totalEntry}</div>
                             <div className="stat-desc text-base-content/70">Peak: 2:00 PM</div>
                         </div>
 
@@ -72,7 +91,7 @@ const DashboardPage = () => {
                                 <Users className="inline-block h-10 w-10 stroke-current" />
                             </div>
                             <div className="stat-title text-lg font-bold text-base-content/80">Exits</div>
-                            <div className="stat-value text-accent">113</div>
+                            <div className="stat-value text-accent">{totalExit}</div>
                             <div className="stat-desc text-base-content/70">Last: 3:45 PM</div>
                         </div>
 
@@ -82,7 +101,7 @@ const DashboardPage = () => {
                                 <AlertTriangle className="inline-block h-10 w-10 stroke-current" />
                             </div>
                             <div className="stat-title text-lg font-bold text-base-content/80">Active Alerts</div>
-                            <div className="stat-value text-error">3</div>
+                            <div className="stat-value text-error">{blacklistAlerts}</div>
                             <div className="stat-desc text-base-content/70">Requires attention</div>
                         </div>
 
@@ -126,7 +145,7 @@ const DashboardPage = () => {
                                         {isEntranceGateOpen ? "OPEN" : "CLOSED"}
                                     </span>
                                 </div>
-                                 {lastEntranceAction ? (
+                                {lastEntranceAction ? (
                                     <p className="text-xs text-base-content/70">
                                         Last action: {lastEntranceAction.action} at {lastEntranceAction.time}
                                     </p>
@@ -212,38 +231,36 @@ const DashboardPage = () => {
                                     Recent Access Logs
                                 </h2>
                             </div>
-                            <div className="p-2 space-y-4">
-                                <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl border-l-4 border-green-500">
-                                    <div className="flex items-center">
-                                        <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                                        <div>
-                                            <p className="font-semibold text-base-content">ABC-123</p>
-                                            <p className="text-sm text-base-content/70">Entry • 3:45 PM</p>
+                            {/* Recent Log Entries */}
+                            {recentLogs.length > 0 ? (
+                                recentLogs.map((log) => (
+                                    <div key={log._id} className="p-2 space-y-2">
+                                        <div className={`flex items-center justify-between p-4 ${log.success ? (log.gateType === "entrance" ? "bg-green-50 border-l-4 border-green-500" : "bg-orange-50 rounded-xl border-l-4 border-orange-500") : ("bg-error/50 border-l-4 border-error")} rounded-xl border-l-4`}>
+                                            <div className="flex items-center">
+                                                <div
+                                                    className={`w-2 h-2 rounded-full mr-3 ${log.success
+                                                            ? log.gateType === "entrance"
+                                                                ? "bg-green-500" // successful entry
+                                                                : "bg-orange-500" // successful exit
+                                                            : "bg-red-500" // failed attempt
+                                                        }`}
+                                                />
+                                                <div>
+                                                    <p className="font-semibold text-base-content">{log.plateNumber}</p>
+                                                    <p className="text-sm text-base-content/70">
+                                                        <span>  {log.success ? (log.gateType === "entrance" ? "Entry " : "Exit ") : "Failed "}</span>
+                                                        <span>{dayjs(log.timestamp).format("• MMM D • h:mm A")}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <span className={`px-3 py-1 ${log.success ? (log.gateType === "entrance" ? "bg-green-100 text-green-800" : "bg-red-100 text-orange-800") : "bg-error/10 text-error/80"} font-medium text-xs rounded-full`}>{log.gateType === "entrance" ? "ENTRY" : "EXIT"}</span>
+
                                         </div>
                                     </div>
-                                    <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">ENTRY</span>
-                                </div>
-                                <div className="flex items-center justify-between p-4 bg-orange-50 rounded-xl border-l-4 border-orange-500">
-                                    <div className="flex items-center">
-                                        <div className="w-2 h-2 bg-orange-500 rounded-full mr-3"></div>
-                                        <div>
-                                            <p className="font-semibold text-base-content">XYZ-789</p>
-                                            <p className="text-sm text-base-content/70">Exit • 3:42 PM</p>
-                                        </div>
-                                    </div>
-                                    <span className="px-3 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full">EXIT</span>
-                                </div>
-                                <div className="flex items-center justify-between p-4 bg-error/50 rounded-xl border-l-4 border-error">
-                                    <div className="flex items-center">
-                                        <div className="w-2 h-2 bg-error rounded-full mr-3"></div>
-                                        <div>
-                                            <p className="font-semibold text-base-content">XYZ-789</p>
-                                            <p className="text-sm text-base-content/70">Failed • 3:42 PM</p>
-                                        </div>
-                                    </div>
-                                    <span className="px-3 py-1 bg-error/10 text-error/80 text-xs font-medium rounded-full">EXIT</span>
-                                </div>
-                            </div>
+                                ))
+                            ) : (
+                                <p className="text-sm text-base-content/50 italic">No recent logs yet</p>
+                            )}
                         </div>
 
                         {/* Verification & Blacklist Alerts */}
