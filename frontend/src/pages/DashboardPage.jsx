@@ -28,12 +28,60 @@ const DashboardPage = () => {
     const totalLogs = logs.length;
     const totalEntry = logs.filter((log) => log.gateType === "entrance" && log.success === true).length;
     const totalExit = logs.filter((log) => log.gateType === "exit" && log.success === true).length;
-    const totalEntryFail = logs.filter((log) =>  log.success === false).length;
+    const totalEntryFail = logs.filter((log) => log.success === false).length;
     const blacklistAlerts = logs.filter((log) => log.blacklistHit === true).length;
+
+    const denialRate = totalLogs === 0
+        ? 0
+        : ((totalEntryFail / totalLogs) * 100).toFixed(1); // 1 decimal place
 
     const recentLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 5);
 
     const recentBlacklistLogs = logs.filter((log) => log.blacklistHit === true).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);
+
+    // Test
+
+    const today = dayjs().startOf("day");
+    const yesterday = dayjs().subtract(1, "day").startOf("day");
+
+    const logsToday = logs.filter(log => dayjs(log.timestamp).isAfter(today));
+    const logsYesterday = logs.filter(log => dayjs(log.timestamp).isAfter(yesterday) && dayjs(log.timestamp).isBefore(today));
+
+    const totalToday = logsToday.length;
+    const totalYesterday = logsYesterday.length;
+
+    const percentageChange = totalYesterday === 0
+        ? 100
+        : ((totalToday - totalYesterday) / totalYesterday * 100).toFixed(1);
+
+
+    // Group logs by hour
+    const hourlyCounts = {};
+    logsToday.forEach(log => {
+        const hour = dayjs(log.timestamp).format("HH:00"); // e.g., "14:00"
+        hourlyCounts[hour] = (hourlyCounts[hour] || 0) + 1;
+    });
+
+    // Find peak
+    const peakHour = Object.entries(hourlyCounts).reduce((max, [hour, count]) => {
+        return count > max.count ? { hour, count } : max;
+    }, { hour: null, count: 0 }).hour;
+
+    // Convert "HH:00" to a nice AM/PM format
+    // Assume peakHour = "14:00" (from your hourlyCounts)
+    const formattedPeakHour = peakHour
+        ? dayjs(`${dayjs().format("YYYY-MM-DD")}T${peakHour}`).format("h:mm A")
+        : "-";
+
+
+    const lastExitLog = logs
+        .filter(log => log.gateType === "exit" && log.success)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+
+    const lastExitTime = lastExitLog
+        ? dayjs(lastExitLog.timestamp).format("h:mm A")
+        : "No exits yet";
+
 
     useEffect(() => {
         fetchLogs();
@@ -65,6 +113,7 @@ const DashboardPage = () => {
                     {/* Header */}
                     <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                         <h1 className="text-2xl font-bold text-white">System Summary</h1>
+                        <p className="text-white/80 mt-2">Summary of the system's current status and performance.</p>
                     </div>
 
                     {/* Stats */}
@@ -75,9 +124,9 @@ const DashboardPage = () => {
                             <div className="stat-figure text-primary">
                                 <Activity className="inline-block h-10 w-10 stroke-current" />
                             </div>
-                            <div className="stat-title text-lg font-bold text-base-content/80">Attempts</div>
+                            <div className="stat-title text-lg font-bold text-base-content/80">Total Attempts</div>
                             <div className="stat-value text-primary">{totalLogs}</div>
-                            <div className="stat-desc text-base-content/70">+12% from yesterday</div>
+                            <div className="stat-desc text-base-content/70">{percentageChange}% from yesterday</div>
                         </div>
 
                         {/* Entries */}
@@ -87,7 +136,7 @@ const DashboardPage = () => {
                             </div>
                             <div className="stat-title text-lg font-bold text-base-content/80">Entries</div>
                             <div className="stat-value text-secondary">{totalEntry}</div>
-                            <div className="stat-desc text-base-content/70">Peak: 2:00 PM</div>
+                            <div className="stat-desc text-base-content/70">Peak: {formattedPeakHour}</div>
                         </div>
 
                         {/* Exits */}
@@ -97,7 +146,7 @@ const DashboardPage = () => {
                             </div>
                             <div className="stat-title text-lg font-bold text-base-content/80">Exits</div>
                             <div className="stat-value text-accent">{totalExit}</div>
-                            <div className="stat-desc text-base-content/70">Last: 3:45 PM</div>
+                            <div className="stat-desc text-base-content/70">Last: {lastExitTime}</div>
                         </div>
 
                         {/* Alerts */}
@@ -115,9 +164,9 @@ const DashboardPage = () => {
                             <div className="stat-figure text-primary">
                                 <Shield className="inline-block h-10 w-10 stroke-current" />
                             </div>
-                            <div className="stat-title text-lg font-bold text-base-content/80">Denied</div>
+                            <div className="stat-title text-lg font-bold text-base-content/80">Failed Attempts</div>
                             <div className="stat-value text-primary">{totalEntryFail}</div>
-                            <div className="stat-desc text-base-content/70">Excellent performance</div>
+                            <div className="stat-desc text-base-content/70">Denial Rate: {denialRate}%</div>
                         </div>
                     </div>
                 </div>
@@ -132,6 +181,7 @@ const DashboardPage = () => {
                             <Eye className="mr-3 h-6 w-6" />
                             System Status
                         </h1>
+                        <p className="text-white/80 mt-2">Live feed of the system's current status and performance.</p>
                     </div>
 
                     {/* Grid */}
@@ -235,6 +285,7 @@ const DashboardPage = () => {
                                     <Activity className="mr-3 h-5 w-5 text-white" />
                                     Recent Logs
                                 </h2>
+                                <p className="text-white/80 mt-2">Recent five log entries</p>
                             </div>
                             {/* Recent Log Entries */}
                             {recentLogs.length > 0 ? (
@@ -256,16 +307,17 @@ const DashboardPage = () => {
                                                         <span>{log.success ? (log.gateType === "entrance" ? "Entry • " : "Exit • ") : "Failed • "}</span>
                                                         <span>{dayjs(log.timestamp).fromNow()}</span>
                                                         <span>{log.isGuest ? " • (Guest)" : ""}</span>
-                                                    </p>
-                                                    {!log.success && (
+                                                         {!log.success && (
                                                         log.blacklistHit ? (
-                                                            <p className="text-sm text-error/80">Blacklisted</p>
+                                                            <span className="text-sm text-error/80 ms-2">• Blacklisted</span>
                                                         ) : log.isGuest ? (
-                                                            <p className="text-sm text-error/80">Guest Access Expired</p>
+                                                            <span className="text-sm text-error/80 ms-2">• Guest Access Expired</span>
                                                         ) : (
-                                                            <p className="text-sm text-error/80">Unrecognized Vehicle</p>
+                                                            <span className="text-sm text-error/80 ms-2">• Unrecognized Vehicle</span>
                                                         )
                                                     )}
+                                                    </p>
+                                                   
                                                 </div>
                                             </div>
                                             <span className={`px-3 py-1 ${log.success ? (log.gateType === "entrance" ? "bg-green-100 text-green-800" : "bg-red-100 text-orange-800") : "bg-error/10 text-error/80"} font-medium text-xs rounded-full`}>{log.gateType === "entrance" ? "ENTRY" : "EXIT"}</span>
@@ -287,6 +339,7 @@ const DashboardPage = () => {
                                         <Eye className="mr-3 h-5 w-5 text-white" />
                                         Verification Alerts
                                     </h2>
+                                    <p className="text-white/80 mt-2">Latest verification alerts</p>
                                 </div>
                                 <div className="p-6 space-y-4">
                                     <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-300">
@@ -311,6 +364,7 @@ const DashboardPage = () => {
                                         <Ban className="mr-3 h-5 w-5 text-white" />
                                         Blacklist Alerts
                                     </h2>
+                                    <p className="text-white/80 mt-2">Latest blacklist alerts</p>
                                 </div>
                                 <div className="p-6 space-y-4">
                                     {recentBlacklistLogs.length > 0 ? (
