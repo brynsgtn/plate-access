@@ -30,11 +30,36 @@ const NavBar = () => {
             });
         };
 
+        // Close dropdowns when clicking on any link
+        const handleLinkClick = () => {
+            details.forEach((detail) => {
+                detail.removeAttribute("open");
+            });
+            
+            // Close mobile menu dropdown
+            const mobileDropdown = document.querySelector('.dropdown');
+            if (mobileDropdown) {
+                const input = mobileDropdown.querySelector('[tabIndex="0"]');
+                if (input) {
+                    input.blur();
+                }
+            }
+        };
+
         document.addEventListener("click", handleClickOutside);
+        
+        // Add click listeners to all links
+        const links = document.querySelectorAll('.navbar a, .navbar button');
+        links.forEach(link => {
+            link.addEventListener('click', handleLinkClick);
+        });
 
         // Cleanup
         return () => {
             document.removeEventListener("click", handleClickOutside);
+            links.forEach(link => {
+                link.removeEventListener('click', handleLinkClick);
+            });
         };
     }, []);
 
@@ -43,9 +68,9 @@ const NavBar = () => {
 
 
     return (
-        <div className="navbar shadow-sm bg-primary text-primary-content py-5 font-medium text-xl ">
+        <div className="navbar shadow-lg bg-gradient-to-r from-primary to-secondary text-primary-content py-5 font-medium text-xl sticky top-0 z-50">
             {/* Navbar Start (Logo + Mobile Menu) */}
-            <div className="navbar-start ">
+            <div className="navbar-start">
                 {/* Mobile Dropdown */}
                 <div className="dropdown">
                     <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -55,84 +80,47 @@ const NavBar = () => {
                     </div>
                     <ul
                         tabIndex={0}
-                        className="menu menu-sm dropdown-content bg-primary rounded-none z-1 mt-3 w-52 p-2 shadow">
+                        className="menu menu-sm dropdown-content bg-base-100 text-base-content rounded-box z-50 mt-3 w-52 p-2 shadow-xl border border-base-300">
 
-                        {
-                            user?.isAdmin ? (
-                                // Admin user
-                                <>
-                                    <li>
-                                        <a>System Monitoring</a>
-                                        <ul className="p-2">
-                                            <li><a>Access Logs</a></li>
-                                            <li><a>Alerts</a></li>
-                                            <li><a>Camera Status</a></li>
-                                        </ul>
-                                    </li>
-
-                                    <li>
-                                        <Link to="/vehicle-management">Vehicle Management</Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/user-management">User Management</Link>
-                                    </li>
-                                    <li>
-                                        <a>{user?.username}</a>
-                                        <ul className="p-2">
-                                            <li><Link to="/profile">Profile</Link></li>
-                                            <li><button onClick={logout}>Logout</button></li>
-                                        </ul>
-                                    </li>
-                                </>
-                            ) : (
-                                // Non-admin user (Parking staff) 
-                                <>
-
-                                    <li>
-                                        <a>Manual Intervention</a>
-                                        <ul className="p-2">
-                                            <li><a>Manual Plate Entry</a></li>
-                                            <li><a>Gate Controls</a></li>
-                                            <li><a>Add Vehicle</a></li>
-                                        </ul>
-                                    </li>
-                                    <li >
-                                        <a>Monitoring</a>
-                                        <ul className="p-2">
-                                            <li><a>Access Logs</a></li>
-                                            <li><a>Status</a></li>
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <a>Blacklisted Vehicles</a>
-                                        <ul className="p-2">
-                                            <li><a>View Blacklisted Vehicles</a></li>
-                                            <li><a>Add to Blacklist</a></li>
-                                            <li><a>Remove from Blacklist</a></li>
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <a>Alerts</a>
-                                        <ul className="p-2">
-                                            <li><a>Verification Alerts</a></li>
-                                            <li><a>Blacklisted Alert</a></li>
-                                        </ul>
-                                    </li>
-                                    <li>
-                                        <a>{user?.username}</a>
-                                        <ul className="p-2">
-                                            <li><a>Profile</a></li>
-                                            <li><button onClick={logout}>Logout</button></li>
-                                        </ul>
-                                    </li>
-                                </>
-                            )
-                        }
-
+                        {user ? (
+                            <>
+                                {user?.isAdmin ? (
+                                    // Admin mobile menu
+                                    <>
+                                        <li><Link to="/dashboard">Dashboard</Link></li>
+                                        <li><Link to="/access-logs">Access Logs</Link></li>
+                                        <li><Link to="/vehicle-management">Vehicle Management</Link></li>
+                                        <li><Link to="/user-management">User Management</Link></li>
+                                        <div className="divider my-1"></div>
+                                        <li><Link to="/profile">Profile</Link></li>
+                                        <li><button onClick={logout} className="text-error">Logout</button></li>
+                                    </>
+                                ) : (
+                                    // Non-admin mobile menu
+                                    <>
+                                        <li><Link to="/dashboard">Dashboard</Link></li>
+                                        <li><Link to="/access-control">Access Controls</Link></li>
+                                        <li><Link to="/access-logs">Access Logs</Link></li>
+                                        <li><Link to="/vehicle-management">Vehicle Management</Link></li>
+                                        <div className="divider my-1"></div>
+                                        <li><Link to="/profile">Profile</Link></li>
+                                        <li><button onClick={logout} className="text-error">Logout</button></li>
+                                    </>
+                                )}
+                            </>
+                        ) : (
+                            <li>
+                                <Link to="/login">
+                                    <LogIn className="w-4 h-4" />
+                                    Login
+                                </Link>
+                            </li>
+                        )}
                     </ul>
                 </div>
+
                 {/* Logo */}
-                <Link to="/" className="flex items-center gap-2 ms-5 text-2xl font-bold">
+                <Link to="/" className="flex items-center gap-2 ms-5 text-2xl font-bold hover:opacity-80 transition-opacity">
                     <img
                         src="/logo.png"
                         alt="PlateAccess Logo"
@@ -143,55 +131,42 @@ const NavBar = () => {
             </div>
 
             {/* Navbar Center (Desktop Menu) */}
-            {user && <div className="navbar-center hidden lg:flex">
-                <ul className="menu menu-horizontal px-1 gap-4">
+            {user && (
+                <div className="navbar-center hidden lg:flex">
+                    <ul className="menu menu-horizontal px-1 gap-2">
+                        {user?.isAdmin ? (
+                            // Admin desktop menu
+                            <>
+                                <li><Link to="/dashboard" className="hover:bg-primary-focus transition-colors">Dashboard</Link></li>
+                                <li><Link to="/access-logs" className="hover:bg-primary-focus transition-colors">Access Logs</Link></li>
+                                <li><Link to="/vehicle-management" className="hover:bg-primary-focus transition-colors">Vehicle Management</Link></li>
+                                <li><Link to="/user-management" className="hover:bg-primary-focus transition-colors">User Management</Link></li>
+                            </>
+                        ) : (
+                            // Non-admin desktop menu
+                            <>
+                                <li><Link to="/dashboard" className="hover:bg-primary-focus transition-colors">Dashboard</Link></li>
+                                <li><Link to="/access-control" className="hover:bg-primary-focus transition-colors">Access Controls</Link></li>
+                                <li><Link to="/access-logs" className="hover:bg-primary-focus transition-colors">Access Logs</Link></li>
+                                <li><Link to="/vehicle-management" className="hover:bg-primary-focus transition-colors">Vehicle Management</Link></li>
+                            </>
+                        )}
+                    </ul>
+                </div>
+            )}
 
-                    {user?.isAdmin ? (
-                        // Admin user
-                        <>
-                            <li>
-                                <Link to="/dashboard">Dashboard</Link>
-                            </li>
-                            <li>
-                                <Link to="/access-control">Access Controls</Link>
-                            </li>
-                            <li>
-                                <Link to="/vehicle-management">Vehicle Management</Link>
-                            </li>
-                            <li><Link to="/user-management">User Management</Link></li>
-                        </>
-
-
-                    ) : (
-                        // Non-admin user (Parking staff) 
-                        <>
-                            <li>
-                                <Link to="/dashboard">Dashboard</Link>
-                            </li>
-                            <li>
-                                <Link to="/access-control">Access Controls</Link>
-                            </li>
-                            <li>
-                                <Link to="/vehicle-management">Vehicle Management</Link>
-                            </li>
-                        </>
-                    )
-                    }
-
-                </ul>
-
-            </div>
-            }
-            {/* Navbar End (Button, Profile, etc.) */}
+            {/* Navbar End (Profile/Login) */}
             <div className="navbar-end hidden lg:flex me-5">
                 {user ? (
                     <ul className="menu menu-horizontal px-1 text-lg">
                         <li>
                             <details>
-                                <summary className="text-primary-content">{user?.username}</summary>
-                                <ul className="bg-primary rounded-none p-2 w-full z-50 absolute right-0 mt-2 shadow-lg">
-                                    <li><Link to="/profile">Profile</Link></li>
-                                    <li><button onClick={logout}>Logout</button></li>
+                                <summary className="text-primary-content hover:bg-primary-focus transition-colors cursor-pointer">
+                                    {user?.username}
+                                </summary>
+                                <ul className="bg-base-100 text-base-content rounded-box p-2 w-48 z-50 absolute right-0 mt-2 shadow-xl border border-base-300">
+                                    <li><Link to="/profile" className="hover:bg-base-200">Profile</Link></li>
+                                    <li><button onClick={logout} className="text-error hover:bg-error/10">Logout</button></li>
                                 </ul>
                             </details>
                         </li>
@@ -199,17 +174,16 @@ const NavBar = () => {
                 ) : (
                     <ul className="menu menu-horizontal px-1 text-lg">
                         <li>
-                            <Link to="/login"> <LogIn /> Login</Link>
+                            <Link to="/login" className="hover:bg-primary-focus transition-colors">
+                                <LogIn className="w-5 h-5" />
+                                Login
+                            </Link>
                         </li>
                     </ul>
-                )
-                }
-
+                )}
             </div>
         </div>
-    )
-}
-
+    );
+};
 
 export default NavBar;
-
