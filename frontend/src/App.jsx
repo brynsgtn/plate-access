@@ -16,6 +16,7 @@ import ProfilePage from './pages/ProfilePage';
 import UserManagementPage from './pages/UserManagementPage';
 import VehicleManagementPage from './pages/VehicleManagementPage';
 import AccessControlPage from './pages/AccessControlPage';
+import AccessLogPage from './pages/AccessLogPage';
 
 
 import LoadingSpinner from './components/LoadingSpinner';
@@ -54,6 +55,7 @@ function App() {
           <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
           <Route path="/dashboard" element={!user ? <Navigate to="/login" /> : <DashboardPage />} />
           <Route path="/access-control" element={!user ? <Navigate to="/login" /> : <AccessControlPage />} />
+          <Route path="/access-logs" element={!user ? <Navigate to="/login" /> : <AccessLogPage />} />
           <Route path="/profile" element={!user ? <Navigate to="/login" /> : <ProfilePage />} />
           <Route path="/user-management" element={!user ? <Navigate to="/login" /> : <UserManagementPage />} />
           <Route path="/vehicle-management" element={!user ? <Navigate to="/login" /> : <VehicleManagementPage />} />
@@ -73,10 +75,9 @@ export default App;
 // TODO: 
 
 // PARKING STAFF
-// Dashboard page - build backend and integrate with frontend (camera, access logs, recent logs, verification alerts, blacklist alerts)
+// Dashboard page - build backend and integrate with frontend (camera, access logs, verification alerts)
 // Access control page - build backend and integrate with frontend (gate controls - automatic lpr attempt on entrance and exit, and manual controls - gate, camera entry,)
-// Vehicle Management page - add guest vehicle and integrate backend? guest vehicle list etc.
-// Navbar links
+// Vehicle Management page - summary (check sub stats)
 
 // ADMIN
 // Dashboard page 
