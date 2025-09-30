@@ -5,7 +5,10 @@ import AddVehicleForm from "../components/AddVehicleForm";
 import VehicleList from "../components/VehicleList";
 import BlacklistedVehicleList from "../components/BlacklistedVehicleList";
 import VehicleRequestList from "../components/VehicleRequestList";
+import AddGuestVehicleForm from "../components/AddGuestVehicleForm";
+import GuestVehicleList from "../components/GuestVehicleList";
 import { useVehicleStore } from "../stores/useVehicleStore";
+import { useGuestVehicleStore } from "../stores/useGuestVehicleStore";
 
 
 
@@ -16,6 +19,12 @@ const tabs = [
     { id: "requests", label: "Vehicle Requests", icon: FilePen },
 ];
 
+const guestVehicleTabs = [
+    { id: "add", label: "Add Guest Vehicle", icon: Plus },
+    { id: "view", label: "View Guest Vehicles", icon: Car },
+    { id: "blacklisted", label: "Blacklisted Guest Vehicles", icon: CircleParkingOff },
+];
+
 const VehicleManagementPage = () => {
     const [activeTab, setActiveTab] = useState(() => {
         // Try to get the saved tab from localStorage
@@ -23,7 +32,10 @@ const VehicleManagementPage = () => {
         return savedTab || "add"; // Fallback to "add" if nothing saved
     });
 
+    const [guestActiveTab, setGuestActiveTab] = useState("add");
+
     const { viewVehicles, vehicles } = useVehicleStore();
+    const { fetchGuestVehicles, guestVehicles} = useGuestVehicleStore();
 
     // Restore active tab from localStorage on mount
     useEffect(() => {
@@ -44,10 +56,22 @@ const VehicleManagementPage = () => {
         viewVehicles();
     }, [viewVehicles]);
 
+        useEffect(() => {
+        // Fetch guest vehicles data when the component mounts
+        fetchGuestVehicles();
+    }, [fetchGuestVehicles]);
+
+
     // Separate useEffect to log vehicles when they change
     useEffect(() => {
         console.log("Vehicles:", vehicles);
     }, [vehicles]);
+
+
+        // Separate useEffect to log vehicles when they change
+    useEffect(() => {
+        console.log("Guest vehicles:", guestVehicles);
+    }, [guestVehicles]);
 
     const totalVehicles = Array.isArray(vehicles) ? vehicles.filter((vehicle) => vehicle.isApproved).length : 0;
     const blacklistedVehicles = Array.isArray(vehicles) ? vehicles.filter((vehicle) => vehicle.isBlacklisted).length : 0;
@@ -123,8 +147,8 @@ const VehicleManagementPage = () => {
 
             <div className="shadow-xl m-8 max-w-6xl mx-auto rounded-xl border border-base-300 bg-base-200">
                 <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
-                    <h3 className="text-2xl font-bold text-white">Quick Actions</h3>
-                    <p className="text-white/80 mt-2">Quickly add, view, or manage your vehicle fleet.</p>
+                    <h3 className="text-2xl font-bold text-white">Registered Vehicles</h3>
+                    <p className="text-white/80 mt-2">Quickly add, view, or manage your registered vehicles.</p>
                 </div>
                 <div className="flex flex-col lg:flex-row w-full justify-center items-center space-y-4 lg:space-y-0 lg:space-x-6 py-8 bg-base-100 rounded-b-xl">
                     {tabs.map((tab) => (
@@ -143,6 +167,28 @@ const VehicleManagementPage = () => {
             {activeTab === "view" && <VehicleList />}
             {activeTab === "blacklisted" && <BlacklistedVehicleList />}
             {activeTab === "requests" && <VehicleRequestList />}
+
+            <div className="shadow-xl m-8 max-w-6xl mx-auto rounded-xl border border-base-300 bg-base-200">
+                <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
+                    <h3 className="text-2xl font-bold text-white">Guest Vehicle</h3>
+                    <p className="text-white/80 mt-2">Quickly add, view, or manage your guest vehicles.</p>
+                </div>
+                <div className="flex flex-col lg:flex-row w-full justify-center items-center space-y-4 lg:space-y-0 lg:space-x-6 py-8 bg-base-100 rounded-b-xl">
+                    {guestVehicleTabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            className={`btn btn-wide shadow-md ${tab.id === "add" ? "btn-primary" : tab.id === "view" ? "btn-secondary" : tab.id === "blacklisted" ? "btn-error" : "btn-accent"}`}
+                            onClick={() => setGuestActiveTab(tab.id)}
+                        >
+                            <tab.icon className="h-5 w-5" />
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            {guestActiveTab === "add" && <AddGuestVehicleForm />}
+            {guestActiveTab === "view" && <GuestVehicleList />}
+            {guestActiveTab === "blacklisted" && <BlacklistedVehicleList />}
 
         </div>
     );
