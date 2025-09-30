@@ -5,6 +5,11 @@ import { ParkingCircleOffIcon, Search } from "lucide-react";
 import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
+
 const VEHICLES_PER_PAGE = 10;
 
 const BlacklistedVehicleList = () => {
@@ -99,7 +104,7 @@ const BlacklistedVehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Plate Number</th>
                             <th className="text-base font-semibold text-base-content">Make & Model</th>
                             <th className="text-base font-semibold text-base-content">Owner</th>
-                            <th className="text-base font-semibold text-base-content">Blacklisted Date</th>
+                            <th className="text-base font-semibold text-base-content">Blacklisted At</th>
                             {user.isAdmin && <th className="text-base font-semibold text-base-content">Action</th>}
                         </tr>
                     </thead>
@@ -119,7 +124,7 @@ const BlacklistedVehicleList = () => {
                                 <td>{vehicle.ownerName}</td>
                                 <td>
                                     {vehicle.isBlacklistedAt
-                                        ? new Date(vehicle.isBlacklistedAt).toLocaleDateString()
+                                        ? dayjs(vehicle.isBlacklistedAt).fromNow()
                                         : "-"}
                                 </td>
                                 {user.isAdmin && (
