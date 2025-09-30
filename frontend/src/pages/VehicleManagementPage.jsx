@@ -33,23 +33,31 @@ const VehicleManagementPage = () => {
         return savedTab || "add"; // Fallback to "add" if nothing saved
     });
 
-    const [guestActiveTab, setGuestActiveTab] = useState("add");
-
+    const [guestActiveTab, setGuestActiveTab] = useState(() => {
+        // Try to get the saved tab from localStorage
+        const savedGuestTab = localStorage.getItem("activeGuestTab");
+        return savedGuestTab || "add"; // Fallback to "add" if nothing saved
+    });
     const { viewVehicles, vehicles } = useVehicleStore();
     const { fetchGuestVehicles, guestVehicles} = useGuestVehicleStore();
 
     // Restore active tab from localStorage on mount
     useEffect(() => {
         const savedTab = localStorage.getItem("activeTab");
+        const savedGuestTab = localStorage.getItem("activeGuestTab");
         if (savedTab) {
             setActiveTab(savedTab);
+        }
+        if (savedGuestTab) {
+            setGuestActiveTab(savedGuestTab);
         }
     }, []);
 
     // Save active tab to localStorage whenever it changes
     useEffect(() => {
         localStorage.setItem("activeTab", activeTab);
-    }, [activeTab]);
+        localStorage.setItem("activeGuestTab", guestActiveTab);
+    }, [activeTab, guestActiveTab]);
 
 
     useEffect(() => {
