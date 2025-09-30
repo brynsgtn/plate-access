@@ -212,7 +212,7 @@ const VehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Make & Model</th>
                             <th className="text-base font-semibold text-base-content">Owner</th>
                             <th className="text-base font-semibold text-base-content">Status</th>
-                            <th className="text-base font-semibold text-base-content">Created At</th>
+                            <th className="text-base font-semibold text-base-content">Added On</th>
                             <th className="text-base font-semibold text-base-content">Actions</th>
                         </tr>
                     </thead>
