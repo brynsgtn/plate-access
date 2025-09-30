@@ -7,7 +7,7 @@ import LoadingSpinner from "./LoadingSpinner";
 
 const VEHICLES_PER_PAGE = 10;
 
-const VehicleBlacklistTable = () => {
+const BlacklistedVehicleList = () => {
 
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
@@ -163,4 +163,4 @@ const VehicleBlacklistTable = () => {
     );
 };
 
-export default VehicleBlacklistTable;
+export default BlacklistedVehicleList;
