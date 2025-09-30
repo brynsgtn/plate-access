@@ -19,7 +19,7 @@ const guestVehicleSchema = new mongoose.Schema(
             ref: "User", // the staff/admin who authorized
             required: true,
         },
-        validFrom: {
+        validFrom: { // can remove this
             type: Date,
             required: true,
             default: Date.now, // can start immediately
