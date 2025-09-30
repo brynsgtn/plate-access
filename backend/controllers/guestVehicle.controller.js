@@ -4,7 +4,7 @@ import Vehicle from "../models/vehicle.model.js";
 // View guest vehicle controller
 export const viewGuestVehicles = async (req, res) => {
     try {
-        const guestVehicles = await GuestVehicle.find().populate("addedBy");
+        const guestVehicles = await GuestVehicle.find().populate("addedBy", "-password");
         res.json(guestVehicles);
     } catch (error) {
         console.error("Error in viewGuestVehicles controller:", error);
@@ -57,14 +57,15 @@ export const addGuestVehicle = async (req, res) => {
 
 // Extend guest vehicle controller
 export const extendGuestVehicle = async (req, res) => {
-    const { plateNumber } = req.body;
+    const { id } = req.body;
 
     try {
-        const guestVehicle = await GuestVehicle.findOne({ plateNumber });
 
-        if (!plateNumber) {
-            return res.status(400).json({ message: "Plate number is required" });
+        if (!id) {
+            return res.status(400).json({ message: "Id is required" });
         }
+
+        const guestVehicle = await GuestVehicle.findOne({ _id: id });
 
         if (!guestVehicle) {
             return res.status(404).json({ message: "Guest vehicle not found" });
@@ -92,14 +93,14 @@ export const extendGuestVehicle = async (req, res) => {
 
 // Delete guest vehicle controller
 export const deleteGuestVehicle = async (req, res) => {
-    const { plateNumber } = req.body;
+    const { id } = req.body;
 
     try {
-        if (!plateNumber) {
-            return res.status(400).json({ message: "Plate number is required" });
+        if (!id) {
+            return res.status(400).json({ message: "Id is required" });
         }
 
-        const guestVehicle = await GuestVehicle.findOneAndDelete({ plateNumber });
+        const guestVehicle = await GuestVehicle.findOneAndDelete({ _id: id });
 
         if (!guestVehicle) {
             return res.status(404).json({ message: "Guest vehicle not found" });
@@ -115,14 +116,14 @@ export const deleteGuestVehicle = async (req, res) => {
 
 // Blacklist guest vehicle controller
 export const blacklistOrUnblacklistGuestVehicle = async (req, res) => {
-    const { plateNumber } = req.body;
+    const { id } = req.body;
 
     try {
-        if (!plateNumber) {
-            return res.status(400).json({ message: "Plate number is required" });
+        if (!id) {
+            return res.status(400).json({ message: "Id is required" });
         }
 
-        const guestVehicle = await GuestVehicle.findOne({ plateNumber });
+        const guestVehicle = await GuestVehicle.findOne({ _id: id });
 
         if (!guestVehicle) {
             return res.status(404).json({ message: "Guest vehicle not found" });
