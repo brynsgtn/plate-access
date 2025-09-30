@@ -4,6 +4,12 @@ import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
 
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
+
+
 const VEHICLES_PER_PAGE = 10;
 
 const VehicleList = () => {
@@ -140,7 +146,7 @@ const VehicleList = () => {
 
     return (
         <>
-            <div className="overflow-x-auto max-w-6xl mx-auto mt-10 mb-20 rounded-xl shadow-lg bg-base-100 border border-base-300">
+            <div className="overflow-x-auto max-w-6xl mx-auto mt-10 mb-10 rounded-xl shadow-lg bg-base-100 border border-base-300">
                 {/* Header with Search */}
                 <div className="border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4 ">
@@ -247,11 +253,7 @@ const VehicleList = () => {
                                     </td>
                                     <td>
                                         {vehicle.createdAt
-                                            ? new Date(vehicle.createdAt).toLocaleDateString('en-US', {
-                                                year: 'numeric',
-                                                month: 'short',
-                                                day: 'numeric',
-                                            }) : '-'}
+                                            ? dayjs(vehicle.createdAt).fromNow() : '-'}
                                     </td>
                                     <td className="flex gap-2">
                                         <button
