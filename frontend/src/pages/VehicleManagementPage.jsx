@@ -7,6 +7,7 @@ import BlacklistedVehicleList from "../components/BlacklistedVehicleList";
 import VehicleRequestList from "../components/VehicleRequestList";
 import AddGuestVehicleForm from "../components/AddGuestVehicleForm";
 import GuestVehicleList from "../components/GuestVehicleList";
+import BlacklistedGuestVehicleList from "../components/BlacklistedGuestVehicleList";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import { useGuestVehicleStore } from "../stores/useGuestVehicleStore";
 
@@ -188,7 +189,7 @@ const VehicleManagementPage = () => {
             </div>
             {guestActiveTab === "add" && <AddGuestVehicleForm />}
             {guestActiveTab === "view" && <GuestVehicleList />}
-            {guestActiveTab === "blacklisted" && <BlacklistedVehicleList />}
+            {guestActiveTab === "blacklisted" && <BlacklistedGuestVehicleList />}
 
         </div>
     );
