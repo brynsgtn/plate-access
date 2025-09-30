@@ -1,69 +1,136 @@
-
-import { Mail, UserCheck, AtSign } from "lucide-react";
+import { Mail, UserCheck, AtSign, Calendar, Shield } from "lucide-react";
 import dayjs from "dayjs";
 import { useUserStore } from "../stores/useUserStore";
 
-
 const ProfilePage = () => {
-
     const { user } = useUserStore();
 
-
     return (
-        <div className="h-screen pt-15">
-            <div className="max-w-2xl mx-auto p-4 py-8">
-                <div className="bg-primary rounded-xl p-6 space-y-8">
-                    <div className="text-center">
-                        <h1 className="text-2xl font-semibold text-primary-content">Profile</h1>
-                        <p className="mt-2 text-primary-content">Your profile information</p>
+        <div className="min-h-screen bg-base-200 pt-8 pb-12">
+            <div className="max-w-4xl mx-auto px-4">
+                {/* Header Section */}
+                <div className="text-center mb-8">
+                    <h1 className="text-4xl font-bold text-primary mb-2">Profile</h1>
+                    <p className="text-base-content/70">Manage your account information</p>
+                </div>
+
+                <div className="grid gap-6 lg:grid-cols-3">
+                    {/* Profile Card - Takes 2 columns */}
+                    <div className="lg:col-span-2 bg-base-100 rounded-2xl shadow-xl border border-base-300 overflow-hidden">
+                        {/* Header with gradient */}
+                        <div className="bg-gradient-to-r from-primary to-secondary p-6">
+                            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                                <Shield className="w-6 h-6" />
+                                Personal Information
+                            </h2>
+                        </div>
+
+                        {/* Profile Fields */}
+                        <div className="p-6 space-y-6">
+                            {/* Username Field */}
+                            <div className="group">
+                                <label className="text-sm font-semibold text-base-content/70 flex items-center gap-2 mb-2">
+                                    <AtSign className="w-4 h-4 text-primary" />
+                                    Username
+                                </label>
+                                <div className="input input-bordered flex items-center bg-base-200 border-2 group-hover:border-primary/30 transition-colors w-full">
+                                    <span className="text-base-content font-medium">{user.username}</span>
+                                </div>
+                            </div>
+
+                            {/* Email Field */}
+                            <div className="group">
+                                <label className="text-sm font-semibold text-base-content/70 flex items-center gap-2 mb-2">
+                                    <Mail className="w-4 h-4 text-primary" />
+                                    Email Address
+                                </label>
+                                <div className="input input-bordered flex items-center bg-base-200 border-2 group-hover:border-primary/30 transition-colors  w-full">
+                                    <span className="text-base-content font-medium">{user.email}</span>
+                                </div>
+                            </div>
+
+                            {/* User Role Field */}
+                            <div className="group">
+                                <label className="text-sm font-semibold text-base-content/70 flex items-center gap-2 mb-2">
+                                    <UserCheck className="w-4 h-4 text-primary" />
+                                    User Role
+                                </label>
+                                <div className="input input-bordered flex items-center bg-base-200 border-2 group-hover:border-primary/30 transition-colors w-full">
+                                    {user.isAdmin ? "Admin" : "Parking Staff"}
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="space-y-6">
-                        <div className="space-y-1.5">
-                            <div className="text-sm text-zinc-400 flex items-center gap-2">
-                                <AtSign className="w-4 h-4" />
-                                Username
+                    {/* Account Information Card - Takes 1 column */}
+                    <div className="lg:col-span-1 space-y-6">
+                        {/* Account Status Card */}
+                        <div className="bg-base-100 rounded-2xl shadow-xl border border-base-300 overflow-hidden">
+                            <div className="bg-gradient-to-r from-primary to-secondary p-6">
+                                <h3 className="text-lg font-bold text-white">Account Status</h3>
                             </div>
-
-                            <div className="flex items-center gap-2 group">
-                                <p className="px-4 py-2.5 rounded-lg flex-grow bg-base-300">
-                                    {user.username}
-                                </p>
+                            <div className="p-6">
+                                <div className="flex items-center justify-center flex-col gap-2">
+                                    <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center">
+                                        <UserCheck className="w-8 h-8 text-success" />
+                                    </div>
+                                    <span className="text-2xl font-bold text-success">Active</span>
+                                    <p className="text-sm text-base-content/60 text-center">Your account is in good standing</p>
+                                </div>
                             </div>
-
                         </div>
 
-                        <div className="space-y-1.5">
-                            <div className="text-sm text-zinc-400 flex items-center gap-2">
-                                <Mail className="w-4 h-4" />
-                                Email Address
+                        {/* Member Since Card */}
+                        <div className="bg-base-100 rounded-2xl shadow-xl border border-base-300 overflow-hidden">
+                            <div className="bg-gradient-to-r from-primary to-secondary p-6">
+                                <h3 className="text-lg font-bold text-white">Member Since</h3>
                             </div>
-                            <p className="px-4 py-2.5  rounded-lg bg-base-300">{user.email}</p>
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <div className="text-sm text-zinc-400 flex items-center gap-2">
-                                <UserCheck className="w-4 h-4" />
-                                User Access
+                            <div className="p-6">
+                                <div className="flex items-center justify-center flex-col gap-2">
+                                    <div className="w-16 h-16 rounded-full bg-info/20 flex items-center justify-center">
+                                        <Calendar className="w-8 h-8 text-info" />
+                                    </div>
+                                    <span className="text-xl font-bold text-base-content">
+                                        {user.createdAt ? dayjs(user.createdAt).format("MMMM D, YYYY") : "N/A"}
+                                    </span>
+                                    <p className="text-sm text-base-content/60 text-center">
+                                        {user.createdAt ? dayjs(user.createdAt).fromNow() : ""}
+                                    </p>
+                                </div>
                             </div>
-                            <p className="px-4 py-2.5  rounded-lg bg-base-300">{user.isAdmin ? "Admin" : "Parking Staff"}</p>
                         </div>
                     </div>
+                </div>
 
-                    <div className="mt-6 rounded-xl p-6 bg-accent">
-                        <h2 className="text-lg font-medium mb-4 text-accent-content">Account Information</h2>
-                        <div className="space-y-3 text-sm">
-                            <div className="flex items-center justify-between py-2 border-b border-zinc-700">
-                                <span>Member Since</span>
-                                <span>  {user.createdAt
-                                    ? dayjs(user.createdAt).format("MMMM D, YYYY")
-                                    : ""}</span>
-                            </div>
-                            <div className="flex items-center justify-between py-2">
-                                <span>Account Status</span>
-                                <span className="text-green-500">Active</span>
-                            </div>
+                {/* Quick Stats Section */}
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="stat bg-base-100 rounded-xl shadow-lg border border-base-300">
+                        <div className="stat-figure text-primary">
+                            <Shield className="w-8 h-8" />
                         </div>
+                        <div className="stat-title">Access Level</div>
+                        <div className="stat-value text-primary text-2xl">{user.isAdmin ? "Full" : "Standard"}</div>
+                        <div className="stat-desc">{user.isAdmin ? "Administrator privileges" : "Staff privileges"}</div>
+                    </div>
+
+                    <div className="stat bg-base-100 rounded-xl shadow-lg border border-base-300">
+                        <div className="stat-figure text-success">
+                            <UserCheck className="w-8 h-8" />
+                        </div>
+                        <div className="stat-title">Account Status</div>
+                        <div className="stat-value text-success text-2xl">Active</div>
+                        <div className="stat-desc">All systems operational</div>
+                    </div>
+
+                    <div className="stat bg-base-100 rounded-xl shadow-lg border border-base-300">
+                        <div className="stat-figure text-info">
+                            <Calendar className="w-8 h-8" />
+                        </div>
+                        <div className="stat-title">Member Duration</div>
+                        <div className="stat-value text-info text-2xl">
+                            {user.createdAt ? dayjs().diff(dayjs(user.createdAt), 'day') : 0}
+                        </div>
+                        <div className="stat-desc">Days as a member</div>
                     </div>
                 </div>
             </div>
