@@ -285,9 +285,9 @@ const GuestVehicleList = () => {
 
                                         ) :
                                             (new Date(vehicle.validUntil) < new Date() ? (
-                                                <div className="tooltip" data-tip="Guest access expired">
+                                                <div className="tooltip" data-tip="Guest access expired, blacklist this vehicle">
                                                     <button
-                                                        // onClick={() => handleopenBlacklistModal(vehicle._id)}
+                                                        onClick={() => handleopenBlacklistModal(vehicle._id)}
                                                         className="btn btn-xs btn-outline btn-warning gap-1"
                                                     >
                                                         Expired
