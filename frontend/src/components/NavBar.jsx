@@ -156,7 +156,7 @@ const NavBar = () => {
                                 <Link to="/access-control">Access Controls</Link>
                             </li>
                             <li>
-                                    <Link to="/vehicle-management">Vehicle Management</Link>
+                                <Link to="/vehicle-management">Vehicle Management</Link>
                             </li>
                             <li><Link to="/user-management">User Management</Link></li>
                         </>
@@ -166,35 +166,13 @@ const NavBar = () => {
                         // Non-admin user (Parking staff) 
                         <>
                             <li>
-                                <details>
-                                    <summary>Manual Intervention</summary>
-                                    <ul className="p-2 bg-primary rounded-none">
-                                        <li><a>Manual Plate Entry</a></li>
-                                        <li><a>Gate Controls</a></li>
-                                        <li><a>Add Vehicle</a></li>
-                                    </ul>
-                                </details>
+                                <Link to="/dashboard">Dashboard</Link>
                             </li>
                             <li>
-                                <details>
-                                    <summary>Monitoring</summary>
-                                    <ul className="p-2 bg-primary rounded-none">
-                                        <li><a>Access Logs</a></li>
-                                        <li><a>Status</a></li>
-                                    </ul>
-                                </details>
+                                <Link to="/access-control">Access Controls</Link>
                             </li>
                             <li>
                                 <Link to="/vehicle-management">Vehicle Management</Link>
-                            </li>
-                            <li>
-                                <details>
-                                    <summary>Alerts</summary>
-                                    <ul className="p-2 bg-primary rounded-none">
-                                        <li><a>Verification Alerts</a></li>
-                                        <li><a>Blacklisted Alert</a></li>
-                                    </ul>
-                                </details>
                             </li>
                         </>
                     )
