@@ -310,20 +310,21 @@ const GuestVehicleList = () => {
                                             ? dayjs(vehicle.createdAt).fromNow() : '-'}
                                     </td>
                                     <td className="flex gap-2">
-                                        <button
-                                            onClick={() => handleExtendAccess(vehicle._id)}
-                                            className="btn btn-xs btn-ghost text-primary"
-                                            title="Edit"
-                                        >
-                                            <Edit className="h-4 w-4" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(vehicle._id)}
-                                            className="btn btn-xs btn-ghost text-red-500 hover:text-red-700"
-                                            title="Delete"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </button>
+                                            <button
+                                                onClick={() => handleExtendAccess(vehicle._id)}
+                                                className="btn btn-xs btn-ghost text-primary bg-transparent hover:bg-transparent border-none tooltip"
+                                                data-tip="Extend access"
+                                                title="Edit"
+                                            >
+                                                <Edit className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(vehicle._id)}
+                                                className="btn btn-xs btn-ghost text-red-500 hover:text-red-700 bg-transparent hover:bg-transparent border-none"
+                                                title="Delete"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
                                     </td>
                                 </tr>
                             ))
