@@ -76,6 +76,10 @@ export const extendGuestVehicle = async (req, res) => {
             return res.status(400).json({ message: "Guest vehicle is not expired" });
         }
 
+        if (guestVehicle.isBlacklisted) {
+            return res.status(400).json({ message: "Guest vehicle is blacklisted" });
+        }
+
         // Extend for another day
         guestVehicle.validUntil = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
         await guestVehicle.save();
@@ -89,7 +93,7 @@ export const extendGuestVehicle = async (req, res) => {
         console.error("Error in extendGuestVehicle controller:", error);
         res.status(500).json({ message: "Server error" });
     }
-} 
+}
 
 // Delete guest vehicle controller
 export const deleteGuestVehicle = async (req, res) => {
@@ -129,15 +133,16 @@ export const blacklistOrUnblacklistGuestVehicle = async (req, res) => {
             return res.status(404).json({ message: "Guest vehicle not found" });
         }
 
-        if(guestVehicle.isBlacklisted) {
+        if (guestVehicle.isBlacklisted) {
             guestVehicle.isBlacklisted = false;
             guestVehicle.isBlacklistedAt = null;
             await guestVehicle.save();
             return res.status(200).json({ message: "Guest vehicle unblacklisted", guestVehicle });
         }
-        
+
         guestVehicle.isBlacklisted = true;
         guestVehicle.isBlacklistedAt = Date.now();
+        guestVehicle.validUntil = new Date(Date.now() - 1000); // 1 second before now
         await guestVehicle.save();
 
         res.status(200).json({ message: "Guest vehicle blacklisted", guestVehicle });
