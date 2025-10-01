@@ -12,7 +12,7 @@ const HomePage = () => {
             <div className="rounded-lg">
               {/* Hero Section */}
 
-              <div className="hero bg-primary mt-10 p-8 text-primary-content rounded-lg">
+              <div className="hero bg-gradient-to-r from-primary to-secondary mt-10 p-8 text-primary-content rounded-lg">
                 <div className="hero-content w-full max-w-none">
                   <div className="flex flex-col lg:flex-row-reverse items-center lg:items-start w-full space-y-8 lg:space-y-0 lg:space-x-12">
                     <div className="lg:w-1/2 flex justify-center">
@@ -110,7 +110,7 @@ const HomePage = () => {
               {/* End How It Works Section */}
 
               {/* Promotional Section */}
-              <div className="hero bg-primary text-primary-content rounded-lg my-12 p-12">
+              <div className="hero bg-gradient-to-r from-primary to-secondary text-primary-content rounded-lg my-12 p-12">
                 <div className="hero-content flex-col md:flex-row">
                   <div>
                     <h2 className="text-4xl font-bold mb-8">Experience PlateAccess Today</h2>
