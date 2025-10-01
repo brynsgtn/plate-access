@@ -7,6 +7,11 @@ import {
     Shield,
     Camera,
     CameraOffIcon,
+    Clock,
+    AlertCircle,
+    CheckCircle,
+    LogIn,
+    LogOut
 } from 'lucide-react';
 import { useGateStore } from '../stores/useGateStore';
 import { useLogStore } from '../stores/useLogStore';
@@ -23,13 +28,13 @@ const AccessControlPage = () => {
     const [exitGate, setExitGate] = useState(isExitGateOpen ? 'open' : 'closed');
     const [lastActivity, setLastActivity] = useState(null);
     const [gateAttempting, setGateAttempting] = useState({ entrance: false, exit: false });
-    const [manualEntryPlate, setManualEntryPlate] = useState('');
+    const [manualPlate, setManualPlate] = useState('');
 
-    const { manualEntryLogAttempt } = useLogStore();
+    const { manualEntryLogAttempt, manualExitLogAttempt } = useLogStore();
 
     // Manual plate entry value
     useEffect(() => {
-        console.log('Manual entry plate:', manualEntryPlate);
+        console.log('Manual entry plate:', manualPlate);
     })
 
 
@@ -63,7 +68,7 @@ const AccessControlPage = () => {
         setGateAttempting(prev => ({ ...prev, [gateType]: true }));
 
         // Set last activity
-        setLastActivity({ type: gateType, action: 'verifying', time: new Date().toLocaleTimeString() });
+        setLastActivity({ type: gateType, action: 'verifying entry access', time: new Date().toLocaleTimeString() });
 
         setTimeout(async () => {
             setGateAttempting(prev => ({ ...prev, [gateType]: false }));
@@ -94,59 +99,54 @@ const AccessControlPage = () => {
 
             }
 
-            setManualEntryPlate('');
+            setManualPlate('');
         }, 2000);
 
     }
 
-    const handleLPRResult = async (gateType, success) => {
-        // Mark LPR as attempting
+    // Manual plate exit attempt
+    const manualExitAttempt = (plateNumber, gateType) => {
+
+        // Mark manual exit as attempting
         setGateAttempting(prev => ({ ...prev, [gateType]: true }));
 
-        setLastActivity({ type: gateType, action: 'verifying', time: new Date().toLocaleTimeString() });
+        // Set last activity
+        setLastActivity({ type: gateType, action: 'verifying exit access', time: new Date().toLocaleTimeString() });
 
-        // Simulate LPR verification delay (e.g., API call)
-        setTimeout(() => {
+        setTimeout(async () => {
             setGateAttempting(prev => ({ ...prev, [gateType]: false }));
 
-            if (success) {
-                // Force open immediately
-                if (gateType === 'entrance') {
-                    setEntranceGate('opening');
-                    setTimeout(() => {
-                        setEntranceGate('open');
-                        setIsEntranceGateOpen(true);
+            const result = await manualExitLogAttempt({ plateNumber });
 
-                        // Auto-close after 5 sec
-                        setTimeout(() => {
-                            setEntranceGate('closing');
-                            setTimeout(() => {
-                                setEntranceGate('closed');
-                                setIsEntranceGateOpen(false);
-                            }, 1500); // closing animation
-                        }, 5000);
-                    }, 1500); // opening animation
-                } else {
-                    setExitGate('opening');
-                    setTimeout(() => {
-                        setExitGate('open');
-                        setIsExitGateOpen(true);
+            if (result.success) {
+                setEntranceGate('opening');
+                setTimeout(() => {
+                    setExitGate('open');
+                    setIsExitGateOpen(true);
 
-                        // Auto-close after 5 sec
+                    // Set last activity
+                    setLastActivity({ type: gateType, action: 'manual exit success', time: new Date().toLocaleTimeString() });
+
+                    // Auto-close after 5 sec
+                    setTimeout(() => {
+                        setEntranceGate('closing');
                         setTimeout(() => {
-                            setExitGate('closing');
-                            setTimeout(() => {
-                                setExitGate('closed');
-                                setIsExitGateOpen(false);
-                            }, 1500);
-                        }, 5000);
-                    }, 1500);
-                }
+                            setExitGate('closed');
+                            setIsExitGateOpen(false);
+                        }, 1500); // closing animation
+                    }, 5000);
+                }, 1500); // opening animation
             } else {
-                alert(`${gateType} LPR failed! Access denied.`);
+                // Set last activity
+                setLastActivity({ type: gateType, action: 'manual exit failed', time: new Date().toLocaleTimeString() });
+
             }
         }, 2000);
-    };
+
+        setManualPlate('');
+
+    }
+
 
 
     // Emergency controls
@@ -257,7 +257,7 @@ const AccessControlPage = () => {
                     </div>
 
                     {/* Status Indicators */}
-                    {/* <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-sm">
                         <div className="flex items-center">
                             {gateState === 'open' ? (
                                 <CheckCircle className="h-4 w-4 mr-1 text-green-500" />
@@ -270,7 +270,7 @@ const AccessControlPage = () => {
                                 Status: {gateState === 'opening' ? 'Opening...' : gateState === 'closing' ? 'Closing...' : gateState}
                             </span>
                         </div>
-                    </div> */}
+                    </div>
                 </div>
 
             </div>
@@ -372,12 +372,21 @@ const AccessControlPage = () => {
                                 id="license-plate"
                                 placeholder="Enter license plate number"
                                 className="input input-bordered w-full mb-4"
-                                value={manualEntryPlate} 
-                                onChange={(e) => setManualEntryPlate(e.target.value)}
+                                value={manualPlate}
+                                onChange={(e) => setManualPlate(e.target.value)}
                             />
-                            <button
-                                className="btn btn-primary w-full"
-                                onClick={() => manualEntryAttempt(manualEntryPlate, 'entrance')}>Verify</button>
+                            <div className='grid grid-cols-2 gap-3'>
+                                <button
+                                    className="btn btn-success w-full"
+                                    onClick={() => manualEntryAttempt(manualPlate, 'entrance')}>
+                                    Manual Entry
+                                </button>
+                                <button
+                                    className="btn btn-error w-full"
+                                    onClick={() => manualExitAttempt(manualPlate, 'exit')}>
+                                    Manual Exit
+                                </button>
+                            </div>
                         </div>
 
                     </div>
@@ -408,14 +417,95 @@ const AccessControlPage = () => {
                         <Lock className="h-4 w-4" />
                         Close All
                     </button>
-                    <button onClick={() => handleLPRResult('exit', true)} className="btn btn-success">
-                        Simulate Entrance LPR Success
-                    </button>
 
-                    <button onClick={() => handleLPRResult('entrance', false)} className="btn btn-error">
-                        Simulate Entrance LPR Fail
-                    </button>
+                </div>
+            </div>
 
+
+            {/* LPR Simulation Controls Section - for testing LPR functionality , to integrate with the flask backend */}
+            <div className="max-w-6xl mx-auto rounded-xl mb-12 mt-10">
+                {/* Section Header */}
+                <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl shadow-lg">
+                    <h2 className="text-2xl font-bold text-white flex items-center">
+                        <Camera className="mr-3 h-6 w-6" />
+                        LPR Simulation Controls
+                    </h2>
+                    <p className="text-white/80 mt-1 text-sm">Test license plate recognition functionality</p>
+                </div>
+
+                <div className="grid lg:grid-cols-2 gap-6 p-6 shadow-2xl rounded-b-2xl bg-base-100 border-x border-b border-base-300">
+                    {/* LPR Entry Simulation */}
+                    <div className="bg-base-200 rounded-xl p-6 border border-base-300">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
+                                <LogIn className="w-5 h-5 text-success" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-lg text-base-content">LPR Entry Gate</h3>
+                                <p className="text-sm text-base-content/60">Simulate vehicle entrance</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="label">
+                                    <span className="label-text font-medium">Plate Number</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g., ABC-1234"
+                                    className="input input-bordered w-full focus:input-primary"
+                                // Add your value and onChange here
+                                />
+                            </div>
+
+                            <button className="btn btn-success w-full gap-2">
+                                <LogIn className="w-4 h-4" />
+                                Simulate Entry
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* LPR Exit Simulation */}
+                    <div className="bg-base-200 rounded-xl p-6 border border-base-300">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-full bg-error/20 flex items-center justify-center">
+                                <LogOut className="w-5 h-5 text-error" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-lg text-base-content">LPR Exit Gate</h3>
+                                <p className="text-sm text-base-content/60">Simulate vehicle exit</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <label className="label">
+                                    <span className="label-text font-medium">Plate Number</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="e.g., ABC-1234"
+                                    className="input input-bordered w-full focus:input-primary"
+                                // Add your value and onChange here
+                                />
+                            </div>
+
+                            <button className="btn btn-error w-full gap-2">
+                                <LogOut className="w-4 h-4" />
+                                Simulate Exit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Info Alert */}
+                <div className="mt-4 alert alert-info shadow-lg">
+                    <Camera className="w-5 h-5" />
+                    <div>
+                        <h3 className="font-bold">Simulation Mode</h3>
+                        <div className="text-xs">Enter a plate number and click the button to simulate LPR detection at entry or exit gates.</div>
+                    </div>
                 </div>
             </div>
 
