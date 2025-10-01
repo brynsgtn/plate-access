@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     DoorOpen,
     DoorClosed,
@@ -9,6 +9,7 @@ import {
     CameraOffIcon,
 } from 'lucide-react';
 import { useGateStore } from '../stores/useGateStore';
+import { useLogStore } from '../stores/useLogStore';
 
 const AccessControlPage = () => {
 
@@ -22,6 +23,14 @@ const AccessControlPage = () => {
     const [exitGate, setExitGate] = useState(isExitGateOpen ? 'open' : 'closed');
     const [lastActivity, setLastActivity] = useState(null);
     const [gateAttempting, setGateAttempting] = useState({ entrance: false, exit: false });
+    const [manualEntryPlate, setManualEntryPlate] = useState('');
+
+    const { manualEntryLogAttempt } = useLogStore();
+
+    // Manual plate entry value
+    useEffect(() => {
+        console.log('Manual entry plate:', manualEntryPlate);
+    })
 
 
     // Gate operation functions
@@ -46,6 +55,50 @@ const AccessControlPage = () => {
             }, 1500);
         }
     };
+
+    // Manual plate entry attempt
+    const manualEntryAttempt = (plateNumber, gateType) => {
+
+        // Mark manual entry as attempting
+        setGateAttempting(prev => ({ ...prev, [gateType]: true }));
+
+        // Set last activity
+        setLastActivity({ type: gateType, action: 'verifying', time: new Date().toLocaleTimeString() });
+
+        setTimeout(async () => {
+            setGateAttempting(prev => ({ ...prev, [gateType]: false }));
+
+            const result = await manualEntryLogAttempt({ plateNumber });
+
+            if (result.success) {
+                setEntranceGate('opening');
+                setTimeout(() => {
+                    setEntranceGate('open');
+                    setIsEntranceGateOpen(true);
+
+                    // Set last activity
+                    setLastActivity({ type: gateType, action: 'manual entry success', time: new Date().toLocaleTimeString() });
+
+                    // Auto-close after 5 sec
+                    setTimeout(() => {
+                        setEntranceGate('closing');
+                        setTimeout(() => {
+                            setEntranceGate('closed');
+                            setIsEntranceGateOpen(false);
+                        }, 1500); // closing animation
+                    }, 5000);
+                }, 1500); // opening animation
+            } else {
+                // Set last activity
+                setLastActivity({ type: gateType, action: 'manual entry failed', time: new Date().toLocaleTimeString() });
+
+            }
+
+            setManualEntryPlate('');
+        }, 2000);
+
+    }
+
     const handleLPRResult = async (gateType, success) => {
         // Mark LPR as attempting
         setGateAttempting(prev => ({ ...prev, [gateType]: true }));
@@ -244,13 +297,17 @@ const AccessControlPage = () => {
                     )}
                 </div>
             </div>
-            <div>
-                <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl max-w-6xl mx-auto shadow-2xl">
-                    <h3 className="text-2xl font-bold text-white">Gate Controls</h3>
-                    <p className="text-white/80 mt-2">Control and manage the entry and exit gates for your vehicle access system.</p>
+            <div className="max-w-6xl mx-auto shadow-2xl rounded-2xl overflow-hidden">
+                {/* Top Section */}
+                <div className="bg-gradient-to-r from-primary to-secondary p-6">
+                    <h3 className="text-2xl font-bold text-white">Gate Simulation and Controls</h3>
+                    <p className="text-white/80 mt-2">
+                        Simulate and control the entry and exit gates for your vehicle access system.
+                    </p>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 max-w-6xl mx-auto shadow-2xl rounded-b-2xl">
 
+                {/* Bottom Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 bg-base-100">
                     <GateVisual
                         type="entrance"
                         gateState={entranceGate}
@@ -265,39 +322,100 @@ const AccessControlPage = () => {
                         onClose={() => operateGate('exit', 'close')}
                     />
                 </div>
+            </div>
 
 
-                {/* Emergency Controls */}
+            {/* Manual Entry Controls Section */}
+            <div className="max-w-6xl mx-auto rounded-xl mb-12 mt-10">
+                {/* Section Header */}
+                <div>
+                    <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl">
+                        <h2 className="text-2xl font-bold text-white flex items-center">
+                            <Shield className="mr-3 h-5 w-5" />
+                            Manual Entry Controls
+                        </h2>
+                    </div>
 
-                <div className="bg-base-100 rounded-b-xl p-5 max-w-6xl mx-auto shadow-2xl">
-                    <h3 className="font-semibold mb-5 flex items-center text-base-content">
-                        <Shield className="mr-2 h-4 w-4" />
-                        Emergency Controls
-                    </h3>
-                    <div className="grid lg:grid-cols-2 gap-3 p-5">
-                        <button
-                            onClick={openAllGates}
-                            className="btn btn-warning flex items-center justify-center gap-2"
-                        >
-                            <Unlock className="h-4 w-4" />
-                            Open All
-                        </button>
-                        <button
-                            onClick={closeAllGates}
-                            className="btn btn-error flex items-center justify-center gap-2"
-                        >
-                            <Lock className="h-4 w-4" />
-                            Close All
-                        </button>
-                        <button onClick={() => handleLPRResult('exit', true)} className="btn btn-success">
-                            Simulate Entrance LPR Success
-                        </button>
-
-                        <button onClick={() => handleLPRResult('entrance', false)} className="btn btn-error">
-                            Simulate Entrance LPR Fail
-                        </button>
+                    <div className='grid lg:grid-cols-2 gap-3 shadow-2xl rounded-b-2xl bg-base-100'>
+                        {/* Add Guest Vehicle */}
+                        <div className="p-5">
+                            <h3 className="font-semibold mb-3 flex items-center text-base-content">
+                                Add Guest Vehicle
+                            </h3>
+                            <input
+                                type="text"
+                                placeholder="Plate Number"
+                                className="input input-bordered w-full mb-3"
+                            />
+                            <input
+                                type="text"
+                                placeholder="Make and Model"
+                                className="input input-bordered w-full mb-3"
+                            />
+                            <input
+                                type="text"
+                                placeholder="Owner's Name"
+                                className="input input-bordered w-full mb-3"
+                            />
+                            <button className="btn btn-primary w-full">Authorize Vehicle</button>
+                        </div>
+                        {/* Manual Plate Entry */}
+                        <div className="p-5">
+                            <label
+                                htmlFor="license-plate"
+                                className="font-semibold mb-3 flex items-center text-base-content"
+                            >
+                                Manual License Plate Entry
+                            </label>
+                            <input
+                                type="text"
+                                id="license-plate"
+                                placeholder="Enter license plate number"
+                                className="input input-bordered w-full mb-4"
+                                value={manualEntryPlate} 
+                                onChange={(e) => setManualEntryPlate(e.target.value)}
+                            />
+                            <button
+                                className="btn btn-primary w-full"
+                                onClick={() => manualEntryAttempt(manualEntryPlate, 'entrance')}>Verify</button>
+                        </div>
 
                     </div>
+
+                </div>
+            </div>
+
+
+            {/* Emergency Controls */}
+
+            <div className="bg-base-100 rounded-b-xl p-5 max-w-6xl mx-auto shadow-2xl">
+                <h3 className="font-semibold mb-5 flex items-center text-base-content">
+                    <Shield className="mr-2 h-4 w-4" />
+                    Emergency Controls
+                </h3>
+                <div className="grid lg:grid-cols-2 gap-3 p-5">
+                    <button
+                        onClick={openAllGates}
+                        className="btn btn-warning flex items-center justify-center gap-2"
+                    >
+                        <Unlock className="h-4 w-4" />
+                        Open All
+                    </button>
+                    <button
+                        onClick={closeAllGates}
+                        className="btn btn-error flex items-center justify-center gap-2"
+                    >
+                        <Lock className="h-4 w-4" />
+                        Close All
+                    </button>
+                    <button onClick={() => handleLPRResult('exit', true)} className="btn btn-success">
+                        Simulate Entrance LPR Success
+                    </button>
+
+                    <button onClick={() => handleLPRResult('entrance', false)} className="btn btn-error">
+                        Simulate Entrance LPR Fail
+                    </button>
+
                 </div>
             </div>
 
