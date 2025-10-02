@@ -19,6 +19,7 @@ export const useGuestVehicleStore = create((set, get) => ({
                 addLoading: false
             }));
             toast.success(response?.data?.message || "Guest vehicle added successfully!");
+             return { success: true }
         } catch (error) {
             console.error("Error adding guest vehicle:", error);
             set({ addLoading: false });
