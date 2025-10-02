@@ -31,7 +31,7 @@ const AccessControlPage = () => {
     const [gateAttempting, setGateAttempting] = useState({ entrance: false, exit: false });
     const [manualPlate, setManualPlate] = useState('');
 
-    const { manualEntryLogAttempt, manualExitLogAttempt, lprEntryLogAttempt } = useLogStore();
+    const { manualEntryLogAttempt, manualExitLogAttempt, lprEntryLogAttempt, lprExitLogAttempt } = useLogStore();
 
     // Manual plate entry value
     useEffect(() => {
@@ -183,6 +183,49 @@ const AccessControlPage = () => {
             } else {
                 // Set last activity
                 setLastActivity({ type: gateType, action: 'LPR entrance failed', time: new Date().toLocaleTimeString() });
+
+            }
+        }, 2000);
+
+        setManualPlate('');
+
+    };
+
+    // LPR exit attempt simulation (to be replaced by actual LPR integration)
+    const LPRExitAttemptSimulation = (plateNumber, gateType) => {
+
+        // Mark lpr exit as attempting
+        setGateAttempting(prev => ({ ...prev, [gateType]: true }));
+
+        // Set last activity
+        setLastActivity({ type: gateType, action: 'verifying exit access', time: new Date().toLocaleTimeString() });
+
+        setTimeout(async () => {
+            setGateAttempting(prev => ({ ...prev, [gateType]: false }));
+
+            const result = await lprExitLogAttempt({ plateNumber });
+
+            if (result.success) {
+                setExitGate('opening');
+                setTimeout(() => {
+                    setExitGate('open');
+                    setIsExitGateOpen(true);
+
+                    // Set last activity
+                    setLastActivity({ type: gateType, action: 'lpr exit success', time: new Date().toLocaleTimeString() });
+
+                    // Auto-close after 5 sec
+                    setTimeout(() => {
+                        setExitGate('closing');
+                        setTimeout(() => {
+                            setExitGate('closed');
+                            setIsExitGateOpen(false);
+                        }, 1500); // closing animation
+                    }, 5000);
+                }, 1500); // opening animation
+            } else {
+                // Set last activity
+                setLastActivity({ type: gateType, action: 'lpr exit failed', time: new Date().toLocaleTimeString() });
 
             }
         }, 2000);
@@ -497,7 +540,7 @@ const AccessControlPage = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    placeholder="e.g., ABC-1234"
+                                    placeholder="Enter plate number"
                                     className="input input-bordered w-full focus:input-primary"
                                     value={manualPlate}
                                     onChange={(e) => setManualPlate(e.target.value)}
@@ -533,13 +576,17 @@ const AccessControlPage = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    placeholder="e.g., ABC-1234"
+                                    placeholder="Enter plate number"
                                     className="input input-bordered w-full focus:input-primary"
-                                // Add your value and onChange here
+                                    value={manualPlate}
+                                    onChange={(e) => setManualPlate(e.target.value)}
                                 />
                             </div>
 
-                            <button className="btn btn-error w-full gap-2">
+                            <button
+                                className="btn btn-error w-full gap-2"
+                                onClick={() => LPRExitAttemptSimulation(manualPlate, 'exit')}
+                            >
                                 <LogOut className="w-4 h-4" />
                                 Simulate Exit
                             </button>
