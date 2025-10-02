@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import axios from "../lib/axios";
 import { toast } from "react-hot-toast";
+import { io } from "socket.io-client";
 
-
+const BASE_URL = "http://localhost:5001"; // Add your backend server URL for production
 
 export const useUserStore = create((set, get) => ({
     user: null,
@@ -10,6 +11,7 @@ export const useUserStore = create((set, get) => ({
     loading: false,
     usersLoading: false,
     checkingAuth: true,
+    socket: null,
 
     login: async (usernameOrEmail, password) => {
         set({ loading: true });
@@ -17,6 +19,8 @@ export const useUserStore = create((set, get) => ({
             const response = await axios.post("/auth/login", { usernameOrEmail, password });
             set({ user: response.data, loading: false });
             toast.success("Login successful!");
+
+            get().connectSocket();
         } catch (error) {
             set({ loading: false });
             console.error("Login failed:", error);
@@ -41,6 +45,7 @@ export const useUserStore = create((set, get) => ({
             await axios.post("/auth/logout");
             set({ user: null, loading: false });
             toast.success("Logout successful!");
+            get().disconnectSocket();
         } catch (error) {
             set({ loading: false });
             console.error("Logout failed:", error);
@@ -52,6 +57,7 @@ export const useUserStore = create((set, get) => ({
         try {
             const response = await axios.get("/auth/check-auth");
             set({ user: response.data, checkingAuth: false });
+            get().connectSocket();
         } catch (error) {
             set({ user: null, checkingAuth: false });
             console.error("Authentication check failed:", error);
@@ -90,6 +96,30 @@ export const useUserStore = create((set, get) => ({
             set({ loading: false });
             console.error("Delete user failed:", error);
             toast.error(error.response?.data?.message || "Failed to delete user.");
+        }
+    },
+    // Connect socket
+    connectSocket: () => {
+        // Check if user is logged in
+        const { user } = get();
+
+        // Check if socket is already connected and user is logged in
+        // If not, connect socket
+        if (!user || get().socket?.connected) return;
+
+        // Connect socket
+        const socket = io(BASE_URL);
+        socket.connect();
+
+        set({ socket: socket });
+    },
+    // Disconnect socket
+    disconnectSocket: () => {
+        // Check if socket is connected
+        // If so, disconnect socket
+        if (get().socket?.connected) {
+            // Disconnect socket
+            get().socket.disconnect();
         }
     },
 }));
