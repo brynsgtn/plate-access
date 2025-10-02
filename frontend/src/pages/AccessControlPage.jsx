@@ -15,7 +15,9 @@ import {
 } from 'lucide-react';
 import { useGateStore } from '../stores/useGateStore';
 import { useLogStore } from '../stores/useLogStore';
+import { useGuestVehicleStore } from '../stores/useGuestVehicleStore';
 import { set } from 'mongoose';
+
 
 const AccessControlPage = () => {
 
@@ -32,6 +34,13 @@ const AccessControlPage = () => {
     const [manualPlate, setManualPlate] = useState('');
 
     const { manualEntryLogAttempt, manualExitLogAttempt, lprEntryLogAttempt, lprExitLogAttempt } = useLogStore();
+
+    const { addGuestVehicle } = useGuestVehicleStore();
+    const [guestVehicleData, setGuestVehicleData] = useState({
+        plateNumber: "",
+        makeModel: "",
+        ownerName: "",
+    });
 
     // Manual plate entry value
     useEffect(() => {
@@ -226,11 +235,69 @@ const AccessControlPage = () => {
             } else {
                 // Set last activity
                 setLastActivity({ type: gateType, action: 'lpr exit failed', time: new Date().toLocaleTimeString() });
-
             }
         }, 2000);
 
         setManualPlate('');
+
+    };
+
+    // Add and authorize guest vehicle
+    const addAndAuthorizeGuestVehicle = async (vehicle, gateType) => {
+
+        try {
+            const result = await addGuestVehicle(vehicle);
+            if (result.success) {
+                setGateAttempting(prev => ({ ...prev, [gateType]: true }));
+
+                setLastActivity({
+                    type: gateType,
+                    action: 'verifying entry access',
+                    time: new Date().toLocaleTimeString()
+                });
+
+                setTimeout(async () => {
+
+                    setGateAttempting(prev => ({ ...prev, [gateType]: false }));
+
+                    const entryResult = await manualEntryLogAttempt({ plateNumber: vehicle.plateNumber }, gateType);
+
+                    if (entryResult.success) {
+                        setEntranceGate('opening');
+                        setTimeout(() => {
+                            setEntranceGate('open');
+                            setIsEntranceGateOpen(true);
+
+                            // Set last activity
+                            setLastActivity({ type: gateType, action: 'manual entrance success', time: new Date().toLocaleTimeString() });
+
+                            // Auto-close after 5 sec
+                            setTimeout(() => {
+                                setEntranceGate('closing');
+                                setTimeout(() => {
+                                    setEntranceGate('closed');
+                                    setIsEntranceGateOpen(false);
+                                }, 1500); // closing animation
+                            }, 5000);
+                        }, 1500); // opening animation
+                    } else {
+                        setLastActivity({
+                            type: gateType,
+                            action: 'manual entrance failed',
+                            time: new Date().toLocaleTimeString()
+                        });
+                    }
+                }, 2000);
+            }
+        } catch (error) {
+            console.error("Error adding and authorizing guest vehicle:", error);
+        } finally {
+            setGuestVehicleData({
+                plateNumber: "",
+                makeModel: "",
+                ownerName: "",
+            });
+        }
 
     };
 
@@ -433,18 +500,29 @@ const AccessControlPage = () => {
                                 type="text"
                                 placeholder="Plate Number"
                                 className="input input-bordered w-full mb-3"
+                                value={guestVehicleData.plateNumber}
+                                onChange={(e) => setGuestVehicleData({ ...guestVehicleData, plateNumber: e.target.value })}
+                                required
                             />
                             <input
                                 type="text"
                                 placeholder="Make and Model"
                                 className="input input-bordered w-full mb-3"
+                                value={guestVehicleData.makeModel}
+                                onChange={(e) => setGuestVehicleData({ ...guestVehicleData, makeModel: e.target.value })}
+                                required
                             />
                             <input
                                 type="text"
                                 placeholder="Owner's Name"
                                 className="input input-bordered w-full mb-3"
+                                value={guestVehicleData.ownerName}
+                                onChange={(e) => setGuestVehicleData({ ...guestVehicleData, ownerName: e.target.value })}
+                                required
                             />
-                            <button className="btn btn-primary w-full">Authorize Vehicle</button>
+                            <button
+                                className="btn btn-primary w-full"
+                                onClick={() => addAndAuthorizeGuestVehicle(guestVehicleData, 'entrance')}>Authorize Vehicle</button>
                         </div>
                         {/* Manual Plate Entry */}
                         <div className="p-5">
