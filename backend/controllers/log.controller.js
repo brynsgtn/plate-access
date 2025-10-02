@@ -163,6 +163,7 @@ export const exitLogLPR = async (req, res) => {
                 success: true,
                 notes: "Verified by LPR"
             });
+            io.emit("newLog", log); // Emit the new log
             return res.status(201).json({ message: "Exit granted", log });
         }
 
@@ -179,6 +180,7 @@ export const exitLogLPR = async (req, res) => {
                 isGuest: true,
                 notes: "Verified by LPR"
             });
+            io.emit("newLog", log); // Emit the new log
             return res.status(201).json({ message: "Exit granted for guest vehicle", log });
         }
 
@@ -190,6 +192,7 @@ export const exitLogLPR = async (req, res) => {
             success: false,
             notes: "Unrecognized Plate Number"
         });
+        io.emit("newLog", log); // Emit the new log
         return res.status(403).json({ message: "Unrecognized Plate Number, please enter plate number manually", log });
 
     } catch (error) {
