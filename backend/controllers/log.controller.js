@@ -225,6 +225,7 @@ export const entryLogManual = async (req, res) => {
                     blacklistHit: true,
                     notes: "Blacklisted registered vehicle"
                 });
+                io.emit("newLog", log); // Emit the new log
                 return res.status(403).json({ message: "Vehicle is blacklisted", log });
             }
 
@@ -238,6 +239,7 @@ export const entryLogManual = async (req, res) => {
                     success: false,
                     notes: "Pending vehicle registration approval"
                 });
+                io.emit("newLog", log); // Emit the new log
                 return res.status(400).json({ message: "Pending vehicle registration approval", log });
             }
 
@@ -250,6 +252,7 @@ export const entryLogManual = async (req, res) => {
                 success: true,
                 notes: "Verified by manual entry"
             });
+            io.emit("newLog", log); // Emit the new log
             return res.status(201).json({ message: "Entry granted", log });
         }
 
@@ -271,6 +274,7 @@ export const entryLogManual = async (req, res) => {
                     isGuest: true,
                     notes: "Blacklisted guest vehicle"
                 });
+                io.emit("newLog", log); // Emit the new log
                 return res.status(403).json({ message: "Guest vehicle is blacklisted", log });
             }
 
@@ -285,6 +289,7 @@ export const entryLogManual = async (req, res) => {
                     isGuest: true,
                     notes: "Guest vehicle access expired"
                 });
+                io.emit("newLog", log); // Emit the new log
                 return res.status(403).json({ message: "Guest vehicle access expired", log });
             }
 
@@ -298,6 +303,7 @@ export const entryLogManual = async (req, res) => {
                 isGuest: true,
                 notes: "Verified by manual entry"
             });
+            io.emit("newLog", log); // Emit the new log
             return res.status(201).json({ message: "Entry granted", log });
         }
 
@@ -309,6 +315,7 @@ export const entryLogManual = async (req, res) => {
             success: false,
             notes: "Unregistered vehicle"
         });
+        io.emit("newLog", log); // Emit the new log
         return res.status(403).json({ message: "Unregistered vehicle", log });
     } catch (error) {
         console.error("Error in entranceLogManual controller:", error);
@@ -338,6 +345,7 @@ export const exitLogManual = async (req, res) => {
                 success: true,
                 notes: "Verified by manual entry"
             });
+            io.emit("newLog", log); // Emit the new log
             return res.status(201).json({ message: "Exit granted", log });
         }
 
@@ -354,6 +362,7 @@ export const exitLogManual = async (req, res) => {
                 isGuest: true,
                 notes: "Verified by manual entry"
             });
+            io.emit("newLog", log); // Emit the new log
             return res.status(201).json({ message: "Exit granted for guest vehicle", log });
         }
 
@@ -365,6 +374,7 @@ export const exitLogManual = async (req, res) => {
             success: false,
             notes: "Unrecognized Plate Number"
         });
+        io.emit("newLog", log); // Emit the new log
         return res.status(403).json({ message: "Unrecognized Plate Number, please open the gate manually", log });
     } catch (error) {
         console.error("Error in exitLogManual controller:", error);
