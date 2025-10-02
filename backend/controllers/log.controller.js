@@ -166,7 +166,23 @@ export const exitLogLPR = async (req, res) => {
             return res.status(201).json({ message: "Exit granted", log });
         }
 
-        // Case 2: Unrecognized Plate
+        const guestVehicle = await GuestVehicle.findOne({ plateNumber }); // check if it's a guest vehicle
+
+        if (guestVehicle) {
+            // Case 2: Success
+            const log = await Log.create({
+                vehicle: guestVehicle._id,
+                plateNumber,
+                gateType: "exit",
+                method: "LPR",
+                success: true,
+                isGuest: true,
+                notes: "Verified by LPR"
+            });
+            return res.status(201).json({ message: "Exit granted for guest vehicle", log });
+        }
+
+        // Case 3: Unrecognized Plate
         const log = await Log.create({
             plateNumber,
             gateType: "exit",
@@ -322,7 +338,23 @@ export const exitLogManual = async (req, res) => {
             return res.status(201).json({ message: "Exit granted", log });
         }
 
-        // Case 2: Unrecognized Plate
+        const guestVehicle = await GuestVehicle.findOne({ plateNumber }); // check if it's a guest vehicle
+
+        if (guestVehicle) {
+            // Case 2: Success
+            const log = await Log.create({
+                vehicle: guestVehicle._id,
+                plateNumber,
+                gateType: "exit",
+                method: "manual",
+                success: true,
+                isGuest: true,
+                notes: "Verified by manual entry"
+            });
+            return res.status(201).json({ message: "Exit granted for guest vehicle", log });
+        }
+
+        // Case 3: Unrecognized Plate
         const log = await Log.create({
             plateNumber,
             gateType: "exit",
