@@ -75,9 +75,11 @@ export default App;
 // TODO: 
 
 // PARKING STAFF
-// Dashboard page - build backend and integrate with frontend (camera, access logs, verification alerts)
-// Access control page - build backend and integrate with frontend (gate controls - automatic lpr attempt on entrance and exit, and manual controls - gate, camera entry,)
+// Dashboard page - build backend and integrate with frontend (camera, verification alerts, last activity section)
+// Access control page - build backend and integrate with frontend (simulation/integration of automatic lpr attempt on entrance and exit, make last activity a global state and display to dashboard page)
 // Vehicle Management page - summary (check sub stats)
+// Access Log page - implement who created the log, implement protect middleware on routes
+
 
 // ADMIN
 // Dashboard page 
