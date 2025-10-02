@@ -11,7 +11,7 @@ import {
 
 import { useGateStore } from '../stores/useGateStore';
 import { useLogStore } from '../stores/useLogStore';
-import { useEffect } from 'react';
+import { use, useEffect } from 'react';
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -23,7 +23,7 @@ const DashboardPage = () => {
 
     const { isEntranceGateOpen, isExitGateOpen, lastExitAction, lastEntranceAction } = useGateStore();
 
-    const { fetchLogs, logs } = useLogStore();
+    const { fetchLogs, logs, logLiveUpdate } = useLogStore();
 
     const totalLogs = logs.length;
     const totalEntry = logs.filter((log) => log.gateType === "entrance" && log.success === true).length;
@@ -85,7 +85,12 @@ const DashboardPage = () => {
 
     useEffect(() => {
         fetchLogs();
+        logLiveUpdate();
     }, [fetchLogs]);
+
+    useEffect(() => {
+       useLogStore.getState().logLiveUpdate();
+    }, [])
 
     useEffect(() => {
         console.log("logs: ", logs)
@@ -283,9 +288,9 @@ const DashboardPage = () => {
                             <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl mb-4">
                                 <h2 className="text-2xl font-bold text-white flex items-center">
                                     <Activity className="mr-3 h-5 w-5 text-white" />
-                                    Recent Logs
+                                    Live Access Logs 
                                 </h2>
-                                <p className="text-white/80 mt-2">Recent five log entries</p>
+                                <p className="text-white/80 mt-2">Recent 5 access logs</p>
                             </div>
                             {/* Recent Log Entries */}
                             {recentLogs.length > 0 ? (

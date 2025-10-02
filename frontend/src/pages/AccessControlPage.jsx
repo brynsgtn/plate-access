@@ -32,6 +32,8 @@ const AccessControlPage = () => {
     const [lastActivity, setLastActivity] = useState(null);
     const [gateAttempting, setGateAttempting] = useState({ entrance: false, exit: false });
     const [manualPlate, setManualPlate] = useState('');
+    const [lprEntryPlate, setLprEntryPlate] = useState('');
+    const [lprExitPlate, setLprExitPlate] = useState('');
 
     const { manualEntryLogAttempt, manualExitLogAttempt, lprEntryLogAttempt, lprExitLogAttempt } = useLogStore();
 
@@ -196,7 +198,7 @@ const AccessControlPage = () => {
             }
         }, 2000);
 
-        setManualPlate('');
+        setLprEntryPlate('');
 
     };
 
@@ -620,14 +622,14 @@ const AccessControlPage = () => {
                                     type="text"
                                     placeholder="Enter plate number"
                                     className="input input-bordered w-full focus:input-primary"
-                                    value={manualPlate}
-                                    onChange={(e) => setManualPlate(e.target.value)}
+                                    value={lprEntryPlate}
+                                    onChange={(e) => setLprEntryPlate(e.target.value)}
                                 />
                             </div>
 
                             <button
                                 className="btn btn-success w-full gap-2"
-                                onClick={() => LPREntryAttemptSimulation(manualPlate, 'entrance')}
+                                onClick={() => LPREntryAttemptSimulation(lprEntryPlate, 'entrance')}
                             >
                                 <LogIn className="w-4 h-4" />
                                 Simulate Entry
@@ -656,14 +658,14 @@ const AccessControlPage = () => {
                                     type="text"
                                     placeholder="Enter plate number"
                                     className="input input-bordered w-full focus:input-primary"
-                                    value={manualPlate}
-                                    onChange={(e) => setManualPlate(e.target.value)}
+                                    value={lprExitPlate}
+                                    onChange={(e) => setLprExitPlate(e.target.value)}
                                 />
                             </div>
 
                             <button
                                 className="btn btn-error w-full gap-2"
-                                onClick={() => LPRExitAttemptSimulation(manualPlate, 'exit')}
+                                onClick={() => LPRExitAttemptSimulation(lprExitPlate, 'exit')}
                             >
                                 <LogOut className="w-4 h-4" />
                                 Simulate Exit

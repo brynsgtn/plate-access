@@ -1,6 +1,7 @@
 import Vehicle from "../models/vehicle.model.js";
 import GuestVehicle from "../models/guestVehicle.model.js";
 import Log from "../models/log.model.js";
+import { io } from "../lib/socket.js";
 
 // View logs controller
 export const viewAllLogs = async (req, res) => {
@@ -37,6 +38,8 @@ export const entryLogLPR = async (req, res) => {
                     blacklistHit: true,
                     notes: "Blacklisted registered vehicle"
                 });
+
+                io.emit("newLog", log); // Emit the new log
                 return res.status(403).json({ message: "Vehicle is blacklisted", log });
             }
 
@@ -50,6 +53,7 @@ export const entryLogLPR = async (req, res) => {
                     success: false,
                     notes: "Pending vehicle registration approval"
                 });
+                io.emit("newLog", log); // Emit the new log
                 return res.status(400).json({ message: "Pending vehicle registration approval", log });
             }
 
@@ -62,6 +66,7 @@ export const entryLogLPR = async (req, res) => {
                 success: true,
                 notes: "Verified by LPR"
             });
+            io.emit("newLog", log); // Emit the new log
             return res.status(201).json({ message: "Entry granted", log });
         }
 
@@ -83,6 +88,7 @@ export const entryLogLPR = async (req, res) => {
                     isGuest: true,
                     notes: "Blacklisted guest vehicle"
                 });
+                io.emit("newLog", log); // Emit the new log
                 return res.status(403).json({ message: "Guest vehicle is blacklisted", log });
             }
 
@@ -97,6 +103,7 @@ export const entryLogLPR = async (req, res) => {
                     isGuest: true,
                     notes: "Guest vehicle access expired"
                 });
+                io.emit("newLog", log); // Emit the new log
                 return res.status(403).json({ message: "Guest vehicle access expired", log });
             }
 
@@ -110,6 +117,7 @@ export const entryLogLPR = async (req, res) => {
                 isGuest: true,
                 notes: "Verified by LPR"
             });
+            io.emit("newLog", log); // Emit the new log
             return res.status(201).json({ message: "Entry granted", log });
         }
 
@@ -121,6 +129,7 @@ export const entryLogLPR = async (req, res) => {
             success: false,
             notes: "Unregistered vehicle"
         });
+        io.emit("newLog", log); // Emit the new log
         return res.status(403).json({ message: "Unregistered vehicle", log });
 
 

@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import axios from "../lib/axios";
 import { toast } from "react-hot-toast";
+import { io as clientIO } from "socket.io-client";
+
+const socket = clientIO("http://localhost:5001"); // Add your backend server URL for production
 
 export const useLogStore = create((set) => ({
     logs: [],
@@ -75,5 +78,12 @@ export const useLogStore = create((set) => ({
             toast.error(error.response?.data?.message || "Failed to create log.");
             return { success: false, error: error.response?.data }; // return failure
         }
+    },
+
+    logLiveUpdate: () => {
+        socket.off("newLog"); // Ensures no duplicate
+        socket.on("newLog", (log) => {
+            set((state) => ({ logs: [log, ...state.logs] }));
+        });
     }
 }))
