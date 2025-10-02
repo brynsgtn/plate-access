@@ -11,14 +11,14 @@ import vehicleRoutes from "./routes/vehicle.route.js"
 import logRoutes from "./routes/log.route.js"
 import guestVehicleRoutes from "./routes/guestVehicle.route.js"
 
+// Import socket
+import { app, server } from "./lib/socket.js"
+
 // Import library functions
 import { connectDB } from "./lib/db.js";
 
 // Load environment variables from .env
 dotenv.config();
-
-// Initialize Express app
-const app = express();
 
 // Define server port
 const PORT = process.env.PORT || 5001;
@@ -44,7 +44,7 @@ app.use("/api/guest-vehicle", guestVehicleRoutes);
 app.use("/api/log", logRoutes);
 
 // Start server and listen on defined port
-app.listen(PORT,  () => {
+server.listen(PORT,  () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     connectDB(); // connects to mongoDB
 });
