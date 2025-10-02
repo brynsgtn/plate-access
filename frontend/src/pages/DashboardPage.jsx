@@ -33,16 +33,6 @@ const DashboardPage = () => {
     }, [initCrossTabSync]);
 
 
-
-    // Debug: Log the gate states whenever they change
-    useEffect(() => {
-        console.log('Dashboard - Entrance Gate:', isEntranceGateOpen);
-        console.log('Dashboard - Exit Gate:', isExitGateOpen);
-        console.log('Dashboard - Last Entrance Action:', lastEntranceAction);
-        console.log('Dashboard - Last Exit Action:', lastExitAction);
-    }, [isEntranceGateOpen, isExitGateOpen, lastEntranceAction, lastExitAction]);
-
-
     const { fetchLogs, logs, logLiveUpdate } = useLogStore();
 
     const totalLogs = logs.length;
