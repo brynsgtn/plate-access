@@ -19,12 +19,20 @@ import { useGuestVehicleStore } from '../stores/useGuestVehicleStore';
 import { set } from 'mongoose';
 
 
+
 const AccessControlPage = () => {
 
     const isEntranceGateOpen = useGateStore((s) => s.isEntranceGateOpen);
     const isExitGateOpen = useGateStore((s) => s.isExitGateOpen);
     const setIsEntranceGateOpen = useGateStore((s) => s.setIsEntranceGateOpen);
     const setIsExitGateOpen = useGateStore((s) => s.setIsExitGateOpen);
+    const initCrossTabSync = useGateStore((s) => s.initCrossTabSync);
+    // Initialize cross-tab sync on mount
+    useEffect(() => {
+        initCrossTabSync();
+    }, [initCrossTabSync]);
+
+
 
     // Local state for animations and UI
     const [entranceGate, setEntranceGate] = useState(isEntranceGateOpen ? 'open' : 'closed');
@@ -48,6 +56,17 @@ const AccessControlPage = () => {
     useEffect(() => {
         console.log('Manual entry plate:', manualPlate);
     })
+
+    // Add this after your existing useEffects
+    useEffect(() => {
+        // Sync local state with store state
+        setEntranceGate(isEntranceGateOpen ? 'open' : 'closed');
+    }, [isEntranceGateOpen]);
+
+    useEffect(() => {
+        // Sync local state with store state
+        setExitGate(isExitGateOpen ? 'open' : 'closed');
+    }, [isExitGateOpen]);
 
 
     // Gate operation functions
@@ -131,7 +150,7 @@ const AccessControlPage = () => {
             const result = await manualExitLogAttempt({ plateNumber });
 
             if (result.success) {
-                setEntranceGate('opening');
+                setExitGate('opening');
                 setTimeout(() => {
                     setExitGate('open');
                     setIsExitGateOpen(true);
@@ -240,7 +259,7 @@ const AccessControlPage = () => {
             }
         }, 2000);
 
-        setManualPlate('');
+        setLprExitPlate('');
 
     };
 

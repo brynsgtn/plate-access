@@ -11,7 +11,7 @@ import {
 
 import { useGateStore } from '../stores/useGateStore';
 import { useLogStore } from '../stores/useLogStore';
-import { use, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -21,7 +21,27 @@ dayjs.extend(relativeTime);
 
 const DashboardPage = () => {
 
-    const { isEntranceGateOpen, isExitGateOpen, lastExitAction, lastEntranceAction } = useGateStore();
+    const isEntranceGateOpen = useGateStore(state => state.isEntranceGateOpen);
+    const isExitGateOpen = useGateStore(state => state.isExitGateOpen);
+    const lastEntranceAction = useGateStore(state => state.lastEntranceAction);
+    const lastExitAction = useGateStore(state => state.lastExitAction);
+    const initCrossTabSync = useGateStore(state => state.initCrossTabSync);
+
+    // Initialize cross-tab sync on mount
+    useEffect(() => {
+        initCrossTabSync();
+    }, [initCrossTabSync]);
+
+
+
+    // Debug: Log the gate states whenever they change
+    useEffect(() => {
+        console.log('Dashboard - Entrance Gate:', isEntranceGateOpen);
+        console.log('Dashboard - Exit Gate:', isExitGateOpen);
+        console.log('Dashboard - Last Entrance Action:', lastEntranceAction);
+        console.log('Dashboard - Last Exit Action:', lastExitAction);
+    }, [isEntranceGateOpen, isExitGateOpen, lastEntranceAction, lastExitAction]);
+
 
     const { fetchLogs, logs, logLiveUpdate } = useLogStore();
 
@@ -89,7 +109,7 @@ const DashboardPage = () => {
     }, [fetchLogs]);
 
     useEffect(() => {
-       useLogStore.getState().logLiveUpdate();
+        useLogStore.getState().logLiveUpdate();
     }, [])
 
     useEffect(() => {
@@ -288,7 +308,7 @@ const DashboardPage = () => {
                             <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl mb-4">
                                 <h2 className="text-2xl font-bold text-white flex items-center">
                                     <Activity className="mr-3 h-5 w-5 text-white" />
-                                    Live Access Logs 
+                                    Live Access Logs
                                 </h2>
                                 <p className="text-white/80 mt-2">Recent 5 access logs</p>
                             </div>
@@ -312,17 +332,17 @@ const DashboardPage = () => {
                                                         <span>{log.success ? (log.gateType === "entrance" ? "Entry • " : "Exit • ") : "Failed • "}</span>
                                                         <span>{dayjs(log.timestamp).fromNow()}</span>
                                                         <span>{log.isGuest ? " • (Guest)" : ""}</span>
-                                                         {!log.success && (
-                                                        log.blacklistHit ? (
-                                                            <span className="text-sm text-error/80 ms-2">• Blacklisted</span>
-                                                        ) : log.isGuest ? (
-                                                            <span className="text-sm text-error/80 ms-2">• Guest Access Expired</span>
-                                                        ) : (
-                                                            <span className="text-sm text-error/80 ms-2">• Unrecognized Vehicle</span>
-                                                        )
-                                                    )}
+                                                        {!log.success && (
+                                                            log.blacklistHit ? (
+                                                                <span className="text-sm text-error/80 ms-2">• Blacklisted</span>
+                                                            ) : log.isGuest ? (
+                                                                <span className="text-sm text-error/80 ms-2">• Guest Access Expired</span>
+                                                            ) : (
+                                                                <span className="text-sm text-error/80 ms-2">• Unrecognized Vehicle</span>
+                                                            )
+                                                        )}
                                                     </p>
-                                                   
+
                                                 </div>
                                             </div>
                                             <span className={`px-3 py-1 ${log.success ? (log.gateType === "entrance" ? "bg-green-100 text-green-800" : "bg-red-100 text-orange-800") : "bg-error/10 text-error/80"} font-medium text-xs rounded-full`}>{log.gateType === "entrance" ? "ENTRY" : "EXIT"}</span>
