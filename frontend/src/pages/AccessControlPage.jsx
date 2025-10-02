@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useGateStore } from '../stores/useGateStore';
 import { useLogStore } from '../stores/useLogStore';
+import { set } from 'mongoose';
 
 const AccessControlPage = () => {
 
@@ -30,7 +31,7 @@ const AccessControlPage = () => {
     const [gateAttempting, setGateAttempting] = useState({ entrance: false, exit: false });
     const [manualPlate, setManualPlate] = useState('');
 
-    const { manualEntryLogAttempt, manualExitLogAttempt } = useLogStore();
+    const { manualEntryLogAttempt, manualExitLogAttempt, lprEntryLogAttempt } = useLogStore();
 
     // Manual plate entry value
     useEffect(() => {
@@ -129,7 +130,7 @@ const AccessControlPage = () => {
 
                     // Auto-close after 5 sec
                     setTimeout(() => {
-                        setEntranceGate('closing');
+                        setExitGate('closing');
                         setTimeout(() => {
                             setExitGate('closed');
                             setIsExitGateOpen(false);
@@ -145,7 +146,50 @@ const AccessControlPage = () => {
 
         setManualPlate('');
 
-    }
+    };
+
+    // LPR entry attempt simulation (to be replaced by actual LPR integration)
+
+    const LPREntryAttemptSimulation = (plateNumber, gateType) => {
+        // Mark LPR simulation entrance as attempting
+        setGateAttempting(prev => ({ ...prev, [gateType]: true }));
+
+        // Set last activity
+        setLastActivity({ type: gateType, action: 'verifying entrance access', time: new Date().toLocaleTimeString() });
+
+        setTimeout(async () => {
+            setGateAttempting(prev => ({ ...prev, [gateType]: false }));
+
+            const result = await lprEntryLogAttempt({ plateNumber });
+
+            if (result.success) {
+                setEntranceGate('opening');
+                setTimeout(() => {
+                    setEntranceGate('open');
+                    setIsEntranceGateOpen(true);
+
+                    // Set last activity
+                    setLastActivity({ type: gateType, action: 'LPR entrance success', time: new Date().toLocaleTimeString() });
+
+                    // Auto-close after 5 sec
+                    setTimeout(() => {
+                        setEntranceGate('closing');
+                        setTimeout(() => {
+                            setEntranceGate('closed');
+                            setIsEntranceGateOpen(false);
+                        }, 1500); // closing animation
+                    }, 5000);
+                }, 1500); // opening animation
+            } else {
+                // Set last activity
+                setLastActivity({ type: gateType, action: 'LPR entrance failed', time: new Date().toLocaleTimeString() });
+
+            }
+        }, 2000);
+
+        setManualPlate('');
+
+    };
 
 
 
@@ -455,11 +499,15 @@ const AccessControlPage = () => {
                                     type="text"
                                     placeholder="e.g., ABC-1234"
                                     className="input input-bordered w-full focus:input-primary"
-                                // Add your value and onChange here
+                                    value={manualPlate}
+                                    onChange={(e) => setManualPlate(e.target.value)}
                                 />
                             </div>
 
-                            <button className="btn btn-success w-full gap-2">
+                            <button
+                                className="btn btn-success w-full gap-2"
+                                onClick={() => LPREntryAttemptSimulation(manualPlate, 'entrance')}
+                            >
                                 <LogIn className="w-4 h-4" />
                                 Simulate Entry
                             </button>
