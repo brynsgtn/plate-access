@@ -130,7 +130,7 @@ const UserList = () => {
               <td className="text-base font-semibold text-base-content">Role</td>
               <td className="text-base font-semibold text-base-content">Status</td>
               <td className="text-base font-semibold text-base-content">Created At</td>
-              <td className="text-base font-semibold text-base-content">Actions</td>
+              {currentUser.role === "itAdmin" && <td className="text-base font-semibold text-base-content">Actions</td>}
             </tr>
           </thead>
           <tbody>
@@ -181,6 +181,7 @@ const UserList = () => {
                     ? dayjs(user.createdAt).format('MMM D, YYYY')
                     : "-"}
                 </td>
+                {currentUser.role === "itAdmin" &&
                 <td>
                   {currentUser._id !== user._id ?
                     (
@@ -232,6 +233,7 @@ const UserList = () => {
                     : null
                   }
                 </td>
+                }
               </tr>
             ))}
           </tbody>
