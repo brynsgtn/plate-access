@@ -21,7 +21,7 @@ export const checkAuth = async (req, res) => {
             _id: user._id,
             username: user.username,
             email: user.email,
-            isAdmin: user.isAdmin,
+            role: user.role,
             createdAt: user.createdAt
         });
     } catch (error) {
@@ -29,7 +29,7 @@ export const checkAuth = async (req, res) => {
         console.log("Error in loginUser controller", error.message);
         // Returns status 500 (Internal Server Error) and the error message
         res.status(500).json({ message: error.message });
-    }
+    }ß
 };
 
 // Login controller
@@ -61,7 +61,7 @@ export const loginUser = async (req, res) => {
                 _id: user._id,
                 username: user.username,
                 email: user.email,
-                isAdmin: user.isAdmin,
+                role: user.role,
                 createdAt: user.createdAt
             });
         } else {

@@ -7,6 +7,7 @@ const CreateUserForm = () => {
         username: "",
         email: "",
         password: "",
+        role: "parkingStaff",
     });
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -24,6 +25,7 @@ const CreateUserForm = () => {
                 username: "",
                 email: "",
                 password: "",
+                role: "parkingStaff",
             });
             setConfirmPassword("");
         }
@@ -44,6 +46,7 @@ const CreateUserForm = () => {
                         type='text'
                         id='username'
                         name='username'
+                        placeholder="Enter username"
                         value={formData.username}
                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                         className='mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2
@@ -61,6 +64,7 @@ const CreateUserForm = () => {
                         type='email'
                         id='email'
                         name='email'
+                        placeholder="Enter email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         className='mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2
@@ -70,7 +74,25 @@ const CreateUserForm = () => {
                     />
                 </div>
 
-
+                <div>
+                    <label htmlFor="role" className="block text-sm font-medium text-gray-300">
+                        Role
+                    </label>
+                    <select
+                        id="role"
+                        name="role"
+                        value={formData.role}
+                        onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                        className="mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2
+                         px-3 focus:outline-none focus:ring-2
+                        focus:ring-accent focus:border-accent"
+                        required
+                    >
+                        <option value="parkingStaff">Parking Staff</option>
+                        <option value="admin">Admin</option>
+                        <option value="itAdmin">IT Admin</option>
+                    </select>
+                </div>
 
                 <div>
                     <label htmlFor='password' className='block text-sm font-medium text-gray-300'>
@@ -81,6 +103,7 @@ const CreateUserForm = () => {
                             type={showPassword ? "text" : "password"}
                             id='password'
                             name='password'
+                            placeholder="******"
                             value={formData.password}
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             className={`mt-1 block w-full bg-base-200 text-base-content border rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2
@@ -106,6 +129,7 @@ const CreateUserForm = () => {
                             type={showPassword ? "text" : "password"}
                             id='confirm-password'
                             name='confirm-password'
+                            placeholder="******"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             className={`mt-1 block w-full bg-base-200 text-base-content border rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-2

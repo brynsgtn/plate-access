@@ -14,10 +14,14 @@ const tabs = [
 
 const UserManagementPage = () => {
 
-    const { fetchAllUsers } = useUserStore();   
+    const { fetchAllUsers, users } = useUserStore();   
     useEffect( () => {
          fetchAllUsers();
     }, [fetchAllUsers]);
+
+    useEffect(() => {
+        fetchAllUsers();
+    }, [users]);
 
     const [activeTab, setActiveTab] = useState("create");
     return (

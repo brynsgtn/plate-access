@@ -1,16 +1,24 @@
 import { useState, useEffect } from "react";
-import { Trash, UserCog, Users, UserStarIcon, UserSearchIcon } from "lucide-react";
+import { UserLockIcon, UserCheck2, UserCog, Users, UserStarIcon, UserSearchIcon } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
-import LoadingSpinner from "./LoadingSpinner";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 const USERS_PER_PAGE = 10;
 const UserList = () => {
-  const { users, updateUser, deleteUser, fetchAllUsers  } = useUserStore();
+  const { user, users, updateUser, deactivateOrActivateUser, fetchAllUsers } = useUserStore();
 
   useEffect(() => {
     fetchAllUsers();
   }, [users]);
 
+  useEffect(() => {
+    console.log("users", users);;
+  }, []);
+
+  const currentUser = user;
 
   const [page, setPage] = useState(1);
 
@@ -23,19 +31,21 @@ const UserList = () => {
     await updateUser(id);
   };
 
-  const deleteSelectedUser = async (id) => {
-    await deleteUser(id);
+  const deactivateOrActivateSelectedUser = async (id) => {
+    await deactivateOrActivateUser(id);
   };
 
   const totalUsers = users.length;
-  const totalAdmins = users.filter((user) => user.isAdmin).length;
-  const totalParkingStaff = users.filter((user) => !user.isAdmin).length;
+  const totalAdmins = users.filter((user) => user.role === "admin").length;
+  const totalParkingStaff = users.filter((user) => user.role === "parkingStaff").length;
+  const totalItAdmins = users.filter((user) => user.role === "itAdmin").length;
+  const totalInactiveUsers = users.filter((user) => !user.isActive).length;
+  const totalActiveUsers = users.filter((user) => user.isActive).length;
 
- 
 
   return (
     <>
-      <div className="overflow-x-auto mx-auto mt-10 mb-15 rounded-l shadow-lg bg-base-100 border-none max-w-5xl">
+      <div className="overflow-x-auto mx-auto mt-10 mb-15 rounded-l shadow-lg bg-base-100 border-none max-w-6xl">
         <div className="border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 ">
             <h2 className="text-2xl font-bold text-white">User List</h2>
@@ -59,14 +69,25 @@ const UserList = () => {
           </div>
 
           <div className="stat">
-            <div className="stat-figure text-warning">
-              <UserStarIcon className="h-8 w-8" />
+            <div className="stat-figure text-success">
+              <UserCheck2 className="h-8 w-8" />
             </div>
-            <div className="stat-title">Admins</div>
-            <div className="stat-value text-warning">
-              {totalAdmins}
+            <div className="stat-title">Active Users</div>
+            <div className="stat-value text-success">
+              {totalActiveUsers}
             </div>
           </div>
+
+          <div className="stat">
+            <div className="stat-figure text-error">
+              <UserLockIcon className="h-8 w-8" />
+            </div>
+            <div className="stat-title">Inactive Users</div>
+            <div className="stat-value text-error">
+              {totalInactiveUsers}
+            </div>
+          </div>
+
 
           <div className="stat">
             <div className="stat-figure text-primary">
@@ -77,6 +98,27 @@ const UserList = () => {
               {totalParkingStaff}
             </div>
           </div>
+
+          <div className="stat">
+            <div className="stat-figure text-warning">
+              <UserStarIcon className="h-8 w-8" />
+            </div>
+            <div className="stat-title">Admins</div>
+            <div className="stat-value text-warning">
+              {totalAdmins}
+            </div>
+          </div>
+
+          <div className="stat">
+            <div className="stat-figure text-warning">
+              <UserStarIcon className="h-8 w-8" />
+            </div>
+            <div className="stat-title">IT Admins</div>
+            <div className="stat-value text-warning">
+              {totalItAdmins}
+            </div>
+          </div>
+
         </div>
 
         <table className="table table-zebra w-full">
@@ -86,6 +128,7 @@ const UserList = () => {
               <td className="text-base font-semibold text-base-content">Username</td>
               <td className="text-base font-semibold text-base-content">Email</td>
               <td className="text-base font-semibold text-base-content">Role</td>
+              <td className="text-base font-semibold text-base-content">Status</td>
               <td className="text-base font-semibold text-base-content">Created At</td>
               <td className="text-base font-semibold text-base-content">Actions</td>
             </tr>
@@ -106,36 +149,88 @@ const UserList = () => {
                 <td className="py-4">
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold
-                    ${user.isAdmin
-                        ? "bg-yellow-100 text-yellow-800 border border-yellow-300"
-                        : "bg-blue-100 text-blue-800 border border-blue-300"
+    ${user.role === "itAdmin"
+                        ? "bg-red-100 text-red-800 border border-red-300"
+                        : user.role === "admin"
+                          ? "bg-yellow-100 text-yellow-800 border border-yellow-300"
+                          : "bg-blue-100 text-blue-800 border border-blue-300"
                       }`}
                   >
-                    {user.isAdmin ? "Admin" : "Parking Staff"}
+                    {user.role === "itAdmin"
+                      ? "IT Admin"
+                      : user.role === "admin"
+                        ? "Admin"
+                        : "Parking Staff"
+                    }
+                  </span>
+
+                </td>
+                <td className="py-4">
+                  <span
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold
+                    ${user.isActive
+                        ? "bg-green-100 text-green-800 border border-green-300"
+                        : "bg-red-100 text-red-800 border border-red-300"
+                      }`}
+                  >
+                    {user.isActive ? "Active" : "Inactive"}
                   </span>
                 </td>
                 <td>
                   {user.createdAt
-                    ? new Date(user.createdAt).toLocaleDateString()
+                    ? dayjs(user.createdAt).format('MMM D, YYYY')
                     : "-"}
                 </td>
                 <td>
-                  <button
-                    onClick={() => deleteSelectedUser(user._id)}
-                    className="btn btn-xs btn-ghost text-red-500 hover:bg-transparent  hover:text-red-700 border-none"
-                    title="Delete User"
-                  >
-                    <Trash className="h-4 w-4" />
-                  </button>
-                  <div className="tooltip" data-tip={user.isAdmin ? "Set as Parking Staff" : "Set as Admin"}>
-                    <button
-                      onClick={() => setRole(user._id)}
-                      className="btn btn-xs btn-ghost text-blue-500 hover:bg-transparent hover:text-blue-700 border-none"
-                      title={user.isAdmin ? "Set as Parking Staff" : "Set as Admin"}
-                    >
-                      <UserCog className="h-4 w-4" />
-                    </button>
-                  </div>
+                  {currentUser._id !== user._id ?
+                    (
+                      <>
+                        {user.isActive ? (
+                          <button
+                            onClick={() => deactivateOrActivateSelectedUser(user._id)}
+                            className="btn btn-xs btn-ghost text-red-500 hover:bg-transparent  hover:text-red-700 border-none"
+                            title="Deactivate User"
+                          >
+                            <UserLockIcon className="h-4 w-4" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => deactivateOrActivateSelectedUser(user._id)}
+                            className="btn btn-xs btn-ghost text-green-500 hover:bg-transparent hover:text-green-700 border-none"
+                            title="Activate User"
+                          >
+                            <UserCheck2 className="h-4 w-4" />
+                          </button>
+                        )
+                        }
+
+                        <div
+                          className="tooltip"
+                          data-tip={
+                            user.role === "admin"
+                              ? "Set as Parking Staff"
+                              : "Set as Admin"
+                          }
+                        >
+                          <button
+                            onClick={() => setRole(user._id)}
+                            className="btn btn-xs btn-ghost text-blue-500 hover:bg-transparent hover:text-blue-700 border-none"
+                            title={
+                              user.role === "admin"
+                                ? "Set as Parking Staff"
+                                : "Set as Admin"
+                            }
+                            disabled={user.role === "itAdmin"} // Optional: prevent changing IT Admin role
+                          >
+                            <UserCog className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                      </>
+
+                    )
+                    : null
+                  }
                 </td>
               </tr>
             ))}

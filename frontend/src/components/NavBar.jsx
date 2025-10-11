@@ -84,7 +84,7 @@ const NavBar = () => {
 
                         {user ? (
                             <>
-                                {user?.isAdmin ? (
+                                {user?.role !== "parkingStaff" ? (
                                     // Admin mobile menu
                                     <>
                                         <li><Link to="/dashboard">Dashboard</Link></li>
@@ -134,7 +134,7 @@ const NavBar = () => {
             {user && (
                 <div className="navbar-center hidden lg:flex">
                     <ul className="menu menu-horizontal px-1 gap-2">
-                        {user?.isAdmin ? (
+                        {user?.role !== "parkingStaff"  ? (
                             // Admin desktop menu
                             <>
                                 <li><Link to="/dashboard" className="hover:bg-primary-focus transition-colors">Dashboard</Link></li>

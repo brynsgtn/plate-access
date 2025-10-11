@@ -7,11 +7,11 @@ import { generateToken } from "../lib/utils.js";
 // Register user controller
 export const registerUser = async (req, res) => {
     // Destructures variables from request body
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
 
     try {
         // Checks if all fields are present
-        if (!username || !email || !password) {
+        if (!username || !email || !password || !role) {
 
             // If not logs message in console and returns status code of 400 (bad request)
             console.log("registerUser controller : All fields are required")
@@ -30,14 +30,14 @@ export const registerUser = async (req, res) => {
         };
 
         // If passed all checks create a user
-        const user = await User.create({ username, email, password });
+        const user = await User.create({ username, email, password, role });
 
         // Return status code 201 (created) and json data (_id, name, email, and isAdmin)
         res.status(201).json({
             _id: user._id,
             username: user.username,
             email: user.email,
-            isAdmin: user.isAdmin
+            role: user.role
         });
     } catch (error) {
         // Logs error message in terminal
@@ -55,7 +55,7 @@ export const getUsers = async (req, res) => {
         const userId = req.userId;
 
         // 2. Fetch all users from the database except the current user, excluding the password field for security
-        const users = await User.find({ _id: { $ne: userId } }).select("-password");
+        const users = await User.find({}).select("-password");
 
         // 3. Send the list of users with a 200 OK status
         res.status(200).json(users);
@@ -68,16 +68,17 @@ export const getUsers = async (req, res) => {
 
 // Update user controller
 export const updateUser = async (req, res) => {
-    const { id } = req.body; 
+    const { id } = req.body;
     const loggedInUserId = req.user.id;
+    const isItAdmin = req.user.role === "itAdmin";
 
     try {
         console.log(loggedInUserId);
         // Check if the logged-in user is admin
         const loggedInUser = await User.findById(loggedInUserId);
-        if (!loggedInUser || !loggedInUser.isAdmin) {
+        if (!loggedInUser || !isItAdmin) {
             return res.status(403).json({
-                message: "Access denied. Only admins can update user roles."
+                message: "Access denied. Only IT admins can update user roles."
             });
         }
 
@@ -95,11 +96,11 @@ export const updateUser = async (req, res) => {
         }
 
         // Toggle the isAdmin status
-        user.isAdmin = !user.isAdmin;
+        user.role = user.role === "parkingStaff" ? "admin" : "parkingStaff";
         await user.save();
 
         res.status(200).json({
-            message: `User ${user.username} ${user.isAdmin ? 'promoted to' : 'demoted from'} admin`,
+            message: `User ${user.username} is now ${user.role === "parkingStaff" ? "a " : "an "}${user.role}`,
             user
         });
     } catch (error) {
@@ -108,37 +109,39 @@ export const updateUser = async (req, res) => {
     }
 };
 // Delete user controller
-export const deleteUser = async (req, res) => {
-    const { id } = req.body; 
+export const deactivateOrActivateUser = async (req, res) => {
+    const { id } = req.body;
     const loggedInUserId = req.user.id;
-    
+    const isItAdmin = req.user.role === "itAdmin";
+    console.log(id)
     try {
         // Check if the logged-in user is admin
         const loggedInUser = await User.findById(loggedInUserId);
-        if (!loggedInUser || !loggedInUser.isAdmin) {
+        if (!loggedInUser || !isItAdmin) {
             return res.status(403).json({
-                message: "Access denied. Only admins can delete users."
+                message: "Access denied. Only IT admins can deactivate users."
             });
         }
 
         // Check if user is trying to delete themselves
         if (loggedInUserId === id) {
             return res.status(400).json({
-                message: "You cannot delete your own account."
+                message: "You cannot deactivate your own account."
             });
         }
 
-        // Find the user to be deleted
+        // Find the user to be deactivated
         const user = await User.findById(id);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Delete the user
-        await user.deleteOne();
+        user.isActive = !user.isActive;
+        // Deactivate the user
+        await user.save();
 
         res.status(200).json({
-            message: `User ${user.username} deleted successfully`
+            message: `User ${user.username} ${user.isActive ? "activated" : "deactivated"} successfully`
         });
     } catch (error) {
         console.log("Error in deleteUser controller", error.message);

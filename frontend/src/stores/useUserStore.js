@@ -77,7 +77,7 @@ export const useUserStore = create((set, get) => ({
     updateUser: async (id) => {
         set({ loading: true });
         try {
-            const response = await axios.patch(`/user/update`, {id});
+            const response = await axios.patch(`/user/update`, { id });
             set({ loading: false });
             toast.success(response?.data?.message);
         } catch (error) {
@@ -86,16 +86,16 @@ export const useUserStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Failed to update user.");
         }
     },
-    deleteUser: async (id) => {
+    deactivateOrActivateUser: async (id) => {
         set({ loading: true });
         try {
-            const response = await axios.delete(`/user/delete`, { data: { id } });
+            const response = await axios.patch(`/user/deactivate-or-activate`, { id });
             set({ loading: false });
             toast.success(response?.data?.message);
         } catch (error) {
             set({ loading: false });
-            console.error("Delete user failed:", error);
-            toast.error(error.response?.data?.message || "Failed to delete user.");
+            console.error("Deactivate or activate user failed:", error);
+            toast.error(error.response?.data?.message || "Failed to deactivate or activate user.");
         }
     },
     // Connect socket

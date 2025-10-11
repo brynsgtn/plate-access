@@ -583,12 +583,14 @@ const AccessControlPage = () => {
 
             {/* Emergency Controls */}
 
-            <div className="bg-base-100 rounded-b-xl p-5 max-w-6xl mx-auto shadow-2xl">
-                <h3 className="font-semibold mb-5 flex items-center text-base-content">
-                    <Shield className="mr-2 h-4 w-4" />
-                    Emergency Controls
-                </h3>
-                <div className="grid lg:grid-cols-2 gap-3 p-5">
+            <div className="max-w-6xl mx-auto rounded-xl mb-12 mt-10 shadow-2xl">
+                <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl max-w-6xl mx-auto shadow-2xl">
+                    <h2 className="text-2xl font-bold text-white flex items-center">
+                        <Shield className="mr-3 h-5 w-5" />
+                        Emergency Gate Controls
+                    </h2>
+                </div>
+                <div className="grid lg:grid-cols-2 gap-3 p-5 bg-base-100 rounded-b-2xl">
                     <button
                         onClick={openAllGates}
                         className="btn btn-warning flex items-center justify-center gap-2"
