@@ -332,6 +332,7 @@ export const approveUpdateVehicleRequest = async (req, res) => {
         vehicle.plateNumber = vehicle.updateRequest.requestedPlateNumber || vehicle.plateNumber;
         vehicle.makeModel = vehicle.updateRequest.requestedModelAndMake || vehicle.makeModel;
         vehicle.ownerName = vehicle.updateRequest.requestedOwnerName || vehicle.ownerName;
+        vehicle.branch = vehicle.updateRequest.requestedBranch || vehicle.branch;
 
         // Clear the update request
         vehicle.updateRequest = null;
@@ -395,7 +396,7 @@ export const requestDeleteVehicle = async (req, res) => {
             return res.status(400).json({ message: "ID is required" });
         }
 
-        if (reqUser.isAdmin) {
+        if (reqUser.role === "admin") {
             return res.status(403).json({ message: "Admins don't need to request vehicle updates" });
         }
 
@@ -497,28 +498,6 @@ export const rejectDeleteVehicleRequest = async (req, res) => {
         });
     } catch (error) {
         console.error("Error in rejectDeleteVehicleRequest controller:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
-
-export const viewUpdateAndDeleteVehicleRequests = async (req, res) => {
-    try {
-        const vehicles = await Vehicle.find({
-            $or: [
-                { updateRequest: { $exists: true } },
-                { deleteRequest: { $exists: true } }
-            ]
-        });
-
-        const totalRequests = vehicles.length;
-
-        res.status(200).json({
-            message: "Vehicle requests retrieved successfully",
-            vehicles,
-            totalRequests
-        });
-    } catch (error) {
-        console.error("Error in viewUpdateAndDeleteVehicleRequests controller:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };

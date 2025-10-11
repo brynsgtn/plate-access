@@ -13,7 +13,6 @@ import {
     approveUpdateVehicleRequest,
     requestDeleteVehicle,
     approveDeleteVehicleRequest,
-    viewUpdateAndDeleteVehicleRequests,
     denyVehicleRequest,
     rejectUpdateVehicleRequest,
     rejectDeleteVehicleRequest,
@@ -29,9 +28,6 @@ const router = express.Router();
 
 // View all approved vehicles (for users)
 router.get("/view-vehicle", protectRoute, viewVehicles);
-
-// View all pending update and delete vehicle requests (admin only)
-router.get("/view-update-and-delete-vehicle-requests", protectRoute, authorizeRoles("admin"), viewUpdateAndDeleteVehicleRequests);
 
 // Add a new vehicle (user or admin, approval required for non-admin)
 router.post("/add-vehicle", protectRoute, addVehicle);
