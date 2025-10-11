@@ -42,7 +42,7 @@ const BlacklistedVehicleList = () => {
         : [];
 
     const handleUnblacklist = (id) => {
-        if (user.isAdmin) {
+        if (user.role === "admin") {
             blacklistOrUnblacklistVehicle(id)
         } else {
             toast.error("You are not authorized to unblacklist vehicles.");
@@ -104,8 +104,9 @@ const BlacklistedVehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Plate Number</th>
                             <th className="text-base font-semibold text-base-content">Make & Model</th>
                             <th className="text-base font-semibold text-base-content">Owner</th>
+                            <th className="text-base font-semibold text-base-content">Branch</th>
                             <th className="text-base font-semibold text-base-content">Blacklisted At</th>
-                            {user.isAdmin && <th className="text-base font-semibold text-base-content">Action</th>}
+                            {user.role === "admin" && <th className="text-base font-semibold text-base-content">Action</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -122,12 +123,13 @@ const BlacklistedVehicleList = () => {
                                 <td>{vehicle.plateNumber}</td>
                                 <td>{vehicle.makeModel}</td>
                                 <td>{vehicle.ownerName}</td>
+                                <td>{vehicle.branch ? vehicle.branch : "-"}</td>
                                 <td>
                                     {vehicle.isBlacklistedAt
                                         ? dayjs(vehicle.isBlacklistedAt).fromNow()
                                         : "-"}
                                 </td>
-                                {user.isAdmin && (
+                                {user.role === "admin" && (
                                     <td>
                                         <button
                                             onClick={() => handleUnblacklist(vehicle._id)}

@@ -26,6 +26,7 @@ const VehicleList = () => {
         plateNumber: "",
         makeModel: "",
         ownerName: "",
+        branch: "",
         reason: "",
     });
 
@@ -57,6 +58,7 @@ const VehicleList = () => {
             plateNumber: vehicleToEdit.plateNumber,
             makeModel: vehicleToEdit.makeModel,
             ownerName: vehicleToEdit.ownerName,
+            branch: vehicleToEdit.branch || "Main Branch" 
         });
         setEditModal(true);
     };
@@ -68,19 +70,20 @@ const VehicleList = () => {
             plateNumber: vehicleToDelete.plateNumber,
             makeModel: vehicleToDelete.makeModel,
             ownerName: vehicleToDelete.ownerName,
+            branch: vehicleToDelete.branch
         });
         setDeleteReason("");
         setDeleteModal(true);
     };
 
     const handleConfirmDelete = () => {
-        if (user.isAdmin) {
+        if (user.role === "admin") {
             deleteVehicle(formData.id);
         } else {
             requestDeleteVehicle(formData.id, deleteReason);
         }
         setFormData({
-            id: "", plateNumber: "", makeModel: "", ownerName: "", reason: "",
+            id: "", plateNumber: "", makeModel: "", ownerName: "", branch: "", reason: "",
         })
         setDeleteModal(false);
     };
@@ -90,7 +93,7 @@ const VehicleList = () => {
         blacklistOrUnblacklistVehicle(formData.id);
         console.log("Blacklisting vehicle with ID:", formData.id);
         setFormData({
-            id: "", plateNumber: "", makeModel: "", ownerName: "", reason: "",
+            id: "", plateNumber: "", makeModel: "", ownerName: "", branch: "", reason: "",
         })
         setBlacklistModal(false);
     };
@@ -98,14 +101,14 @@ const VehicleList = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (user.isAdmin) {
+        if (user.role === "admin") {
             updateVehicle(formData.id, formData);
         } else {
             requestUpdateVehicle(formData.id, formData);
         }
         setEditModal(false);
         setFormData({
-            id: "", plateNumber: "", makeModel: "", ownerName: "", reason: "",
+            id: "", plateNumber: "", makeModel: "", ownerName: "", branch: "", reason: "",
         })
     };
 
@@ -116,12 +119,16 @@ const VehicleList = () => {
             plateNumber: vehicleToBlacklist.plateNumber,
             makeModel: vehicleToBlacklist.makeModel,
             ownerName: vehicleToBlacklist.ownerName,
+            branch: vehicleToBlacklist.branch
         })
         setBlacklistModal(true);
     }
 
 
-    const vehicleList = vehicles.filter((vehicle) => vehicle.isApproved);
+    const vehicleList = vehicles
+        .filter(vehicle => vehicle.isApproved)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     // Filter vehicles by plate number
     const filteredVehicles = vehicleList.filter((vehicle) =>
         vehicle.plateNumber.toLowerCase().includes(searchTerm.toLowerCase())
@@ -212,6 +219,7 @@ const VehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Make & Model</th>
                             <th className="text-base font-semibold text-base-content">Owner</th>
                             <th className="text-base font-semibold text-base-content">Status</th>
+                            <th className="text-base font-semibold text-base-content">Branch</th>
                             <th className="text-base font-semibold text-base-content">Added On</th>
                             <th className="text-base font-semibold text-base-content">Actions</th>
                         </tr>
@@ -251,6 +259,7 @@ const VehicleList = () => {
                                             </div>
                                         )}
                                     </td>
+                                    <td>{vehicle.branch ? vehicle.branch : '-'}</td>
                                     <td>
                                         {vehicle.createdAt
                                             ? dayjs(vehicle.createdAt).fromNow() : '-'}
@@ -361,20 +370,43 @@ const VehicleList = () => {
                             </div>
 
                             <div>
-                                <label htmlFor='reason' className='block text-sm font-medium text-gray-300'>
-                                    Reason
+                                <label htmlFor='branch' className='block text-sm font-medium text-gray-300'>
+                                    Branch
                                 </label>
-                                <textarea
-                                    id='reason'
-                                    name='reason'
-                                    value={formData.reason}
-                                    onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                                <select
+                                    id='branch'
+                                    name='branch'
+                                    value={formData.branch}
+                                    onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
                                     className='mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2
                          px-3 focus:outline-none focus:ring-2
                          focus:ring-accent focus:border-accent'
-                                    placeholder="Reason for editing the vehicle"
-                                />
+                                    required
+                                >
+                                    <option value="Main Branch">Main Branch</option>
+                                    <option value="North Branch">North Branch</option>
+                                    <option value="South Branch">South Branch</option>
+                                </select>
                             </div>
+
+                            {user.role !== "admin" && (
+                                <div>
+                                    <label htmlFor='reason' className='block text-sm font-medium text-gray-300'>
+                                        Reason
+                                    </label>
+                                    <textarea
+                                        id='reason'
+                                        name='reason'
+                                        value={formData.reason}
+                                        onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                                        className='mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2
+                         px-3 focus:outline-none focus:ring-2
+                         focus:ring-accent focus:border-accent'
+                                        placeholder="Reason for editing the vehicle"
+                                    />
+                                </div>
+                            )}
+
                             <button
                                 type='submit'
                                 className='w-full flex justify-center py-2 px-4 mt-8 border border-transparent rounded-md 
@@ -424,7 +456,7 @@ const VehicleList = () => {
                         </p>
 
                         {/* Show reason if not admin */}
-                        {!user.isAdmin && (
+                        {!user.role === "admin" && (
                             <div className="mt-4">
                                 <textarea
                                     value={deleteReason}

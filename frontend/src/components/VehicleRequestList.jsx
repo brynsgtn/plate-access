@@ -122,31 +122,31 @@ const VehicleRequestList = () => {
   // --- Filter for current user's requests only (admin sees all) ---
   const unapprovedVehicles = Array.isArray(vehicles)
     ? vehicles.filter(
-        (v) =>
-          (v.isApproved === false ||
-            v.isApproved === "false" ||
-            v.isApproved === null ||
-            v.isApproved === undefined) &&
-          (user.isAdmin || isUserRequest(v, "registration"))
-      )
+      (v) =>
+        (v.isApproved === false ||
+          v.isApproved === "false" ||
+          v.isApproved === null ||
+          v.isApproved === undefined) &&
+        (user.role === "admin" || isUserRequest(v, "registration"))
+    )
     : [];
 
   const updateRequests = Array.isArray(vehicles)
     ? vehicles.filter(
-        (v) =>
-          v.updateRequest &&
-          (!v.updateRequest.status || v.updateRequest.status === "pending") &&
-          (user.isAdmin || isUserRequest(v, "update"))
-      )
+      (v) =>
+        v.updateRequest &&
+        (!v.updateRequest.status || v.updateRequest.status === "pending") &&
+        (user.role === "admin" || isUserRequest(v, "update"))
+    )
     : [];
 
   const deleteRequests = Array.isArray(vehicles)
     ? vehicles.filter(
-        (v) =>
-          v.deleteRequest &&
-          (!v.deleteRequest.status || v.deleteRequest.status === "pending") &&
-          (user.isAdmin || isUserRequest(v, "delete"))
-      )
+      (v) =>
+        v.deleteRequest &&
+        (!v.deleteRequest.status || v.deleteRequest.status === "pending") &&
+        (user.role === "admin" || isUserRequest(v, "delete"))
+    )
     : [];
 
   const totalRequests =
@@ -227,10 +227,10 @@ const VehicleRequestList = () => {
         <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl flex flex-col md:flex-row justify-between items-center gap-3">
           <div>
             <h2 className="text-2xl font-bold text-white">
-              {user.isAdmin ? "All Vehicle Requests" : "My Vehicle Requests"}
+              {user.role === "admin" ? "All Vehicle Requests" : "My Vehicle Requests"}
             </h2>
             <p className="text-white/80 mt-2">
-              {user.isAdmin
+              {user.role === "admin"
                 ? "Manage all registration, edit and delete requests"
                 : "View your submitted registration, edit and delete requests"
               }
@@ -303,21 +303,21 @@ const VehicleRequestList = () => {
                 <th>#</th>
                 <th>Request Type</th>
                 <th>Vehicle</th>
-                {user.isAdmin && <th>Requested By</th>}
+                {user.role === "admin" && <th>Requested By</th>}
                 <th>Details</th>
-                {user.isAdmin && <th>Actions</th>}
+                {user.role === "admin" && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
               {paginatedRows.length === 0 ? (
                 <tr>
-                  <td colSpan={user.isAdmin ? 6 : 4} className="text-center py-12">
+                  <td colSpan={user.role === "admin" ? 6 : 4} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3 text-base-content/60">
                       <FileText className="h-16 w-16" />
                       <p className="text-lg font-medium">No requests found</p>
                       <p className="text-sm">
-                        {user.isAdmin 
-                          ? "No pending requests at this time" 
+                        {user.role === "admin"
+                          ? "No pending requests at this time"
                           : "You haven't submitted any requests yet"
                         }
                       </p>
@@ -337,7 +337,7 @@ const VehicleRequestList = () => {
                       <div className="font-bold">{row.vehicle.plateNumber}</div>
                       <div className="text-sm text-base-content/60">{row.vehicle.makeModel}</div>
                     </td>
-                    {user.isAdmin && <td>{row.requestedBy}</td>}
+                    {user.role === "admin" && <td>{row.requestedBy}</td>}
                     <td>
                       <button
                         onClick={() => openModal(row.vehicle, row.type)}
@@ -346,7 +346,7 @@ const VehicleRequestList = () => {
                         <Eye className="h-4 w-4" />
                       </button>
                     </td>
-                    {user.isAdmin && (
+                    {user.role === "admin" && (
                       <td>
                         <div className="flex gap-2">
                           <div className="tooltip tooltip-top" data-tip="Approve">
@@ -472,6 +472,12 @@ const VehicleRequestList = () => {
                         {selectedVehicle.ownerName}
                       </div>
                     </div>
+                    <div>
+                      <label className="label label-text-alt text-base-content/60">Owner Name</label>
+                      <div className="bg-base-100 p-2 rounded text-sm">
+                        {selectedVehicle.branch}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -550,11 +556,19 @@ const VehicleRequestList = () => {
                           </div>
                         </div>
                       )}
+                      {selectedVehicle.branch && (
+                        <div>
+                          <label className="label label-text-alt text-base-content/60">New Branch</label>
+                          <div className="bg-info/20 text-info-content p-2 rounded text-sm">
+                            {selectedVehicle.updateRequest.requestedBranch}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
               </div>
-              {user.isAdmin && (
+              {user.role === "admin" && (
                 <div className="modal-action">
                   <button
                     onClick={() => {

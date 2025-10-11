@@ -47,6 +47,7 @@ export const useVehicleStore = create((set, get) => ({
                 plateNumber: updatedData.plateNumber,
                 makeModel: updatedData.makeModel,
                 ownerName: updatedData.ownerName,
+                branch: updatedData.branch,
                 id: vehicleId,
             });
             console.log("Vehicle updated:", response.data);

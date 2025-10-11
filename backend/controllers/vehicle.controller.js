@@ -22,13 +22,13 @@ export const viewVehicles = async (req, res) => {
 
 // Add vehicle controller
 export const addVehicle = async (req, res) => {
-    const { plateNumber, makeModel, ownerName } = req.body;
+    const { plateNumber, makeModel, ownerName, branch } = req.body;
     console.log(req.user)
-    const isAdmin = req.user.isAdmin;
+    const isAdmin = req.user.role === "admin";
     const userId = req.user._id
 
     // Validate request body
-    if (!plateNumber || !makeModel || !ownerName) {
+    if (!plateNumber || !makeModel || !ownerName || !branch) {
         return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -46,6 +46,7 @@ export const addVehicle = async (req, res) => {
             plateNumber,
             makeModel,
             ownerName,
+            branch,
             isApproved: isAdmin ? true : false,
             addedBy: userId
         });
@@ -66,10 +67,10 @@ export const addVehicle = async (req, res) => {
 
 // Update vehicle controller
 export const updateVehicle = async (req, res) => {
-    const { plateNumber, makeModel, ownerName, id } = req.body;
+    const { plateNumber, makeModel, ownerName, id, branch } = req.body;
 
     // Validate request body
-    if (!plateNumber || !makeModel || !ownerName || !id) {
+    if (!plateNumber || !makeModel || !ownerName || !id || !branch) {
         return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -84,6 +85,7 @@ export const updateVehicle = async (req, res) => {
         vehicle.plateNumber = plateNumber;
         vehicle.makeModel = makeModel;
         vehicle.ownerName = ownerName;
+        vehicle.branch = branch;
 
         // Save the updated vehicle
         await vehicle.save();
@@ -112,7 +114,7 @@ export const deleteVehicle = async (req, res) => {
         }
 
         // Check if user is admin
-        if (!reqUser.isAdmin) {
+        if (!reqUser.role === "admin") {
             return res.status(403).json({ message: "Only admin can delete vehicles with requests" });
         }
 
@@ -137,12 +139,6 @@ export const deleteVehicle = async (req, res) => {
 // Blacklist or unblacklist vehicle
 export const blackListOrUnblacklistVehicle = async (req, res) => {
     const { id } = req.body;
-    const isAdmin = req.user.isAdmin;
-
-    // // Check if the user is an admin
-    // if (!isAdmin) {
-    //     return res.status(403).json({ message: "Non-admins need to request blacklist or unblacklist vehicles" });
-    // }
 
     // Validate request body
     if (!id) {
@@ -181,123 +177,14 @@ export const blackListOrUnblacklistVehicle = async (req, res) => {
     }
 };
 
-// Admin approves blacklist request
-export const approveBlacklistVehicleRequest = async (req, res) => {
-    const { id } = req.body;
-
-    try {
-        // Validate request body
-        if (!id) {
-            return res.status(400).json({ message: "Vehicle ID is required" });
-        }
-
-        // Find the vehicle by id
-        const vehicle = await Vehicle.findById(id);
-
-        // Check if vehicle exists and has a blacklist request
-        if (!vehicle || !vehicle.blacklistRequest) {
-            return res.status(404).json({ message: "Vehicle not found or no blacklist request found" });
-        }
-
-        // Update blacklist status
-        vehicle.isBlacklisted = true;
-        vehicle.isBlacklistedAt = new Date();
-
-        // Clear the blacklist request (set to null)
-        vehicle.blacklistRequest = null;
-
-        // Save the updated vehicle
-        await vehicle.save();
-
-        // Respond with the updated vehicle
-        res.status(200).json({
-            message: "Blacklist request approved successfully",
-            vehicle
-        });
-    } catch (error) {
-        console.error("Error in approveBlacklistVehicleRequest controller:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
-
-// NEW: Admin rejects blacklist request
-export const rejectBlacklistVehicleRequest = async (req, res) => {
-    const { id } = req.body;
-
-    try {
-        // Validate request body
-        if (!id) {
-            return res.status(400).json({ message: "Vehicle ID is required" });
-        }
-
-        // Find the vehicle by id
-        const vehicle = await Vehicle.findById(id);
-
-        // Check if vehicle exists and has a pending blacklist request
-        if (!vehicle || !vehicle.blacklistRequest || vehicle.blacklistRequest.status !== 'pending') {
-            return res.status(404).json({ message: "Vehicle not found or no pending blacklist request" });
-        }
-
-        // Update request status
-        vehicle.blacklistRequest.status = 'rejected';
-        vehicle.blacklistRequest.approvedOrDeclinedAt = new Date();
-
-        // Save the updated vehicle
-        await vehicle.save();
-
-        // Respond with the updated vehicle
-        res.status(200).json({
-            message: "Blacklist request rejected successfully",
-            vehicle
-        });
-    } catch (error) {
-        console.error("Error in rejectBlacklistVehicleRequest controller:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
-
-
-// View blacklisted vehicles (not sure if im gonna use this)
-export const viewBlacklistedVehicles = async (req, res) => {
-    try {
-        // Find all blacklisted vehicles
-        const blacklistedVehicles = await Vehicle.find({ isBlacklisted: true });
-        const totalBlacklistedVehicles = await Vehicle.countDocuments({ isBlacklisted: true }); // Get the total
-        res.status(200).json({
-            message: "Blacklisted vehicles retrieved successfully",
-            blacklistedVehicles,
-            totalBlacklistedVehicles
-        });
-    } catch (error) {
-        // Handle errors
-        console.error("Error in viewBlacklistedVehicles controller:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
-
-// View vehicle requests (probably not gonna use this)
-export const viewVehicleRequests = async (req, res) => {
-    try {
-        // Find all vehicle requests
-        const vehicleRequests = await Vehicle.find({ isApproved: false });
-        const totalRequests = await Vehicle.countDocuments({ isApproved: false }); ``
-
-        // Respond with the vehicle requests
-        res.status(200).json({
-            message: "Vehicle requests retrieved successfully",
-            vehicleRequests,
-            totalRequests
-        });
-    } catch (error) {
-        // Handle errors
-        console.error("Error in viewVehicleRequests controller:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
-
 // Approve vehicle registration request
 export const approveVehicleRequest = async (req, res) => {
     const { id } = req.body;
+
+    // Check if the user is an admin
+    if (!req.user.role === "admin") {
+        return res.status(403).json({ message: "Only admins can approve vehicle requests" });
+    }
 
     // Validate request body
     if (!id) {
@@ -339,7 +226,7 @@ export const denyVehicleRequest = async (req, res) => {
     }
 
     // Check if the user is an admin
-    if (!req.user.isAdmin) {
+    if (!req.user.role === "admin") {
         return res.status(403).json({ message: "Only admins can deny vehicle requests" });
     }
 
@@ -370,16 +257,15 @@ export const denyVehicleRequest = async (req, res) => {
 
 // Request vehicle update controller
 export const requestUpdateVehicle = async (req, res) => {
-    const { id, makeModel, ownerName, plateNumber, reason } = req.body;
+    const { id, makeModel, ownerName, plateNumber, branch, reason } = req.body;
     const reqUser = req.user;
-
     try {
         // Validate request body
-        if (!id || !makeModel || !ownerName || !plateNumber) {
+        if (!id || !makeModel || !ownerName || !plateNumber || !branch) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        if (reqUser.isAdmin) {
+        if (reqUser.role === "admin") {
             return res.status(403).json({ message: "Admins don't need to request vehicle updates" });
         }
 
@@ -404,8 +290,9 @@ export const requestUpdateVehicle = async (req, res) => {
         // Create a new update request
         vehicle.updateRequest = {
             requestedPlateNumber: plateNumber,
-            requestedModelAndMake:makeModel,
+            requestedModelAndMake: makeModel,
             requestedOwnerName: ownerName,
+            requestedBranch: branch,
             requestedBy: reqUser.id,
             reason: reason ? reason : `Requesting update for vehicle: ${makeModel}, ${ownerName}`,
             status: 'pending',
@@ -631,7 +518,7 @@ export const viewUpdateAndDeleteVehicleRequests = async (req, res) => {
             totalRequests
         });
     } catch (error) {
-        console.error("Error in viewVehicleRequests controller:", error);
+        console.error("Error in viewUpdateAndDeleteVehicleRequests controller:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };

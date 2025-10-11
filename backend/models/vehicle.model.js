@@ -1,6 +1,9 @@
 // Import dependencies
 import mongoose from "mongoose";
 
+// Predefined branches
+const BRANCHES = ["Main Branch", "North Branch", "South Branch"];
+
 // Definition of vehicle schema
 const vehicleSchema = new mongoose.Schema(
     {
@@ -19,6 +22,12 @@ const vehicleSchema = new mongoose.Schema(
         ownerName: {
             type: String,
             required: true
+        },
+        // Vehicle's registered location branch
+        branch: {
+            type: String,
+            enum: BRANCHES, // restricts to only 3 branches based on predefined array
+            required: [true, "Branch is required"] // no default, must be assigned
         },
         // Vehicle's blacklisted status
         isBlacklisted: {
@@ -46,6 +55,7 @@ const vehicleSchema = new mongoose.Schema(
                 requestedPlateNumber: { type: String },
                 requestedModelAndMake: { type: String },
                 requestedOwnerName: { type: String },
+                requestedBranch: { type: String, enum: BRANCHES },
                 requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
                 requestedAt: { type: Date, default: Date.now },
                 approvedOrDeclinedAt: { type: Date, default: null },
