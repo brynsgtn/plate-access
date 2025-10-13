@@ -180,6 +180,7 @@ const AccessLogPage = () => {
                             <th className="text-base font-semibold text-base-content">#</th>
                             <th className="text-base font-semibold text-base-content">Date</th>
                             <th className="text-base font-semibold text-base-content">Time</th>
+                            <th className="text-base font-semibold text-base-content">Branch</th>
                             <th className="text-base font-semibold text-base-content">Gate</th>
                             <th className="text-base font-semibold text-base-content">Method</th>
                             <th className="text-base font-semibold text-base-content">Success</th>
@@ -201,6 +202,7 @@ const AccessLogPage = () => {
                                     <th className="py-4">{idx + 1}</th>
                                     <td className="py-4">{dayjs(log.timestamp).format("MMM DD, YYYY")}</td>
                                     <td className="py-4">{dayjs(log.timestamp).format("h:mm A")}</td>
+                                    <td className="py-4">{log.branch}</td>
                                     <td className="py-4">{log.gateType}</td>
                                     <td className="py-4">{log.method}</td>
                                     <td className="py-4">

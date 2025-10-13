@@ -74,35 +74,18 @@ export default App;
 
 // TODO: 
 
-// PARKING STAFF
-// Dashboard page - build backend and integrate with frontend (camera, verification alerts, last activity section)
-// Access control page - build backend and integrate with frontend (make last activity a global state and display to dashboard page)
-// Vehicle Management page - summary (check sub stats)
-// Access Log page - implement who created the log, implement protect middleware on routes
-
-
-// ADMIN
-// Dashboard page 
-
-
-
-
-// HomePage - functionality, and styling
-// Dashboard page, route and component (Admin and Parking Staff)
+// PRIORITY
+// validation on entarnce cannot entry again if last entry is not exit
+// Add utility function to remove white spaces and extra characters from license plate number
+// Dashboard page - integrate with LPR (camera, verification alerts)
+// Access control page - integrate with LPR 
 // Protect routes
+// hide access logs and vehicle management for it admin
 
+// Testing
+// Deployment
 
 // Low priority
 // Blacklist feature - shared blacklist list or online blacklist list
-// Vehicle Management Page - improve styling
-// User Management Page- styling
-// CreateUserForm component - styling 
-// UserList component - styling
-// Navbar component -  styling 
-// Footer component - styling
-
-
-
-// Done
-// Modals - confirmation blacklist and delete vehicle
-// view vehicle (add modal for blacklist)
+// Navbar component -  styling
+// IT Admin - view user logs 

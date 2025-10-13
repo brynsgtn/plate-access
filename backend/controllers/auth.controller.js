@@ -22,6 +22,7 @@ export const checkAuth = async (req, res) => {
             username: user.username,
             email: user.email,
             role: user.role,
+            branch: user.branch,
             createdAt: user.createdAt
         });
     } catch (error) {

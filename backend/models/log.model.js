@@ -10,6 +10,11 @@ const logSchema = new mongoose.Schema({
         type: String,
         required: true // always log the attempted plate, even if not in DB
     },
+    branch: {
+        type: String,
+        enum: ["Main Branch", "North Branch", "South Branch"],
+        required: true
+    },
     gateType: {
         type: String,
         enum: ["entrance", "exit"],

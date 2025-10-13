@@ -38,6 +38,7 @@ export const protectRoute = async (req, res, next) => {
         req.userId = user._id;
         req.isAdmin = user.role === "admin";
         req.isItAdmin = user.role === "itAdmin";
+        req.branch = user.branch;
         // 5. Call next middleware or controller
         next();
 

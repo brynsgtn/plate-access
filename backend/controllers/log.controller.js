@@ -18,6 +18,9 @@ export const viewAllLogs = async (req, res) => {
 export const entryLogLPR = async (req, res) => {
    
     const { plateNumber } = req.body;
+    console.log(req.user)
+    const currentUserBranch = req.user.branch
+    console.log(currentUserBranch)
 
     try {
         if (!plateNumber) {
@@ -33,6 +36,7 @@ export const entryLogLPR = async (req, res) => {
                 const log = await Log.create({
                     vehicle: vehicle._id,
                     plateNumber,
+                    branch: currentUserBranch,
                     gateType: "entrance",
                     method: "LPR",
                     success: false,
@@ -49,6 +53,7 @@ export const entryLogLPR = async (req, res) => {
                 const log = await Log.create({
                     vehicle: vehicle._id,
                     plateNumber,
+                    branch: currentUserBranch,
                     gateType: "entrance",
                     method: "LPR",
                     success: false,
@@ -62,6 +67,7 @@ export const entryLogLPR = async (req, res) => {
             const log = await Log.create({
                 vehicle: vehicle._id,
                 plateNumber,
+                branch: currentUserBranch,
                 gateType: "entrance",
                 method: "LPR",
                 success: true,
@@ -82,6 +88,7 @@ export const entryLogLPR = async (req, res) => {
                 const log = await Log.create({
                     vehicle: guestVehicle._id,
                     plateNumber,
+                    branch: currentUserBranch,
                     gateType: "entrance",
                     method: "LPR",
                     success: false,
@@ -98,6 +105,7 @@ export const entryLogLPR = async (req, res) => {
                 const log = await Log.create({
                     vehicle: guestVehicle._id,
                     plateNumber,
+                    branch: currentUserBranch,
                     gateType: "entrance",
                     method: "LPR",
                     success: false,
@@ -112,6 +120,7 @@ export const entryLogLPR = async (req, res) => {
             const log = await Log.create({
                 vehicle: guestVehicle._id,
                 plateNumber,
+                branch: currentUserBranch,
                 gateType: "entrance",
                 method: "LPR",
                 success: true,
@@ -125,6 +134,7 @@ export const entryLogLPR = async (req, res) => {
         // Case 7: Unregistered vehicle
         const log = await Log.create({
             plateNumber,
+            branch: currentUserBranch,
             gateType: "entrance",
             method: "LPR",
             success: false,
@@ -143,7 +153,7 @@ export const entryLogLPR = async (req, res) => {
 // Exit log controller
 export const exitLogLPR = async (req, res) => {
     const { plateNumber } = req.body;
-
+    const currentUserBranch = req.user.branch;
     try {
         if (!plateNumber) {
             return res.status(400).json({ message: "Plate number is required" });
@@ -159,6 +169,7 @@ export const exitLogLPR = async (req, res) => {
             const log = await Log.create({
                 vehicle: vehicle._id,
                 plateNumber,
+                branch: currentUserBranch,
                 gateType: "exit",
                 method: "LPR",
                 success: true,
@@ -175,6 +186,7 @@ export const exitLogLPR = async (req, res) => {
             const log = await Log.create({
                 vehicle: guestVehicle._id,
                 plateNumber,
+                branch: currentUserBranch,
                 gateType: "exit",
                 method: "LPR",
                 success: true,
@@ -188,6 +200,7 @@ export const exitLogLPR = async (req, res) => {
         // Case 3: Unrecognized Plate
         const log = await Log.create({
             plateNumber,
+            branch: currentUserBranch,
             gateType: "exit",
             method: "LPR",
             success: false,
@@ -205,6 +218,7 @@ export const exitLogLPR = async (req, res) => {
 // Manual entrance log controller
 export const entryLogManual = async (req, res) => {
     const { plateNumber } = req.body;
+    const currentUserBranch = req.user.branch;
 
     try {
         if (!plateNumber) {
@@ -220,6 +234,7 @@ export const entryLogManual = async (req, res) => {
                 const log = await Log.create({
                     vehicle: vehicle._id,
                     plateNumber,
+                    branch: currentUserBranch,
                     gateType: "entrance",
                     method: "manual",
                     success: false,
@@ -235,6 +250,7 @@ export const entryLogManual = async (req, res) => {
                 const log = await Log.create({
                     vehicle: vehicle._id,
                     plateNumber,
+                    branch: currentUserBranch,
                     gateType: "entrance",
                     method: "manual",
                     success: false,
@@ -248,6 +264,7 @@ export const entryLogManual = async (req, res) => {
             const log = await Log.create({
                 vehicle: vehicle._id,
                 plateNumber,
+                branch: currentUserBranch,
                 gateType: "entrance",
                 method: "manual",
                 success: true,
@@ -268,6 +285,7 @@ export const entryLogManual = async (req, res) => {
                 const log = await Log.create({
                     vehicle: guestVehicle._id,
                     plateNumber,
+                    branch: currentUserBranch,
                     gateType: "entrance",
                     method: "manual",
                     success: false,
@@ -284,6 +302,7 @@ export const entryLogManual = async (req, res) => {
                 const log = await Log.create({
                     vehicle: guestVehicle._id,
                     plateNumber,
+                    branch: currentUserBranch,
                     gateType: "entrance",
                     method: "manual",
                     success: false,
@@ -298,6 +317,7 @@ export const entryLogManual = async (req, res) => {
             const log = await Log.create({
                 vehicle: guestVehicle._id,
                 plateNumber,
+                branch: currentUserBranch,
                 gateType: "entrance",
                 method: "manual",
                 success: true,
@@ -311,6 +331,7 @@ export const entryLogManual = async (req, res) => {
         // Case 7: Unregistered vehicle                    
         const log = await Log.create({
             plateNumber,
+            branch: currentUserBranch,
             gateType: "entrance",
             method: "manual",
             success: false,
@@ -327,7 +348,7 @@ export const entryLogManual = async (req, res) => {
 // Manual exit log controller
 export const exitLogManual = async (req, res) => {
     const { plateNumber } = req.body;
-
+    const currentUserBranch = req.user.branch
     try {
         if (!plateNumber) {
             return res.status(400).json({ message: "Plate number is required" });
@@ -341,6 +362,7 @@ export const exitLogManual = async (req, res) => {
             const log = await Log.create({
                 vehicle: vehicle._id,
                 plateNumber,
+                branch: currentUserBranch,
                 gateType: "exit",
                 method: "manual",
                 success: true,
@@ -357,6 +379,7 @@ export const exitLogManual = async (req, res) => {
             const log = await Log.create({
                 vehicle: guestVehicle._id,
                 plateNumber,
+                branch: currentUserBranch,
                 gateType: "exit",
                 method: "manual",
                 success: true,
@@ -370,6 +393,7 @@ export const exitLogManual = async (req, res) => {
         // Case 3: Unrecognized Plate
         const log = await Log.create({
             plateNumber,
+            branch: currentUserBranch,
             gateType: "exit",
             method: "manual",
             success: false,
