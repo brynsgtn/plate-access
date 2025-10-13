@@ -53,6 +53,13 @@ export const loginUser = async (req, res) => {
         // Checks if user exist and password matched the hashed password
         if (user && (await user.comparePassword(password))) {
 
+            // Checks if user is active
+            if(!user.isActive){
+                // If user is not active logs message in console and returns status code of 400 (bad request)
+                console.log("loginUser controller : User is not active")
+                return res.status(400).json({ message: "User is not active, please contact IT admin" });
+            }
+
             // Update last login timestamp
             user.lastLogin = new Date();
             await user.save();
