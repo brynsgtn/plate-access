@@ -21,7 +21,7 @@ const UserManagementPage = () => {
 
     useEffect(() => {
         fetchAllUsers();
-    }, [users]);
+    }, []);
 
     // Decide which tabs to show based on role
     const availableTabs = user.role === "itAdmin"

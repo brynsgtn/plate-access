@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { UserLockIcon, UserCheck2, UserCog, Users, UserStarIcon, UserSearchIcon } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
+import LoadingSpinner from "./LoadingSpinner";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -9,7 +10,7 @@ dayjs.extend(relativeTime);
 
 const USERS_PER_PAGE = 10;
 const UserList = () => {
-  const { user, users, updateUser, deactivateOrActivateUser, fetchAllUsers, updateUserBranch } = useUserStore();
+  const { user, users, updateUser, deactivateOrActivateUser, fetchAllUsers, updateUserBranch, usersLoading } = useUserStore();
 
   useEffect(() => {
     fetchAllUsers();
@@ -40,12 +41,14 @@ const UserList = () => {
     await deactivateOrActivateUser(id);
   };
 
-  const totalUsers = users.length;
-  const totalAdmins = users.filter((user) => user.role === "admin").length;
-  const totalParkingStaff = users.filter((user) => user.role === "parkingStaff").length;
-  const totalItAdmins = users.filter((user) => user.role === "itAdmin").length;
-  const totalInactiveUsers = users.filter((user) => !user.isActive).length;
-  const totalActiveUsers = users.filter((user) => user.isActive).length;
+  const totalUsers = users?.length;
+  const totalAdmins = users?.filter((user) => user.role === "admin").length;
+  const totalParkingStaff = users?.filter((user) => user.role === "parkingStaff").length;
+  const totalItAdmins = users?.filter((user) => user.role === "itAdmin").length;
+  const totalInactiveUsers = users?.filter((user) => !user.isActive).length;
+  const totalActiveUsers = users?.filter((user) => user.isActive).length;
+
+
 
 
   return (
