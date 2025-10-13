@@ -193,36 +193,41 @@ const UserList = () => {
                     >
                       {user.branch || "Select Branch"}
                     </label>
-                    <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40 border border-base-300">
-                      <li>
-                        <button
-                          onClick={(e) => {
-                            setBranch(user._id, "Main Branch");
-                            e.target.blur();
-                            document.activeElement.blur();
-                          }}>
-                          Main Branch
-                        </button>
-                      </li>
-                      <li>
-                        <button onClick={(e) => {
-                          setBranch(user._id, "North Branch");
-                          e.target.blur();
-                          document.activeElement.blur();
-                        }}>
-                          North Branch
-                        </button>
-                      </li>
-                      <li>
-                        <button onClick={(e) => {
-                          setBranch(user._id, "South Branch");
-                          e.target.blur();
-                          document.activeElement.blur();
-                        }}>
-                          South Branch
-                        </button>
-                      </li>
-                    </ul>
+                    {currentUser.role === "itAdmin" && (
+                      <>
+                        <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40 border border-base-300">
+                          <li>
+                            <button
+                              onClick={(e) => {
+                                setBranch(user._id, "Main Branch");
+                                e.target.blur();
+                                document.activeElement.blur();
+                              }}>
+                              Main Branch
+                            </button>
+                          </li>
+                          <li>
+                            <button onClick={(e) => {
+                              setBranch(user._id, "North Branch");
+                              e.target.blur();
+                              document.activeElement.blur();
+                            }}>
+                              North Branch
+                            </button>
+                          </li>
+                          <li>
+                            <button onClick={(e) => {
+                              setBranch(user._id, "South Branch");
+                              e.target.blur();
+                              document.activeElement.blur();
+                            }}>
+                              South Branch
+                            </button>
+                          </li>
+                        </ul>
+                      </>
+                    )
+                    }
                   </div>
                 </td>
                 <td>
