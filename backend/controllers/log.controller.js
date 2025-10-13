@@ -16,6 +16,7 @@ export const viewAllLogs = async (req, res) => {
 
 // Entry log controller
 export const entryLogLPR = async (req, res) => {
+   
     const { plateNumber } = req.body;
 
     try {

@@ -28,6 +28,12 @@ const userSchema = new mongoose.Schema(
             enum: ["parkingStaff", "admin", "itAdmin"],
             default: "parkingStaff",
         },
+        // User's branch
+        branch: {
+            type: String,
+            enum: ["Main Branch", "North Branch", "South Branch"],
+            required: [true, "Branch is required"],
+        },
         // User's active status
         isActive: {
             type: Boolean,

@@ -1,17 +1,14 @@
 // Import User model
 import User from "../models/user.model.js";
 
-// Import utility function
-import { generateToken } from "../lib/utils.js";
 
 // Register user controller
 export const registerUser = async (req, res) => {
     // Destructures variables from request body
-    const { username, email, password, role } = req.body;
-
+    const { username, email, password, role, branch } = req.body;
     try {
         // Checks if all fields are present
-        if (!username || !email || !password || !role) {
+        if (!username || !email || !password || !role || !branch) {
 
             // If not logs message in console and returns status code of 400 (bad request)
             console.log("registerUser controller : All fields are required")
@@ -30,14 +27,15 @@ export const registerUser = async (req, res) => {
         };
 
         // If passed all checks create a user
-        const user = await User.create({ username, email, password, role });
+        const user = await User.create({ username, email, password, role, branch });
 
         // Return status code 201 (created) and json data (_id, name, email, and isAdmin)
         res.status(201).json({
             _id: user._id,
             username: user.username,
             email: user.email,
-            role: user.role
+            role: user.role,
+            branch: user.branch
         });
     } catch (error) {
         // Logs error message in terminal
