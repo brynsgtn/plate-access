@@ -13,35 +13,37 @@ const tabs = [
 
 
 const UserManagementPage = () => {
+    const { fetchAllUsers, users, user } = useUserStore();   
 
-    const { fetchAllUsers, users } = useUserStore();   
-    useEffect( () => {
-         fetchAllUsers();
+    useEffect(() => {
+        fetchAllUsers();
     }, [fetchAllUsers]);
 
     useEffect(() => {
         fetchAllUsers();
     }, [users]);
 
-    const [activeTab, setActiveTab] = useState("create");
+    // Decide which tabs to show based on role
+    const availableTabs = user.role === "itAdmin"
+        ? tabs
+        : tabs.filter(tab => tab.id === "users"); // non-IT Admins only see "Users"
+
+    const [activeTab, setActiveTab] = useState(availableTabs[0].id);
+
     return (
         <div className='min-h-screen relative overflow-hidden'>
             <div className='relative z-10 container mx-auto px-4 pt-16 mb-10'>
-                <h1
-                    className='text-4xl font-bold mb-8 text-primary text-center'
-                >
+                <h1 className='text-4xl font-bold mb-8 text-primary text-center'>
                     User Management
                 </h1>
                 <p className='text-center text-base-content/70'>
                     Manage your users efficiently with our comprehensive tools.
                 </p>
             </div>
+
             <div className='flex justify-center mb-8'>
-                <div
-                    role="tablist"
-                    className="tabs tabs-lift tabs-lg bg-base-100 rounded-xl border-none "
-                >
-                    {tabs.map((tab) => (
+                <div role="tablist" className="tabs tabs-lift tabs-lg bg-base-100 rounded-xl border-none">
+                    {availableTabs.map((tab) => (
                         <button
                             key={tab.id}
                             role="tab"
@@ -58,10 +60,11 @@ const UserManagementPage = () => {
                     ))}
                 </div>
             </div>
+
             {activeTab === "create" && <CreateUserForm />}
             {activeTab === "users" && <UserList />}
         </div>
-    )
-}
+    );
+};
 
 export default UserManagementPage
