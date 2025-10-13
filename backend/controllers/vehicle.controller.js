@@ -22,13 +22,13 @@ export const viewVehicles = async (req, res) => {
 
 // Add vehicle controller
 export const addVehicle = async (req, res) => {
-    const { plateNumber, makeModel, ownerName, branch } = req.body;
+    const { plateNumber, makeModel, ownerName} = req.body;
     console.log(req.user)
     const isAdmin = req.user.role === "admin";
     const userId = req.user._id
 
     // Validate request body
-    if (!plateNumber || !makeModel || !ownerName || !branch) {
+    if (!plateNumber || !makeModel || !ownerName) {
         return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -46,7 +46,7 @@ export const addVehicle = async (req, res) => {
             plateNumber,
             makeModel,
             ownerName,
-            branch,
+            branch: req.user.branch,
             isApproved: isAdmin ? true : false,
             addedBy: userId
         });

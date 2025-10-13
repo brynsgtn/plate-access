@@ -35,7 +35,7 @@ const NavBar = () => {
             details.forEach((detail) => {
                 detail.removeAttribute("open");
             });
-            
+
             // Close mobile menu dropdown
             const mobileDropdown = document.querySelector('.dropdown');
             if (mobileDropdown) {
@@ -47,7 +47,7 @@ const NavBar = () => {
         };
 
         document.addEventListener("click", handleClickOutside);
-        
+
         // Add click listeners to all links
         const links = document.querySelectorAll('.navbar a, .navbar button');
         links.forEach(link => {
@@ -89,8 +89,12 @@ const NavBar = () => {
                                     <>
                                         <li><Link to="/dashboard">Dashboard</Link></li>
                                         <li><Link to="/access-logs">Access Logs</Link></li>
-                                        <li><Link to="/vehicle-management">Vehicle Management</Link></li>
-                                        <li><Link to="/user-management">User Management</Link></li>
+                                        {user?.role === "admin" && (
+                                            <>
+                                                <li><Link to="/vehicle-management">Vehicle Management</Link></li>
+                                                <li><Link to="/user-management">User Management</Link></li>
+                                            </>
+                                        )}
                                         <div className="divider my-1"></div>
                                         <li><Link to="/profile">Profile</Link></li>
                                         <li><button onClick={logout} className="text-error">Logout</button></li>
@@ -134,12 +138,16 @@ const NavBar = () => {
             {user && (
                 <div className="navbar-center hidden lg:flex">
                     <ul className="menu menu-horizontal px-1 gap-2">
-                        {user?.role !== "parkingStaff"  ? (
+                        {user?.role !== "parkingStaff" ? (
                             // Admin desktop menu
                             <>
                                 <li><Link to="/dashboard" className="hover:bg-primary-focus transition-colors">Dashboard</Link></li>
-                                <li><Link to="/access-logs" className="hover:bg-primary-focus transition-colors">Access Logs</Link></li>
-                                <li><Link to="/vehicle-management" className="hover:bg-primary-focus transition-colors">Vehicle Management</Link></li>
+                                {user?.role === "admin" && (
+                                    <>
+                                        <li><Link to="/access-logs" className="hover:bg-primary-focus transition-colors">Access Logs</Link></li>
+                                        <li><Link to="/vehicle-management" className="hover:bg-primary-focus transition-colors">Vehicle Management</Link></li>
+                                    </>
+                                )}
                                 <li><Link to="/user-management" className="hover:bg-primary-focus transition-colors">User Management</Link></li>
                             </>
                         ) : (

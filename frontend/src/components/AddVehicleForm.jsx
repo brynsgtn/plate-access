@@ -10,7 +10,6 @@ const AddVehicleForm = () => {
         plateNumber: "",
         makeModel: "",
         ownerName: "",
-        branch: "",
     });
 
     const { addVehicle,  addLoading } = useVehicleStore();
@@ -22,7 +21,6 @@ const AddVehicleForm = () => {
             plateNumber: "",
             makeModel: "",
             ownerName: "",
-            branch: "",
         });
     };
 
@@ -85,25 +83,6 @@ const AddVehicleForm = () => {
 						focus:ring-accent focus:border-accent'
                         required
                     />
-                </div>
-                <div>
-                    <label htmlFor="branch" className="block text-sm font-medium text-gray-300">
-                        Branch
-                    </label>
-                    <select
-                        id="branch"
-                        name="branch"
-                        value={formData.branch}
-                        onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-                        className="mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2
-                         px-3 focus:outline-none focus:ring-2
-                        focus:ring-accent focus:border-accent"
-                        required
-                    >
-                        <option value="Main Branch">Main Branch</option>
-                        <option value="North Branch">North Branch</option>
-                        <option value="South Branch">South Branch</option>
-                    </select>
                 </div>
                 <button
                     type='submit'

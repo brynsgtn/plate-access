@@ -473,7 +473,7 @@ const VehicleRequestList = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="label label-text-alt text-base-content/60">Owner Name</label>
+                      <label className="label label-text-alt text-base-content/60">Branch</label>
                       <div className="bg-base-100 p-2 rounded text-sm">
                         {selectedVehicle.branch}
                       </div>
