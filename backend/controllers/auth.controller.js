@@ -53,6 +53,10 @@ export const loginUser = async (req, res) => {
         // Checks if user exist and password matched the hashed password
         if (user && (await user.comparePassword(password))) {
 
+            // Update last login timestamp
+            user.lastLogin = new Date();
+            await user.save();
+
             // Generate a JWT for the logged-in user and store it in a secure HTTP-only cookie
             generateToken(user._id, res);
 
@@ -62,7 +66,9 @@ export const loginUser = async (req, res) => {
                 username: user.username,
                 email: user.email,
                 role: user.role,
-                createdAt: user.createdAt
+                branch: user.branch,
+                createdAt: user.createdAt,
+                lastLogin: user.lastLogin,
             });
         } else {
             // If invalid credentials (username/email or password) logs a message into the console and returns status code of 400 (bad request)

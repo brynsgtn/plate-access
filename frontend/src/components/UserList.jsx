@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { UserLockIcon, UserCheck2, UserCog, Users, UserStarIcon, UserSearchIcon } from "lucide-react";
 import { useUserStore } from "../stores/useUserStore";
+
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { set } from "mongoose";
 
 dayjs.extend(relativeTime);
 
@@ -50,7 +50,7 @@ const UserList = () => {
 
   return (
     <>
-      <div className="overflow-x-auto mx-auto mt-10 mb-15 rounded-l shadow-lg bg-base-100 border-none max-w-6xl">
+      <div className="overflow-x-auto mx-auto mt-10 mb-15 rounded-l shadow-lg bg-base-100 border-none max-w-7xl">
         <div className="border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 ">
             <h2 className="text-2xl font-bold text-white">User List</h2>
@@ -136,6 +136,7 @@ const UserList = () => {
               <td className="text-base font-semibold text-base-content">Status</td>
               <td className="text-base font-semibold text-base-content">Branch</td>
               <td className="text-base font-semibold text-base-content">Created At</td>
+              {currentUser.role === "itAdmin" && <td className="text-base font-semibold text-base-content">Last Login</td>}
               {currentUser.role === "itAdmin" && <td className="text-base font-semibold text-base-content">Actions</td>}
             </tr>
           </thead>
@@ -237,6 +238,12 @@ const UserList = () => {
                 </td>
                 {currentUser.role === "itAdmin" &&
                   <td>
+                    {user.lastLogin
+                      ? dayjs(user.lastLogin).fromNow()
+                      : "-"}
+                  </td>}
+                {currentUser.role === "itAdmin" &&
+                  <td>
                     {currentUser._id !== user._id ?
                       (
                         <>
@@ -275,7 +282,7 @@ const UserList = () => {
                                   ? "Set as Parking Staff"
                                   : "Set as Admin"
                               }
-                              disabled={user.role === "itAdmin"} // Optional: prevent changing IT Admin role
+                              disabled={user.role === "itAdmin"}
                             >
                               <UserCog className="h-4 w-4" />
                             </button>
