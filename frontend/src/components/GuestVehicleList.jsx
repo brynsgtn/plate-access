@@ -136,9 +136,9 @@ const GuestVehicleList = () => {
     }
 
 
-    const vehicleList = guestVehicles.filter((vehicle) => vehicle.isApproved);
+    const guestVehicleList = guestVehicles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     // Filter vehicles by plate number
-    const filteredVehicles = guestVehicles.filter((vehicle) =>
+    const filteredVehicles = guestVehicleList.filter((vehicle) =>
         vehicle.plateNumber.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -147,8 +147,8 @@ const GuestVehicleList = () => {
         ? filteredVehicles.slice((page - 1) * VEHICLES_PER_PAGE, page * VEHICLES_PER_PAGE)
         : [];
 
-    const authorizedGuestVehicles = guestVehicles.filter((vehicle) => (!vehicle.isBlacklisted && new Date(vehicle.validUntil) > new Date()));
-    const blacklistedVehicles = guestVehicles.filter((vehicle) => vehicle.isBlacklisted);
+    const authorizedGuestVehicles = guestVehicleList.filter((vehicle) => (!vehicle.isBlacklisted && new Date(vehicle.validUntil) > new Date()));
+    const blacklistedVehicles = guestVehicleList.filter((vehicle) => vehicle.isBlacklisted);
     const expiredGuestAccess = guestVehicles.filter((vehicle) => new Date(vehicle.validUntil) < new Date());
 
     useEffect(() => {
@@ -431,7 +431,7 @@ const GuestVehicleList = () => {
                                 onClick={handleConfirmDelete}
                                 className="btn btn-error"
                             >
-                                Request Delete
+                                {user.role === "admin" ? "Delete Vehicle" : "Request Delete"}
                             </button>
                         </div>
                     </div>
