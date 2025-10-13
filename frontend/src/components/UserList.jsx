@@ -3,16 +3,17 @@ import { UserLockIcon, UserCheck2, UserCog, Users, UserStarIcon, UserSearchIcon 
 import { useUserStore } from "../stores/useUserStore";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { set } from "mongoose";
 
 dayjs.extend(relativeTime);
 
 const USERS_PER_PAGE = 10;
 const UserList = () => {
-  const { user, users, updateUser, deactivateOrActivateUser, fetchAllUsers } = useUserStore();
+  const { user, users, updateUser, deactivateOrActivateUser, fetchAllUsers, updateUserBranch } = useUserStore();
 
   useEffect(() => {
     fetchAllUsers();
-  }, [users]);
+  }, []);
 
   useEffect(() => {
     console.log("users", users);;
@@ -29,6 +30,10 @@ const UserList = () => {
 
   const setRole = async (id) => {
     await updateUser(id);
+  };
+
+  const setBranch = async (id, branch) => {
+    await updateUserBranch(id, branch);
   };
 
   const deactivateOrActivateSelectedUser = async (id) => {
@@ -129,6 +134,7 @@ const UserList = () => {
               <td className="text-base font-semibold text-base-content">Email</td>
               <td className="text-base font-semibold text-base-content">Role</td>
               <td className="text-base font-semibold text-base-content">Status</td>
+              <td className="text-base font-semibold text-base-content">Branch</td>
               <td className="text-base font-semibold text-base-content">Created At</td>
               {currentUser.role === "itAdmin" && <td className="text-base font-semibold text-base-content">Actions</td>}
             </tr>
@@ -136,7 +142,7 @@ const UserList = () => {
           <tbody>
             {(paginatedUsers.length === 0) && (
               <tr>
-                <td colSpan={6} className="text-center py-8 text-base-content/70">
+                <td colSpan={8} className="text-center py-8 text-base-content/70">
                   No users found.
                 </td>
               </tr>
@@ -176,63 +182,106 @@ const UserList = () => {
                     {user.isActive ? "Active" : "Inactive"}
                   </span>
                 </td>
+                <td className="py-4">
+                  <div className="dropdown  dropdown-end">
+                    <label
+                      tabIndex={0}
+                      className={`btn btn-xs cursor-pointer
+                        ${user.branch === "Main Branch" ? "btn-primary" :
+                          user.branch === "South Branch" ? "btn-secondary" :
+                            user.branch === "North Branch" ? "btn-accent" : "btn-ghost"}`}
+                    >
+                      {user.branch || "Select Branch"}
+                    </label>
+                    <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40 border border-base-300">
+                      <li>
+                        <button
+                          onClick={(e) => {
+                            setBranch(user._id, "Main Branch");
+                            e.target.blur();
+                            document.activeElement.blur();
+                          }}>
+                          Main Branch
+                        </button>
+                      </li>
+                      <li>
+                        <button onClick={(e) => {
+                          setBranch(user._id, "North Branch");
+                          e.target.blur();
+                          document.activeElement.blur();
+                        }}>
+                          North Branch
+                        </button>
+                      </li>
+                      <li>
+                        <button onClick={(e) => {
+                          setBranch(user._id, "South Branch");
+                          e.target.blur();
+                          document.activeElement.blur();
+                        }}>
+                          South Branch
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                </td>
                 <td>
                   {user.createdAt
                     ? dayjs(user.createdAt).format('MMM D, YYYY')
                     : "-"}
                 </td>
                 {currentUser.role === "itAdmin" &&
-                <td>
-                  {currentUser._id !== user._id ?
-                    (
-                      <>
-                        {user.isActive ? (
-                          <button
-                            onClick={() => deactivateOrActivateSelectedUser(user._id)}
-                            className="btn btn-xs btn-ghost text-red-500 hover:bg-transparent  hover:text-red-700 border-none"
-                            title="Deactivate User"
-                          >
-                            <UserLockIcon className="h-4 w-4" />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => deactivateOrActivateSelectedUser(user._id)}
-                            className="btn btn-xs btn-ghost text-green-500 hover:bg-transparent hover:text-green-700 border-none"
-                            title="Activate User"
-                          >
-                            <UserCheck2 className="h-4 w-4" />
-                          </button>
-                        )
-                        }
-
-                        <div
-                          className="tooltip"
-                          data-tip={
-                            user.role === "admin"
-                              ? "Set as Parking Staff"
-                              : "Set as Admin"
+                  <td>
+                    {currentUser._id !== user._id ?
+                      (
+                        <>
+                          {user.isActive ? (
+                            <button
+                              onClick={() => deactivateOrActivateSelectedUser(user._id)}
+                              className="btn btn-xs btn-ghost text-red-500 hover:bg-transparent  hover:text-red-700 border-none"
+                              title="Deactivate User"
+                            >
+                              <UserLockIcon className="h-4 w-4" />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => deactivateOrActivateSelectedUser(user._id)}
+                              className="btn btn-xs btn-ghost text-green-500 hover:bg-transparent hover:text-green-700 border-none"
+                              title="Activate User"
+                            >
+                              <UserCheck2 className="h-4 w-4" />
+                            </button>
+                          )
                           }
-                        >
-                          <button
-                            onClick={() => setRole(user._id)}
-                            className="btn btn-xs btn-ghost text-blue-500 hover:bg-transparent hover:text-blue-700 border-none"
-                            title={
+
+                          <div
+                            className="tooltip"
+                            data-tip={
                               user.role === "admin"
                                 ? "Set as Parking Staff"
                                 : "Set as Admin"
                             }
-                            disabled={user.role === "itAdmin"} // Optional: prevent changing IT Admin role
                           >
-                            <UserCog className="h-4 w-4" />
-                          </button>
-                        </div>
+                            <button
+                              onClick={() => setRole(user._id)}
+                              className="btn btn-xs btn-ghost text-blue-500 hover:bg-transparent hover:text-blue-700 border-none"
+                              title={
+                                user.role === "admin"
+                                  ? "Set as Parking Staff"
+                                  : "Set as Admin"
+                              }
+                              disabled={user.role === "itAdmin"} // Optional: prevent changing IT Admin role
+                            >
+                              <UserCog className="h-4 w-4" />
+                            </button>
+                          </div>
 
-                      </>
+                        </>
 
-                    )
-                    : null
-                  }
-                </td>
+                      )
+                      : null
+                    }
+                  </td>
                 }
               </tr>
             ))}

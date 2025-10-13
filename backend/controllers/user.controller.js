@@ -106,6 +106,48 @@ export const updateUser = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// Update user branch controller
+export const updateUserBranch = async (req, res) => {
+    const { id, branch } = req.body;
+    const loggedInUserId = req.user.id;
+    const isItAdmin = req.user.role === "itAdmin";
+
+    try {
+        // Check if the logged-in user is admin
+        const loggedInUser = await User.findById(loggedInUserId);
+        if (!loggedInUser || !isItAdmin) {
+            return res.status(403).json({
+                message: "Access denied. Only IT admins can update user roles."
+            });
+        }
+
+        // Check if user is trying to edit themselves
+        if (loggedInUserId === id) {
+            return res.status(400).json({
+                message: "You cannot modify your own admin status."
+            });
+        }
+
+        // Find the user to be updated
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Toggle the isAdmin status
+        user.branch = branch
+        await user.save();
+
+        res.status(200).json({
+            message: `User ${user.username} is now assigned to ${user.branch}`,
+            user
+        });
+    } catch (error) {
+        console.log("Error in updateUserBranch controller", error.message);
+        res.status(500).json({ message: error.message });
+    }
+};
 // Delete user controller
 export const deactivateOrActivateUser = async (req, res) => {
     const { id } = req.body;

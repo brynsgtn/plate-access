@@ -86,6 +86,19 @@ export const useUserStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Failed to update user.");
         }
     },
+    updateUserBranch: async (id, branch) => {
+        set({ loading: true });
+        try {
+            const response = await axios.patch(`/user/update-user-branch`, { id, branch });
+            set({ loading: false });
+            toast.success(response?.data?.message);
+            get().fetchAllUsers();
+        } catch (error) {
+            set({ loading: false });
+            console.error("Update user failed:", error);
+            toast.error(error.response?.data?.message || "Failed to update user.");
+        }
+    },
     deactivateOrActivateUser: async (id) => {
         set({ loading: true });
         try {
