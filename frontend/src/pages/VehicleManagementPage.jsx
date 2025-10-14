@@ -10,6 +10,7 @@ import GuestVehicleList from "../components/GuestVehicleList";
 import BlacklistedGuestVehicleList from "../components/BlacklistedGuestVehicleList";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import { useGuestVehicleStore } from "../stores/useGuestVehicleStore";
+import { useUserStore } from "../stores/useUserStore";
 
 
 
@@ -82,8 +83,24 @@ const VehicleManagementPage = () => {
         console.log("Guest vehicles:", guestVehicles);
     }, [guestVehicles]);
 
-    const totalVehicles = Array.isArray(vehicles) ? vehicles.filter((vehicle) => vehicle.isApproved).length : 0;
-    const blacklistedVehicles = Array.isArray(vehicles) ? vehicles.filter((vehicle) => vehicle.isBlacklisted).length : 0;
+    const {user } = useUserStore();
+
+    const totalVehicles = vehicles
+        .filter(vehicle => {
+            // Only show approved vehicles
+            if (!vehicle.isApproved) return false;
+
+            // If the user is parkingStaff, only show their branch
+            if (user.role === "parkingStaff") {
+                return vehicle.branch === user.branch;
+            }
+
+            // Admin can see all
+            return true;
+        })
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    const blacklistedVehicles = Array.isArray(totalVehicles) ? totalVehicles.filter((vehicle) => vehicle.isBlacklisted).length : 0;
 
     const unapprovedVehicles = Array.isArray(vehicles) ? vehicles.filter(v => {
         // Handle different possible values for isApproved
@@ -124,7 +141,7 @@ const VehicleManagementPage = () => {
                             <CarFront className="inline-block h-10 w-10 stroke-current" />
                         </div>
                         <div className="stat-title text-lg font-bold text-base-content/80">Total Vehicles</div>
-                        <div className="stat-value text-primary">{totalVehicles}</div>
+                        <div className="stat-value text-primary">{totalVehicles.length}</div>
                     </div>
 
                     <div className="stat p-6">

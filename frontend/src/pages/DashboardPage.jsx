@@ -41,7 +41,7 @@ const DashboardPage = () => {
     const totalEntry = logs.filter((log) => log.gateType === "entrance" && log.success === true).length;
     const totalExit = logs.filter((log) => log.gateType === "exit" && log.success === true).length;
     const totalEntryFail = logs.filter((log) => log.success === false).length;
-    const blacklistAlerts = logs.filter((log) => log.blacklistHit === true).length;
+    const verificationAlerts = logs.filter((log) => log.confidence <= .30).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);;
 
     const denialRate = totalLogs === 0
         ? 0
@@ -167,14 +167,14 @@ const DashboardPage = () => {
                         </div>
 
                         {/* Alerts */}
-                        <div className="stat p-6">
+                        {/* <div className="stat p-6">
                             <div className="stat-figure text-error">
                                 <AlertTriangle className="inline-block h-10 w-10 stroke-current" />
                             </div>
                             <div className="stat-title text-lg font-bold text-base-content/80">Active Alerts</div>
                             <div className="stat-value text-error">{recentBlacklistLogs.length}</div>
                             <div className="stat-desc text-base-content/70">Requires attention</div>
-                        </div>
+                        </div> */}
 
                         {/* Recognition Rate */}
                         <div className="stat p-6">
@@ -329,18 +329,24 @@ const DashboardPage = () => {
                                     <p className="text-white/80 mt-2">Latest verification alerts</p>
                                 </div>
                                 <div className="p-6 space-y-4">
-                                    <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-300">
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex items-start">
-                                                <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3 mt-0.5" />
-                                                <div>
-                                                    <p className="font-semibold text-yellow-800">Low Confidence Reading</p>
-                                                    <p className="text-sm text-yellow-700">Plate: MNO-321 (68%)</p>
+                                    {verificationAlerts.length > 0 ? (
+                                        verificationAlerts.map((alert) => (
+                                            <div key={alert._id} className="p-4 bg-yellow-50 rounded-xl border border-yellow-300">
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex items-start">
+                                                        <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3 mt-0.5" />
+                                                        <div>
+                                                            <p className="font-semibold text-yellow-800">Low Confidence Reading</p>
+                                                            <p className="text-sm text-yellow-700">Plate: {alert.plateNumber} ({alert.confidence * 100}%)</p>
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-xs text-yellow-600">{dayjs(alert.timestamp).fromNow()}</span>
                                                 </div>
                                             </div>
-                                            <span className="text-xs text-yellow-600">2 min ago</span>
-                                        </div>
-                                    </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-base-content/50 italic">No recent verification alerts yet</p>
+                                    )}
                                 </div>
                             </div>
 

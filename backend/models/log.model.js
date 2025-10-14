@@ -25,6 +25,10 @@ const logSchema = new mongoose.Schema({
         enum: ["LPR", "manual"],
         required: true
     },
+    confidence: {
+        type: Number,
+        default: 100
+    },
     success: {
         type: Boolean,
         required: true

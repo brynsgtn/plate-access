@@ -33,6 +33,7 @@ export const entryLogLPR = async (req, res) => {
 
         // Get the plate text
         const plateText = firstPlateObj.text;
+        const confidence = firstPlateObj.avg_conf;
 
         const cleanedPlateNumber = removeAllWhitespace(plateText);
 
@@ -56,6 +57,7 @@ export const entryLogLPR = async (req, res) => {
                     branch: branch,
                     gateType: "entrance",
                     method: "LPR",
+                    confidence: confidence,
                     success: false,
                     blacklistHit: true,
                     notes: "Blacklisted registered vehicle"
@@ -71,6 +73,7 @@ export const entryLogLPR = async (req, res) => {
                     branch: branch,
                     gateType: "entrance",
                     method: "LPR",
+                    confidence: confidence,
                     success: false,
                     notes: "Pending approval"
                 });
@@ -83,6 +86,7 @@ export const entryLogLPR = async (req, res) => {
                 plateNumber: cleanedPlateNumber,
                 branch: branch,
                 gateType: "entrance",
+                confidence: confidence,
                 method: "LPR",
                 success: true,
                 notes: "Verified by LPR"
@@ -101,6 +105,7 @@ export const entryLogLPR = async (req, res) => {
                     branch: branch,
                     gateType: "entrance",
                     method: "LPR",
+                    confidence: confidence,
                     success: false,
                     blacklistHit: true, isGuest: true, notes: "Blacklisted guest vehicle"
                 });
@@ -115,6 +120,7 @@ export const entryLogLPR = async (req, res) => {
                     branch: branch,
                     gateType: "entrance",
                     method: "LPR",
+                    confidence: confidence,
                     success: false,
                     isGuest: true,
                     notes: "Guest vehicle access expired"
@@ -130,6 +136,7 @@ export const entryLogLPR = async (req, res) => {
                 branch: branch,
                 gateType: "entrance",
                 method: "LPR",
+                confidence: confidence,
                 success: true,
                 isGuest: true,
                 notes: "Verified by LPR"
@@ -140,7 +147,15 @@ export const entryLogLPR = async (req, res) => {
         }
 
         // Unregistered vehicle
-        const log = await Log.create({ plateNumber: cleanedPlateNumber, branch: branch, gateType: "entrance", method: "LPR", success: false, notes: "Unregistered vehicle" });
+        const log = await Log.create({ 
+            plateNumber: cleanedPlateNumber, 
+            branch: branch, 
+            gateType: "entrance", 
+            method: "LPR",
+            confidence: confidence, 
+            success: false, 
+            notes: "Unregistered vehicle" 
+        });
         io.emit("newLog", log);
         return res.status(403).json({ message: "Unregistered vehicle", log });
     }
@@ -164,7 +179,8 @@ export const exitLogLPR = async (req, res) => {
 
         // Get the first object in the array
         const firstPlateObj = plates[0];
-
+        // Get the confidence
+        const confidence = firstPlateObj.avg_conf;
         // Get the plate text
         const plateText = firstPlateObj.text;
 
@@ -195,6 +211,7 @@ export const exitLogLPR = async (req, res) => {
                 branch: branch,
                 gateType: "exit",
                 method: "LPR",
+                confidence: confidence,
                 success: true,
                 notes: "Verified by LPR"
             });
@@ -212,6 +229,7 @@ export const exitLogLPR = async (req, res) => {
                 branch: branch,
                 gateType: "exit",
                 method: "LPR",
+                confidence: confidence,
                 success: true,
                 isGuest: true,
                 notes: "Verified by LPR"
@@ -226,6 +244,7 @@ export const exitLogLPR = async (req, res) => {
             branch: branch,
             gateType: "exit",
             method: "LPR",
+            confidence: confidence,
             success: false,
             notes: "Unrecognized Plate Number"
         });
