@@ -11,7 +11,6 @@ function CameraFeed({ title, defaultURL }) {
 
     const { user } = useUserStore();
 
-    // Handle webcam or video URL
     useEffect(() => {
         let localStream;
 
@@ -30,7 +29,7 @@ function CameraFeed({ title, defaultURL }) {
                     if (videoRef.current) {
                         videoRef.current.srcObject = stream;
 
-                        // Wait for metadata to load to get resolution & FPS
+                        // get resolution & FPS
                         videoRef.current.onloadedmetadata = () => {
                             const track = stream.getVideoTracks()[0];
                             const settings = track.getSettings();
@@ -56,17 +55,10 @@ function CameraFeed({ title, defaultURL }) {
             if (videoRef.current) {
                 videoRef.current.srcObject = null;
                 videoRef.current.src = cameraURL;
-                videoRef.current.load();
+                videoRef.current.load(); // auto-render new URL
             }
         }
     }, [isCameraOn, useLocalCamera, cameraURL]);
-
-    // Force reload video when Load button is clicked
-    const handleLoadURL = () => {
-        setIsFeedError(false);
-        setIsCameraOn(false);
-        setTimeout(() => setIsCameraOn(true), 50); // restart video
-    };
 
     return (
         <div className="bg-base-200 p-4 rounded-lg">
@@ -133,23 +125,15 @@ function CameraFeed({ title, defaultURL }) {
                         <span className="text-xs">Use Local Camera</span>
                     </label>
 
-                    {/* Only show input and load button when using URL */}
+                    {/* Auto-update video as URL changes */}
                     {!useLocalCamera && (
-                        <div className="flex gap-2 items-center">
-                            <input
-                                type="text"
-                                value={cameraURL}
-                                onChange={(e) => setCameraURL(e.target.value)}
-                                placeholder="http://localhost:5000/video-feed"
-                                className="input input-bordered w-full text-sm"
-                            />
-                            <button
-                                className="btn btn-sm btn-primary flex-shrink-0"
-                                onClick={handleLoadURL}
-                            >
-                                Load
-                            </button>
-                        </div>
+                        <input
+                            type="text"
+                            value={cameraURL}
+                            onChange={(e) => setCameraURL(e.target.value)}
+                            placeholder="http://localhost:5000/video-feed"
+                            className="input input-bordered w-full text-sm"
+                        />
                     )}
                 </div>
             )}

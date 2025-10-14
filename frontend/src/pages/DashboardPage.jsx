@@ -228,7 +228,7 @@ const DashboardPage = () => {
 
                             {/* Entrance Camera */}
                             <div className='bg-base-200 p-4 rounded-lg'>
-                                <CameraFeed title="Entrance Camera" defaultURL="http://localhost:5000/entrance" />
+                                <CameraFeed title="Entrance Camera" defaultURL="rtsp://localhost:8554/mystream" />
                             </div>
                         </div>
 
@@ -256,7 +256,7 @@ const DashboardPage = () => {
 
                             {/* Exit Camera */}
                             <div className="bg-base-200 p-4 rounded-lg">
-                                <CameraFeed title="Exit Camera" defaultURL="http://localhost:5000/exit" />
+                                <CameraFeed title="Exit Camera" defaultURL="rtsp://localhost:8554/mystream" />
                             </div>
                         </div>
                     </div>
