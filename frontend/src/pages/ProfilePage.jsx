@@ -1,6 +1,7 @@
 import { Mail, UserCheck, AtSign, Calendar, Shield } from "lucide-react";
 import dayjs from "dayjs";
 import { useUserStore } from "../stores/useUserStore";
+import { use } from "react";
 
 const ProfilePage = () => {
     const { user } = useUserStore();
@@ -21,7 +22,7 @@ const ProfilePage = () => {
                         <div className="bg-gradient-to-r from-primary to-secondary p-6">
                             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                                 <Shield className="w-6 h-6" />
-                                Personal Information
+                                Account Information
                             </h2>
                         </div>
 
@@ -56,7 +57,7 @@ const ProfilePage = () => {
                                     User Role
                                 </label>
                                 <div className="input input-bordered flex items-center bg-base-200 border-2 group-hover:border-primary/30 transition-colors w-full">
-                                    {user.isAdmin ? "Admin" : "Parking Staff"}
+                                    {user.role === "admin" ? "Admin" : user.role ==="itAdmin" ? "IT Admin" : "Parking Staff"}
                                 </div>
                             </div>
                         </div>
@@ -74,7 +75,7 @@ const ProfilePage = () => {
                                     <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center">
                                         <UserCheck className="w-8 h-8 text-success" />
                                     </div>
-                                    <span className="text-2xl font-bold text-success">Active</span>
+                                    <span className="text-2xl font-bold text-success">{user.isActive ? "Active" : "Inactive"}</span>
                                     <p className="text-sm text-base-content/60 text-center">Your account is in good standing</p>
                                 </div>
                             </div>
@@ -109,8 +110,8 @@ const ProfilePage = () => {
                             <Shield className="w-8 h-8" />
                         </div>
                         <div className="stat-title">Access Level</div>
-                        <div className="stat-value text-primary text-2xl">{user.isAdmin ? "Full" : "Standard"}</div>
-                        <div className="stat-desc">{user.isAdmin ? "Administrator privileges" : "Staff privileges"}</div>
+                        <div className="stat-value text-primary text-2xl">{user.role === "itAdmin" ? "IT Access" : user.role === "admin" ? "Admin Access" : "Staff Access"}</div>
+                        <div className="stat-desc">{user.role !== "parkingStaff" ? "Administrator privileges" : "Staff privileges"}</div>
                     </div>
 
                     <div className="stat bg-base-100 rounded-xl shadow-lg border border-base-300">
@@ -118,7 +119,7 @@ const ProfilePage = () => {
                             <UserCheck className="w-8 h-8" />
                         </div>
                         <div className="stat-title">Account Status</div>
-                        <div className="stat-value text-success text-2xl">Active</div>
+                        <div className="stat-value text-success text-2xl">{user.isActive ? "Active" : "Inactive"}</div>
                         <div className="stat-desc">All systems operational</div>
                     </div>
 

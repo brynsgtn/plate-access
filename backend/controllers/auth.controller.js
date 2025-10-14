@@ -23,7 +23,8 @@ export const checkAuth = async (req, res) => {
             email: user.email,
             role: user.role,
             branch: user.branch,
-            createdAt: user.createdAt
+            createdAt: user.createdAt,
+            isActive: user.isActive
         });
     } catch (error) {
         // Logs error message in terminal

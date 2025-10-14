@@ -45,7 +45,7 @@ const BlacklistedGuestVehicleList = () => {
         : [];
 
     const handleUnblacklist = (id) => {
-        if (user.isAdmin) {
+        if (user.role === "admin") {
             blacklistOrUnblacklistGuestVehicle(id)
         } else {
             toast.error("You are not authorized to unblacklist guest vehicles.");
@@ -108,7 +108,7 @@ const BlacklistedGuestVehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Make & Model</th>
                             <th className="text-base font-semibold text-base-content">Owner</th>
                             <th className="text-base font-semibold text-base-content">Blacklisted At</th>
-                            {user.isAdmin && <th className="text-base font-semibold text-base-content">Action</th>}
+                            {user.role === "admin" && <th className="text-base font-semibold text-base-content">Action</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -130,7 +130,7 @@ const BlacklistedGuestVehicleList = () => {
                                         ? dayjs(vehicle.isBlacklistedAt).fromNow()
                                         : "-"}
                                 </td>
-                                {user.isAdmin && (
+                                {user.role === "admin" && (
                                     <td>
                                         <button
                                             onClick={() => handleUnblacklist(vehicle._id)}

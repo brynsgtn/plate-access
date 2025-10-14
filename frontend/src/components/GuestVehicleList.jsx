@@ -406,20 +406,6 @@ const GuestVehicleList = () => {
                             <span className="font-bold">{formData.plateNumber}</span>?
                         </p>
 
-                        {/* Show reason if not admin */}
-                        {!user.isAdmin && (
-                            <div className="mt-4">
-                                <textarea
-                                    value={deleteReason}
-                                    onChange={(e) => setDeleteReason(e.target.value)}
-                                    rows="3"
-                                    placeholder="Enter reason..."
-                                    className="mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2 px-3"
-                                    required
-                                />
-                            </div>
-                        )}
-
                         <div className="modal-action">
                             <button
                                 onClick={() => setDeleteModal(false)}
@@ -431,7 +417,7 @@ const GuestVehicleList = () => {
                                 onClick={handleConfirmDelete}
                                 className="btn btn-error"
                             >
-                                {user.role === "admin" ? "Delete Vehicle" : "Request Delete"}
+                            Delete Vehicle
                             </button>
                         </div>
                     </div>

@@ -77,16 +77,13 @@ export default App;
 // PRIORITY
 
 // list role access and features
-// Dashboard page - integrate with LPR (camera, verification alerts)
-// Access control page - integrate with LPR 
+// Dashboard page - integrate with LPR (camera)
 // Protect routes
+// Navbar component -  styling
 
 
 // Testing
 // Deployment
 
-// Low priority
-// Blacklist feature - shared blacklist list or online blacklist list add blacklist export to csv
-// Navbar component -  styling
-// reasons on requests
+
 

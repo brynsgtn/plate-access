@@ -8,11 +8,11 @@ const HomePage = () => {
     <>
       <div className="flex flex-col">
         <div className="flex items-center justify-center px-4">
-          <div className="rounded-lg shadow-cl w-full max-w-6xl min-h-[calc(100vh-8rem)]">
+          <div className="rounded-xlshadow-cl w-full max-w-6xl min-h-[calc(100vh-8rem)]">
             <div className="rounded-lg">
               {/* Hero Section */}
 
-              <div className="hero bg-gradient-to-r from-primary to-secondary mt-10 p-8 text-primary-content rounded-lg">
+              <div className="hero bg-gradient-to-r from-primary to-accent mt-10 p-8 text-primary-content rounded-3xl shadow-2xl">
                 <div className="hero-content w-full max-w-none">
                   <div className="flex flex-col lg:flex-row-reverse items-center lg:items-start w-full space-y-8 lg:space-y-0 lg:space-x-12">
                     <div className="lg:w-1/2 flex justify-center">
@@ -23,7 +23,7 @@ const HomePage = () => {
                       />
                     </div>
                     <div className="lg:w-1/2 text-center lg:text-left">
-                      <h1 className="text-3xl lg:text-5xl font-bold my-10">Welcome to PlateAccess!</h1>
+                      <h1 className="text-3xl lg:text-5xl font-bold my-10 text-white">Welcome!</h1>
                       <p className="text-lg mb-6 leading-relaxed">
                         PlateAccess is your all-in-one solution for modern parking management. Effortlessly monitor, control, and secure your parking facilities with real-time updates and intuitive tools.
                       </p>
@@ -109,19 +109,6 @@ const HomePage = () => {
               </div>
               {/* End How It Works Section */}
 
-              {/* Promotional Section */}
-              <div className="hero bg-gradient-to-r from-primary to-secondary text-primary-content rounded-lg my-12 p-12">
-                <div className="hero-content flex-col md:flex-row">
-                  <div>
-                    <h2 className="text-4xl font-bold mb-8">Experience PlateAccess Today</h2>
-                    <p className="mb-8">
-                      Join organizations that trust PlateAccess for secure, efficient, and modern parking management. Discover how our platform can transform your operations and provide peace of mind for your team and customers.
-                    </p>
-                    <button className="btn btn-accent">Learn More</button>
-                  </div>
-                </div>
-              </div>
-              {/* End Promotional Section */}
             </div>
           </div>
         </div>
