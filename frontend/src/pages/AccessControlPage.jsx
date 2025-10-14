@@ -713,57 +713,6 @@ const AccessControlPage = () => {
             )}
 
 
-            {/* Camera Controls */}
-            <div className="max-w-6xl mb-12 mx-auto mt-10">
-                <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl">
-                    <h2 className="text-2xl font-bold text-white flex items-center">
-                        <Camera className="mr-2 h-5 w-5" />
-                        Camera Controls
-                    </h2>
-                </div>
-                <div className="bg-base-100 rounded-b-xl shadow-lg">
-                    <div className="p-5">
-                        <div className="grid lg:grid-cols-2 gap-6 bg-base-100 rounded-b-xl p-5">
-                            {/* Entrance Cameras */}
-                            <div>
-                                <h3 className="font-semibold mb-3 flex items-center text-base-content">
-                                    <Camera className="mr-2 h-4 w-4" />
-                                    Entrance
-                                </h3>
-                                <div className="flex flex-col gap-3">
-                                    <button className="btn btn-success flex items-center justify-center gap-2">
-                                        <Camera className="mr-2 h-5 w-5" />
-                                        Open
-                                    </button>
-                                    <button className="btn btn-error flex items-center justify-center gap-2">
-                                        <CameraOffIcon className="mr-2 h-5 w-5" />
-                                        Close
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Exit Cameras */}
-                            <div>
-                                <h3 className="font-semibold mb-3 flex items-center text-base-content">
-                                    <Camera className="mr-2 h-4 w-4" />
-                                    Exit
-                                </h3>
-                                <div className="flex flex-col gap-3">
-                                    <button className="btn btn-success flex items-center justify-center gap-2">
-                                        <Camera className="mr-2 h-5 w-5" />
-                                        Open
-                                    </button>
-                                    <button className="btn btn-error flex items-center justify-center gap-2">
-                                        <CameraOffIcon className="mr-2 h-5 w-5" />
-                                        Close
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {/* Manual Entry Controls Section */}
             {user?.role !== 'itAdmin' && (
                 <div className="max-w-6xl mx-auto rounded-xl mb-12">

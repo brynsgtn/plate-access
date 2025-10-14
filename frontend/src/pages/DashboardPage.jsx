@@ -11,7 +11,8 @@ import {
 
 import { useGateStore } from '../stores/useGateStore';
 import { useLogStore } from '../stores/useLogStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import CameraFeed from '../components/CameraFeed';
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -20,6 +21,7 @@ dayjs.extend(relativeTime);
 
 
 const DashboardPage = () => {
+
 
     const isEntranceGateOpen = useGateStore(state => state.isEntranceGateOpen);
     const isExitGateOpen = useGateStore(state => state.isExitGateOpen);
@@ -226,28 +228,12 @@ const DashboardPage = () => {
 
                             {/* Entrance Camera */}
                             <div className='bg-base-200 p-4 rounded-lg'>
-                                <div className="flex items-center justify-between ">
-                                    <h3 className="font-semibold text-base-content">Entrance Camera</h3>
-                                    <span className="text-sm font-medium flex items-center text-green-600 gap-1">
-                                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                        ACTIVE
-                                    </span>
-                                </div>
-
-                                <p className="text-xs text-base-content/70">1920x1080 • 30 FPS</p>
-                            </div>
-                            {/* Video Placeholder */}
-                            <div className="rounded-lg  ">
-                                <div className="mt-2 w-full aspect-video bg-gray-300 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                                    <span className="text-gray-600 dark:text-gray-300">Video Feed</span>
-                                </div>
+                                <CameraFeed title="Entrance Camera" defaultURL="http://localhost:5000/entrance" />
                             </div>
                         </div>
 
                         {/* Exit Section */}
                         <div className="bg-base-100 rounded-b-2xl  p-6 space-y-4 hover:shadow-md transition-shadow duration-300">
-
-
 
                             {/* Exit Gate */}
                             <div className="p-4 bg-base-200 rounded-lg flex flex-col gap-1">
@@ -269,22 +255,8 @@ const DashboardPage = () => {
                             </div>
 
                             {/* Exit Camera */}
-                            <div className='bg-base-200 p-4 rounded-lg'>
-                                <div className="flex items-center justify-between ">
-                                    <h3 className="font-semibold text-base-content">Exit Camera</h3>
-                                    <span className="text-sm font-medium flex items-center text-green-600 gap-1">
-                                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                        ACTIVE
-                                    </span>
-                                </div>
-
-                                <p className="text-xs text-base-content/70">1920x1080 • 30 FPS</p>
-                            </div>
-                            {/* Video Placeholder */}
-                            <div className="rounded-lg  ">
-                                <div className="mt-2 w-full aspect-video bg-gray-300 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                                    <span className="text-gray-600 dark:text-gray-300">Video Feed</span>
-                                </div>
+                            <div className="bg-base-200 p-4 rounded-lg">
+                                <CameraFeed title="Exit Camera" defaultURL="http://localhost:5000/exit" />
                             </div>
                         </div>
                     </div>
