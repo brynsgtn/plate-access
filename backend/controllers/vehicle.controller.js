@@ -302,7 +302,7 @@ export const requestUpdateVehicle = async (req, res) => {
             requestedOwnerName: ownerName,
             requestedBranch: branch,
             requestedBy: reqUser.id,
-            reason: reason ? reason : `Requesting update for vehicle: ${makeModel}, ${ownerName}`,
+            reason: reason ? reason : `Requesting update for ${cleanedPlateNumber}`,
             status: 'pending',
         };
 
@@ -428,7 +428,7 @@ export const requestDeleteVehicle = async (req, res) => {
 
         vehicle.deleteRequest = {
             requestedBy: reqUser.id,
-            reason: reason ? reason : `Requesting deletion for vehicle: ${vehicle.makeModel}, ${vehicle.ownerName}`,
+            reason: reason ? reason : `Requesting deletion for ${vehicle.plateNumber}`,
             status: 'pending',
         };
 
