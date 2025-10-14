@@ -63,7 +63,7 @@ function App() {
         </Routes>
       </main>
       <Footer />
-      <Toaster />
+      <Toaster position="bottom-center"/>
     </div>
 
   )
@@ -80,8 +80,6 @@ export default App;
 // Dashboard page - integrate with LPR (camera, verification alerts)
 // Access control page - integrate with LPR 
 // Protect routes
-// hide access logs and vehicle management for it admin
-// code for camera links and buttons for switch camera on and off
 
 
 // Testing
