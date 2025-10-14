@@ -20,9 +20,12 @@ export const viewVehicles = async (req, res) => {
     }
 };
 
+function removeAllWhitespace(plateNumber) {
+    return plateNumber.replace(/\s+/g, "").toUpperCase();
+}
 // Add vehicle controller
 export const addVehicle = async (req, res) => {
-    const { plateNumber, makeModel, ownerName} = req.body;
+    const { plateNumber, makeModel, ownerName } = req.body;
     console.log(req.user)
     const isAdmin = req.user.role === "admin";
     const userId = req.user._id
@@ -32,8 +35,9 @@ export const addVehicle = async (req, res) => {
         return res.status(400).json({ message: "All fields are required" });
     }
 
+    const cleanedPlateNumber = removeAllWhitespace(plateNumber);
     // Check if vehicle already exists
-    const existingVehicle = await Vehicle.findOne({ plateNumber });
+    const existingVehicle = await Vehicle.findOne({ plateNumber: cleanedPlateNumber });
     if (existingVehicle) {
         return res.status(400).json({ message: "Vehicle already exists" });
     }
@@ -43,7 +47,7 @@ export const addVehicle = async (req, res) => {
 
         // If admin, set isApproved to true
         const newVehicle = new Vehicle({
-            plateNumber,
+            plateNumber: cleanedPlateNumber,
             makeModel,
             ownerName,
             branch: req.user.branch,
@@ -74,6 +78,8 @@ export const updateVehicle = async (req, res) => {
         return res.status(400).json({ message: "All fields are required" });
     }
 
+    const cleanedPlateNumber = removeAllWhitespace(plateNumber);
+
     try {
         // Find the vehicle by id
         const vehicle = await Vehicle.findOne({ _id: id });
@@ -82,7 +88,7 @@ export const updateVehicle = async (req, res) => {
         }
 
         // Update vehicle details
-        vehicle.plateNumber = plateNumber;
+        vehicle.plateNumber = cleanedPlateNumber;
         vehicle.makeModel = makeModel;
         vehicle.ownerName = ownerName;
         vehicle.branch = branch;
@@ -265,6 +271,8 @@ export const requestUpdateVehicle = async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
+        const cleanedPlateNumber = removeAllWhitespace(plateNumber);
+
         if (reqUser.role === "admin") {
             return res.status(403).json({ message: "Admins don't need to request vehicle updates" });
         }
@@ -289,7 +297,7 @@ export const requestUpdateVehicle = async (req, res) => {
 
         // Create a new update request
         vehicle.updateRequest = {
-            requestedPlateNumber: plateNumber,
+            requestedPlateNumber: cleanedPlateNumber,
             requestedModelAndMake: makeModel,
             requestedOwnerName: ownerName,
             requestedBranch: branch,

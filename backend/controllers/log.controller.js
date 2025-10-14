@@ -14,6 +14,10 @@ export const viewAllLogs = async (req, res) => {
     }
 };
 
+function removeAllWhitespace(plateNumber) {
+    return plateNumber.replace(/\s+/g, "").toUpperCase();
+}
+
 // Entry log controller
 export const entryLogLPR = async (req, res) => {
 
@@ -27,15 +31,29 @@ export const entryLogLPR = async (req, res) => {
             return res.status(400).json({ message: "Plate number is required" });
         }
 
+        const cleanedPlateNumber = removeAllWhitespace(plateNumber);
+
+        // Find the last log for this plate
+        const lastLog = await Log.findOne({ plateNumber: cleanedPlateNumber })
+            .sort({ timestamp: -1 });
+
+        // If the last log exists and was an entrance (no exit yet)
+        if (lastLog && lastLog.gateType === "entrance" && lastLog.success) {
+            return res.status(400).json({
+                message: "Vehicle has not exited yet. Cannot enter again.",
+            });
+        }
+
+
         // First, check if it’s a registered vehicle
-        const vehicle = await Vehicle.findOne({ plateNumber });
+        const vehicle = await Vehicle.findOne({ plateNumber: cleanedPlateNumber });
 
         if (vehicle) {
             // Case 1: Blacklisted
             if (vehicle.isBlacklisted) {
                 const log = await Log.create({
                     vehicle: vehicle._id,
-                    plateNumber,
+                    plateNumber: cleanedPlateNumber,
                     branch: currentUserBranch,
                     gateType: "entrance",
                     method: "LPR",
@@ -52,7 +70,7 @@ export const entryLogLPR = async (req, res) => {
             if (!vehicle.isApproved) {
                 const log = await Log.create({
                     vehicle: vehicle._id,
-                    plateNumber,
+                    plateNumber: cleanedPlateNumber,
                     branch: currentUserBranch,
                     gateType: "entrance",
                     method: "LPR",
@@ -66,7 +84,7 @@ export const entryLogLPR = async (req, res) => {
             // Case 3: Success
             const log = await Log.create({
                 vehicle: vehicle._id,
-                plateNumber,
+                plateNumber: cleanedPlateNumber,
                 branch: currentUserBranch,
                 gateType: "entrance",
                 method: "LPR",
@@ -78,7 +96,7 @@ export const entryLogLPR = async (req, res) => {
         }
 
         // Check if it’s a guest vehicle
-        const guestVehicle = await GuestVehicle.findOne({ plateNumber });
+        const guestVehicle = await GuestVehicle.findOne({ plateNumber: cleanedPlateNumber });
 
 
         if (guestVehicle) {
@@ -87,7 +105,7 @@ export const entryLogLPR = async (req, res) => {
             if (guestVehicle.isBlacklisted) {
                 const log = await Log.create({
                     vehicle: guestVehicle._id,
-                    plateNumber,
+                    plateNumber: cleanedPlateNumber,
                     branch: currentUserBranch,
                     gateType: "entrance",
                     method: "LPR",
@@ -104,7 +122,7 @@ export const entryLogLPR = async (req, res) => {
             if (guestVehicle.validUntil < new Date()) {
                 const log = await Log.create({
                     vehicle: guestVehicle._id,
-                    plateNumber,
+                    plateNumber: cleanedPlateNumber,
                     branch: currentUserBranch,
                     gateType: "entrance",
                     method: "LPR",
@@ -119,7 +137,7 @@ export const entryLogLPR = async (req, res) => {
             // Case 6: Success
             const log = await Log.create({
                 vehicle: guestVehicle._id,
-                plateNumber,
+                plateNumber: cleanedPlateNumber,
                 branch: currentUserBranch,
                 gateType: "entrance",
                 method: "LPR",
@@ -133,7 +151,7 @@ export const entryLogLPR = async (req, res) => {
 
         // Case 7: Unregistered vehicle
         const log = await Log.create({
-            plateNumber,
+            plateNumber: cleanedPlateNumber,
             branch: currentUserBranch,
             gateType: "entrance",
             method: "LPR",
@@ -159,8 +177,21 @@ export const exitLogLPR = async (req, res) => {
             return res.status(400).json({ message: "Plate number is required" });
         }
 
+        const cleanedPlateNumber = removeAllWhitespace(plateNumber);
+        // Find the last log for this plate
+        const lastLog = await Log.findOne({ plateNumber: cleanedPlateNumber })
+            .sort({ timestamp: -1 });
+
+        // If there’s no previous entrance or last log was already an exit
+        if (!lastLog || lastLog.gateType === "exit") {
+            return res.status(400).json({
+                message: "Vehicle cannot exit without an active entrance record.",
+            });
+        }
+
+
         // First, check if it’s a registered vehicle
-        const vehicle = await Vehicle.findOne({ plateNumber });
+        const vehicle = await Vehicle.findOne({ plateNumber: cleanedPlateNumber });
 
         if (vehicle) {
 
@@ -168,7 +199,7 @@ export const exitLogLPR = async (req, res) => {
             // Case 1: Success
             const log = await Log.create({
                 vehicle: vehicle._id,
-                plateNumber,
+                plateNumber: cleanedPlateNumber,
                 branch: currentUserBranch,
                 gateType: "exit",
                 method: "LPR",
@@ -179,13 +210,13 @@ export const exitLogLPR = async (req, res) => {
             return res.status(201).json({ message: "Exit granted", log });
         }
 
-        const guestVehicle = await GuestVehicle.findOne({ plateNumber }); // check if it's a guest vehicle
+        const guestVehicle = await GuestVehicle.findOne({ plateNumber: cleanedPlateNumber }); // check if it's a guest vehicle
 
         if (guestVehicle) {
             // Case 2: Success
             const log = await Log.create({
                 vehicle: guestVehicle._id,
-                plateNumber,
+                plateNumber: cleanedPlateNumber,
                 branch: currentUserBranch,
                 gateType: "exit",
                 method: "LPR",
@@ -199,7 +230,7 @@ export const exitLogLPR = async (req, res) => {
 
         // Case 3: Unrecognized Plate
         const log = await Log.create({
-            plateNumber,
+            plateNumber: cleanedPlateNumber,
             branch: currentUserBranch,
             gateType: "exit",
             method: "LPR",
@@ -225,8 +256,10 @@ export const entryLogManual = async (req, res) => {
             return res.status(400).json({ message: "Plate number is required" });
         }
 
+        const cleanedPlateNumber = removeAllWhitespace(plateNumber);
+
         // Find the last log for this plate
-        const lastLog = await Log.findOne({ plateNumber })
+        const lastLog = await Log.findOne({ plateNumber: cleanedPlateNumber })
             .sort({ timestamp: -1 });
 
         // If the last log exists and was an entrance (no exit yet)
@@ -237,14 +270,14 @@ export const entryLogManual = async (req, res) => {
         }
 
         // First, check if it’s a registered vehicle
-        const vehicle = await Vehicle.findOne({ plateNumber });
+        const vehicle = await Vehicle.findOne({ plateNumber: cleanedPlateNumber });
 
         if (vehicle) {
             // Case 1: Blacklisted
             if (vehicle.isBlacklisted) {
                 const log = await Log.create({
                     vehicle: vehicle._id,
-                    plateNumber,
+                    plateNumber: cleanedPlateNumber,
                     branch: currentUserBranch,
                     gateType: "entrance",
                     method: "manual",
@@ -260,7 +293,7 @@ export const entryLogManual = async (req, res) => {
             if (!vehicle.isApproved) {
                 const log = await Log.create({
                     vehicle: vehicle._id,
-                    plateNumber,
+                    plateNumber: cleanedPlateNumber,
                     branch: currentUserBranch,
                     gateType: "entrance",
                     method: "manual",
@@ -274,7 +307,7 @@ export const entryLogManual = async (req, res) => {
             // Case 3: Success
             const log = await Log.create({
                 vehicle: vehicle._id,
-                plateNumber,
+                plateNumber: cleanedPlateNumber,
                 branch: currentUserBranch,
                 gateType: "entrance",
                 method: "manual",
@@ -286,7 +319,7 @@ export const entryLogManual = async (req, res) => {
         }
 
         // Check if it’s a guest vehicle
-        const guestVehicle = await GuestVehicle.findOne({ plateNumber });
+        const guestVehicle = await GuestVehicle.findOne({ plateNumber: cleanedPlateNumber });
 
 
         if (guestVehicle) {
@@ -295,7 +328,7 @@ export const entryLogManual = async (req, res) => {
             if (guestVehicle.isBlacklisted) {
                 const log = await Log.create({
                     vehicle: guestVehicle._id,
-                    plateNumber,
+                    plateNumber: cleanedPlateNumber,
                     branch: currentUserBranch,
                     gateType: "entrance",
                     method: "manual",
@@ -312,7 +345,7 @@ export const entryLogManual = async (req, res) => {
             if (guestVehicle.validUntil < new Date()) {
                 const log = await Log.create({
                     vehicle: guestVehicle._id,
-                    plateNumber,
+                    plateNumber: cleanedPlateNumber,
                     branch: currentUserBranch,
                     gateType: "entrance",
                     method: "manual",
@@ -327,7 +360,7 @@ export const entryLogManual = async (req, res) => {
             // Case 6: Success
             const log = await Log.create({
                 vehicle: guestVehicle._id,
-                plateNumber,
+                plateNumber: cleanedPlateNumber,
                 branch: currentUserBranch,
                 gateType: "entrance",
                 method: "manual",
@@ -341,7 +374,7 @@ export const entryLogManual = async (req, res) => {
 
         // Case 7: Unregistered vehicle                    
         const log = await Log.create({
-            plateNumber,
+            plateNumber: cleanedPlateNumber,
             branch: currentUserBranch,
             gateType: "entrance",
             method: "manual",
@@ -365,8 +398,10 @@ export const exitLogManual = async (req, res) => {
             return res.status(400).json({ message: "Plate number is required" });
         }
 
+        const cleanedPlateNumber = removeAllWhitespace(plateNumber);
+
         // Find the last log for this plate
-        const lastLog = await Log.findOne({ plateNumber })
+        const lastLog = await Log.findOne({ plateNumber: cleanedPlateNumber })
             .sort({ timestamp: -1 });
 
         // If there’s no previous entrance or last log was already an exit
@@ -377,13 +412,13 @@ export const exitLogManual = async (req, res) => {
         }
 
         // First, check if it’s a registered vehicle
-        const vehicle = await Vehicle.findOne({ plateNumber }); // check if it's a registered vehicle
+        const vehicle = await Vehicle.findOne({ plateNumber: cleanedPlateNumber }); // check if it's a registered vehicle
 
         if (vehicle) {
             // Case 1: Success
             const log = await Log.create({
                 vehicle: vehicle._id,
-                plateNumber,
+                plateNumber: cleanedPlateNumber,
                 branch: currentUserBranch,
                 gateType: "exit",
                 method: "manual",
@@ -394,13 +429,13 @@ export const exitLogManual = async (req, res) => {
             return res.status(201).json({ message: "Exit granted", log });
         }
 
-        const guestVehicle = await GuestVehicle.findOne({ plateNumber }); // check if it's a guest vehicle
+        const guestVehicle = await GuestVehicle.findOne({ plateNumber: cleanedPlateNumber }); // check if it's a guest vehicle
 
         if (guestVehicle) {
             // Case 2: Success
             const log = await Log.create({
                 vehicle: guestVehicle._id,
-                plateNumber,
+                plateNumber: cleanedPlateNumber,
                 branch: currentUserBranch,
                 gateType: "exit",
                 method: "manual",
@@ -414,7 +449,7 @@ export const exitLogManual = async (req, res) => {
 
         // Case 3: Unrecognized Plate
         const log = await Log.create({
-            plateNumber,
+            plateNumber: cleanedPlateNumber,
             branch: currentUserBranch,
             gateType: "exit",
             method: "manual",

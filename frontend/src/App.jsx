@@ -76,7 +76,6 @@ export default App;
 
 // PRIORITY
 
-// Add utility function to remove white spaces and extra characters from license plate number
 // list role access and features
 // Dashboard page - integrate with LPR (camera, verification alerts)
 // Access control page - integrate with LPR 

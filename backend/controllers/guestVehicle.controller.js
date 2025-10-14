@@ -12,6 +12,11 @@ export const viewGuestVehicles = async (req, res) => {
     }
 };
 
+function removeAllWhitespace(plateNumber) {
+    return plateNumber.replace(/\s+/g, "").toUpperCase();
+}
+
+
 // Add guest vehicle controller
 export const addGuestVehicle = async (req, res) => {
     const { plateNumber, makeModel, ownerName } = req.body;
@@ -22,8 +27,9 @@ export const addGuestVehicle = async (req, res) => {
         if (!plateNumber || !makeModel || !ownerName) {
             return res.status(400).json({ message: "All fields are required" });
         };
+        const cleanedPlateNumber = removeAllWhitespace(plateNumber);
 
-        const registeredVehicleExists = await Vehicle.findOne({ plateNumber });
+        const registeredVehicleExists = await Vehicle.findOne({ plateNumber: cleanedPlateNumber });
         if (registeredVehicleExists) {
             return res.status(400).json({ message: "Vehicle already registered" });
         };
@@ -34,7 +40,7 @@ export const addGuestVehicle = async (req, res) => {
         };
 
         const newGuestVehicle = new GuestVehicle({
-            plateNumber,
+            plateNumber: cleanedPlateNumber,
             makeModel,
             ownerName,
             addedBy: userId,

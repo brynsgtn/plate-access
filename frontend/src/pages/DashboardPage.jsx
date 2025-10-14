@@ -170,7 +170,7 @@ const DashboardPage = () => {
                                 <AlertTriangle className="inline-block h-10 w-10 stroke-current" />
                             </div>
                             <div className="stat-title text-lg font-bold text-base-content/80">Active Alerts</div>
-                            <div className="stat-value text-error">{blacklistAlerts}</div>
+                            <div className="stat-value text-error">{recentBlacklistLogs.length}</div>
                             <div className="stat-desc text-base-content/70">Requires attention</div>
                         </div>
 
