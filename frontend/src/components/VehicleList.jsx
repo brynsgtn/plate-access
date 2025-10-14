@@ -51,6 +51,9 @@ const VehicleList = () => {
         viewVehicles();
     }, [viewVehicles]);
 
+
+    const currentUserBranch = user.branch;
+
     const handleEdit = (id) => {
         const vehicleToEdit = vehicles.find((v) => v._id === id);
         setFormData({
@@ -58,7 +61,7 @@ const VehicleList = () => {
             plateNumber: vehicleToEdit.plateNumber,
             makeModel: vehicleToEdit.makeModel,
             ownerName: vehicleToEdit.ownerName,
-            branch: vehicleToEdit.branch || "Main Branch" 
+            branch: vehicleToEdit.branch || "Main Branch"
         });
         setEditModal(true);
     };
@@ -126,8 +129,20 @@ const VehicleList = () => {
 
 
     const vehicleList = vehicles
-        .filter(vehicle => vehicle.isApproved)
+        .filter(vehicle => {
+            // Only show approved vehicles
+            if (!vehicle.isApproved) return false;
+
+            // If the user is parkingStaff, only show their branch
+            if (user.role === "parkingStaff") {
+                return vehicle.branch === currentUserBranch;
+            }
+
+            // Admin can see all
+            return true;
+        })
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
 
     // Filter vehicles by plate number
     const filteredVehicles = vehicleList.filter((vehicle) =>
@@ -139,8 +154,8 @@ const VehicleList = () => {
         ? filteredVehicles.slice((page - 1) * VEHICLES_PER_PAGE, page * VEHICLES_PER_PAGE)
         : [];
 
-    const approvedVehicles = vehicles.filter((vehicle) => (vehicle.isApproved && !vehicle.isBlacklisted));
-    const blacklistedVehicles = vehicles.filter((vehicle) => vehicle.isBlacklisted);
+    const approvedVehicles = vehicleList.filter((vehicle) => (vehicle.isApproved && !vehicle.isBlacklisted));
+    const blacklistedVehicles = vehicleList.filter((vehicle) => vehicle.isBlacklisted);
 
 
     if (loadingVehicles) {
