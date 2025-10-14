@@ -16,7 +16,7 @@ export const viewAllLogs = async (req, res) => {
 
 // Entry log controller
 export const entryLogLPR = async (req, res) => {
-   
+
     const { plateNumber } = req.body;
     console.log(req.user)
     const currentUserBranch = req.user.branch
@@ -225,6 +225,17 @@ export const entryLogManual = async (req, res) => {
             return res.status(400).json({ message: "Plate number is required" });
         }
 
+        // Find the last log for this plate
+        const lastLog = await Log.findOne({ plateNumber })
+            .sort({ timestamp: -1 });
+
+        // If the last log exists and was an entrance (no exit yet)
+        if (lastLog && lastLog.gateType === "entrance" && lastLog.success) {
+            return res.status(400).json({
+                message: "Vehicle has not exited yet. Cannot enter again.",
+            });
+        }
+
         // First, check if it’s a registered vehicle
         const vehicle = await Vehicle.findOne({ plateNumber });
 
@@ -352,6 +363,17 @@ export const exitLogManual = async (req, res) => {
     try {
         if (!plateNumber) {
             return res.status(400).json({ message: "Plate number is required" });
+        }
+
+        // Find the last log for this plate
+        const lastLog = await Log.findOne({ plateNumber })
+            .sort({ timestamp: -1 });
+
+        // If there’s no previous entrance or last log was already an exit
+        if (!lastLog || lastLog.gateType === "exit") {
+            return res.status(400).json({
+                message: "Vehicle cannot exit without an active entrance record.",
+            });
         }
 
         // First, check if it’s a registered vehicle

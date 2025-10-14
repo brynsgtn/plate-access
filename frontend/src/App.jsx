@@ -75,8 +75,7 @@ export default App;
 // TODO: 
 
 // PRIORITY
-// parking staff can only view access logs on the branch they are assigned to
-// validation on entarnce cannot entry again if last entry is not exit
+
 // Add utility function to remove white spaces and extra characters from license plate number
 // list role access and features
 // Dashboard page - integrate with LPR (camera, verification alerts)
