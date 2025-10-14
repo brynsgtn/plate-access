@@ -90,4 +90,5 @@ export default App;
 // Low priority
 // Blacklist feature - shared blacklist list or online blacklist list add blacklist export to csv
 // Navbar component -  styling
+// reasons on requests
 

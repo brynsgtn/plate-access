@@ -16,6 +16,7 @@ import {
 import { useGateStore } from '../stores/useGateStore';
 import { useLogStore } from '../stores/useLogStore';
 import { useGuestVehicleStore } from '../stores/useGuestVehicleStore';
+import { useUserStore } from '../stores/useUserStore';
 
 
 
@@ -46,6 +47,7 @@ const AccessControlPage = () => {
     const { manualEntryLogAttempt, manualExitLogAttempt, lprEntryLogAttempt, lprExitLogAttempt } = useLogStore();
 
     const { addGuestVehicle } = useGuestVehicleStore();
+    const { user } = useUserStore();
     const [guestVehicleData, setGuestVehicleData] = useState({
         plateNumber: "",
         makeModel: "",
@@ -501,84 +503,87 @@ const AccessControlPage = () => {
 
 
             {/* Manual Entry Controls Section */}
-            <div className="max-w-6xl mx-auto rounded-xl mb-12 mt-10">
-                {/* Section Header */}
-                <div>
-                    <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl">
-                        <h2 className="text-2xl font-bold text-white flex items-center">
-                            <Shield className="mr-3 h-5 w-5" />
-                            Manual Entry Controls
-                        </h2>
-                    </div>
-
-                    <div className='grid lg:grid-cols-2 gap-3 shadow-2xl rounded-b-2xl bg-base-100'>
-                        {/* Add Guest Vehicle */}
-                        <div className="p-5">
-                            <h3 className="font-semibold mb-3 flex items-center text-base-content">
-                                Add Guest Vehicle
-                            </h3>
-                            <input
-                                type="text"
-                                placeholder="Plate Number"
-                                className="input input-bordered w-full mb-3"
-                                value={guestVehicleData.plateNumber}
-                                onChange={(e) => setGuestVehicleData({ ...guestVehicleData, plateNumber: e.target.value })}
-                                required
-                            />
-                            <input
-                                type="text"
-                                placeholder="Make and Model"
-                                className="input input-bordered w-full mb-3"
-                                value={guestVehicleData.makeModel}
-                                onChange={(e) => setGuestVehicleData({ ...guestVehicleData, makeModel: e.target.value })}
-                                required
-                            />
-                            <input
-                                type="text"
-                                placeholder="Owner's Name"
-                                className="input input-bordered w-full mb-3"
-                                value={guestVehicleData.ownerName}
-                                onChange={(e) => setGuestVehicleData({ ...guestVehicleData, ownerName: e.target.value })}
-                                required
-                            />
-                            <button
-                                className="btn btn-primary w-full"
-                                onClick={() => addAndAuthorizeGuestVehicle(guestVehicleData, 'entrance')}>Authorize Vehicle</button>
+            {user?.role !== 'itAdmin' && (
+                <div className="max-w-6xl mx-auto rounded-xl mb-12 mt-10">
+                    {/* Section Header */}
+                    <div>
+                        <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl">
+                            <h2 className="text-2xl font-bold text-white flex items-center">
+                                <Shield className="mr-3 h-5 w-5" />
+                                Manual Entry Controls
+                            </h2>
                         </div>
-                        {/* Manual Plate Entry */}
-                        <div className="p-5">
-                            <label
-                                htmlFor="license-plate"
-                                className="font-semibold mb-3 flex items-center text-base-content"
-                            >
-                                Manual License Plate Entry
-                            </label>
-                            <input
-                                type="text"
-                                id="license-plate"
-                                placeholder="Enter license plate number"
-                                className="input input-bordered w-full mb-4"
-                                value={manualPlate}
-                                onChange={(e) => setManualPlate(e.target.value)}
-                            />
-                            <div className='grid grid-cols-2 gap-3'>
+
+                        <div className='grid lg:grid-cols-2 gap-3 shadow-2xl rounded-b-2xl bg-base-100'>
+                            {/* Add Guest Vehicle */}
+                            <div className="p-5">
+                                <h3 className="font-semibold mb-3 flex items-center text-base-content">
+                                    Add Guest Vehicle
+                                </h3>
+                                <input
+                                    type="text"
+                                    placeholder="Plate Number"
+                                    className="input input-bordered w-full mb-3"
+                                    value={guestVehicleData.plateNumber}
+                                    onChange={(e) => setGuestVehicleData({ ...guestVehicleData, plateNumber: e.target.value })}
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Make and Model"
+                                    className="input input-bordered w-full mb-3"
+                                    value={guestVehicleData.makeModel}
+                                    onChange={(e) => setGuestVehicleData({ ...guestVehicleData, makeModel: e.target.value })}
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Owner's Name"
+                                    className="input input-bordered w-full mb-3"
+                                    value={guestVehicleData.ownerName}
+                                    onChange={(e) => setGuestVehicleData({ ...guestVehicleData, ownerName: e.target.value })}
+                                    required
+                                />
                                 <button
-                                    className="btn btn-success w-full"
-                                    onClick={() => manualEntryAttempt(manualPlate, 'entrance')}>
-                                    Manual Entry
-                                </button>
-                                <button
-                                    className="btn btn-error w-full"
-                                    onClick={() => manualExitAttempt(manualPlate, 'exit')}>
-                                    Manual Exit
-                                </button>
+                                    className="btn btn-primary w-full"
+                                    onClick={() => addAndAuthorizeGuestVehicle(guestVehicleData, 'entrance')}>Authorize Vehicle</button>
                             </div>
+                            {/* Manual Plate Entry */}
+                            <div className="p-5">
+                                <label
+                                    htmlFor="license-plate"
+                                    className="font-semibold mb-3 flex items-center text-base-content"
+                                >
+                                    Manual License Plate Entry
+                                </label>
+                                <input
+                                    type="text"
+                                    id="license-plate"
+                                    placeholder="Enter license plate number"
+                                    className="input input-bordered w-full mb-4"
+                                    value={manualPlate}
+                                    onChange={(e) => setManualPlate(e.target.value)}
+                                />
+                                <div className='grid grid-cols-2 gap-3'>
+                                    <button
+                                        className="btn btn-success w-full"
+                                        onClick={() => manualEntryAttempt(manualPlate, 'entrance')}>
+                                        Manual Entry
+                                    </button>
+                                    <button
+                                        className="btn btn-error w-full"
+                                        onClick={() => manualExitAttempt(manualPlate, 'exit')}>
+                                        Manual Exit
+                                    </button>
+                                </div>
+                            </div>
+
                         </div>
 
                     </div>
-
                 </div>
-            </div>
+            )}
+
 
 
             {/* Emergency Controls */}
@@ -611,105 +616,101 @@ const AccessControlPage = () => {
 
 
             {/* LPR Simulation Controls Section - for testing LPR functionality , to integrate with the flask backend */}
-            <div className="max-w-6xl mx-auto rounded-xl mb-12 mt-10">
-                {/* Section Header */}
-                <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl shadow-lg">
-                    <h2 className="text-2xl font-bold text-white flex items-center">
-                        <Camera className="mr-3 h-6 w-6" />
-                        LPR Simulation Controls
-                    </h2>
-                    <p className="text-white/80 mt-1 text-sm">Test license plate recognition functionality</p>
-                </div>
+            {user?.role !== 'itAdmin' && (
+                <div className="max-w-6xl mx-auto rounded-xl mb-12 mt-10">
+                    {/* Section Header */}
+                    <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl shadow-lg">
+                        <h2 className="text-2xl font-bold text-white flex items-center">
+                            <Camera className="mr-3 h-6 w-6" />
+                            LPR Simulation Controls
+                        </h2>
+                        <p className="text-white/80 mt-1 text-sm">Test license plate recognition functionality</p>
+                    </div>
 
-                <div className="grid lg:grid-cols-2 gap-6 p-6 shadow-2xl rounded-b-2xl bg-base-100 border-x border-b border-base-300">
-                    {/* LPR Entry Simulation */}
-                    <div className="bg-base-200 rounded-xl p-6 border border-base-300">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
-                                <LogIn className="w-5 h-5 text-success" />
+                    <div className="grid lg:grid-cols-2 gap-6 p-6 shadow-2xl rounded-b-2xl bg-base-100 border-x border-b border-base-300">
+                        {/* LPR Entry Simulation */}
+                        <div className="bg-base-200 rounded-xl p-6 border border-base-300">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
+                                    <LogIn className="w-5 h-5 text-success" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg text-base-content">LPR Entry Gate</h3>
+                                    <p className="text-sm text-base-content/60">Simulate vehicle entrance</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-bold text-lg text-base-content">LPR Entry Gate</h3>
-                                <p className="text-sm text-base-content/60">Simulate vehicle entrance</p>
+
+                            <div className="space-y-3">
+                                <div>
+                                    <label className="label">
+                                        <span className="label-text font-medium">Plate Number</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter plate number"
+                                        className="input input-bordered w-full focus:input-primary"
+                                        value={lprEntryPlate}
+                                        onChange={(e) => setLprEntryPlate(e.target.value)}
+                                    />
+                                </div>
+
+                                <button
+                                    className="btn btn-success w-full gap-2"
+                                    onClick={() => LPREntryAttemptSimulation(lprEntryPlate, 'entrance')}
+                                >
+                                    <LogIn className="w-4 h-4" />
+                                    Simulate Entry
+                                </button>
                             </div>
                         </div>
 
-                        <div className="space-y-3">
-                            <div>
-                                <label className="label">
-                                    <span className="label-text font-medium">Plate Number</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="Enter plate number"
-                                    className="input input-bordered w-full focus:input-primary"
-                                    value={lprEntryPlate}
-                                    onChange={(e) => setLprEntryPlate(e.target.value)}
-                                />
+                        {/* LPR Exit Simulation */}
+                        <div className="bg-base-200 rounded-xl p-6 border border-base-300">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 rounded-full bg-error/20 flex items-center justify-center">
+                                    <LogOut className="w-5 h-5 text-error" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg text-base-content">LPR Exit Gate</h3>
+                                    <p className="text-sm text-base-content/60">Simulate vehicle exit</p>
+                                </div>
                             </div>
 
-                            <button
-                                className="btn btn-success w-full gap-2"
-                                onClick={() => LPREntryAttemptSimulation(lprEntryPlate, 'entrance')}
-                            >
-                                <LogIn className="w-4 h-4" />
-                                Simulate Entry
-                            </button>
+                            <div className="space-y-3">
+                                <div>
+                                    <label className="label">
+                                        <span className="label-text font-medium">Plate Number</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Enter plate number"
+                                        className="input input-bordered w-full focus:input-primary"
+                                        value={lprExitPlate}
+                                        onChange={(e) => setLprExitPlate(e.target.value)}
+                                    />
+                                </div>
+
+                                <button
+                                    className="btn btn-error w-full gap-2"
+                                    onClick={() => LPRExitAttemptSimulation(lprExitPlate, 'exit')}
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    Simulate Exit
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    {/* LPR Exit Simulation */}
-                    <div className="bg-base-200 rounded-xl p-6 border border-base-300">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-full bg-error/20 flex items-center justify-center">
-                                <LogOut className="w-5 h-5 text-error" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-lg text-base-content">LPR Exit Gate</h3>
-                                <p className="text-sm text-base-content/60">Simulate vehicle exit</p>
-                            </div>
-                        </div>
-
-                        <div className="space-y-3">
-                            <div>
-                                <label className="label">
-                                    <span className="label-text font-medium">Plate Number</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="Enter plate number"
-                                    className="input input-bordered w-full focus:input-primary"
-                                    value={lprExitPlate}
-                                    onChange={(e) => setLprExitPlate(e.target.value)}
-                                />
-                            </div>
-
-                            <button
-                                className="btn btn-error w-full gap-2"
-                                onClick={() => LPRExitAttemptSimulation(lprExitPlate, 'exit')}
-                            >
-                                <LogOut className="w-4 h-4" />
-                                Simulate Exit
-                            </button>
+                    {/* Info Alert */}
+                    <div className="mt-4 alert alert-info shadow-lg">
+                        <Camera className="w-5 h-5" />
+                        <div>
+                            <h3 className="font-bold">Simulation Mode</h3>
+                            <div className="text-xs">Enter a plate number and click the button to simulate LPR detection at entry or exit gates.</div>
                         </div>
                     </div>
                 </div>
-
-                {/* Info Alert */}
-                <div className="mt-4 alert alert-info shadow-lg">
-                    <Camera className="w-5 h-5" />
-                    <div>
-                        <h3 className="font-bold">Simulation Mode</h3>
-                        <div className="text-xs">Enter a plate number and click the button to simulate LPR detection at entry or exit gates.</div>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-
-
+            )}
 
 
             {/* Camera Controls */}
@@ -764,60 +765,63 @@ const AccessControlPage = () => {
             </div>
 
             {/* Manual Entry Controls Section */}
-            <div className="max-w-6xl mx-auto rounded-xl mb-12">
-                {/* Section Header */}
-                <div>
-                    <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl">
-                        <h2 className="text-2xl font-bold text-white flex items-center">
-                            <Shield className="mr-3 h-5 w-5" />
-                            Manual Entry Controls
-                        </h2>
-                    </div>
-
-                    <div className='grid lg:grid-cols-2 gap-3 shadow-2xl rounded-b-2xl bg-base-100'>
-                        {/* Add Guest Vehicle */}
-                        <div className="p-5">
-                            <h3 className="font-semibold mb-3 flex items-center text-base-content">
-                                Add Guest Vehicle
-                            </h3>
-                            <input
-                                type="text"
-                                placeholder="Plate Number"
-                                className="input input-bordered w-full mb-3"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Make and Model"
-                                className="input input-bordered w-full mb-3"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Owner's Name"
-                                className="input input-bordered w-full mb-3"
-                            />
-                            <button className="btn btn-primary w-full">Authorize Vehicle</button>
-                        </div>
-                        {/* Manual Plate Entry */}
-                        <div className="p-5">
-                            <label
-                                htmlFor="license-plate"
-                                className="font-semibold mb-3 flex items-center text-base-content"
-                            >
-                                Manual License Plate Entry
-                            </label>
-                            <input
-                                type="text"
-                                id="license-plate"
-                                placeholder="Enter license plate number"
-                                className="input input-bordered w-full mb-4"
-                            />
-                            <button className="btn btn-primary w-full">Verify</button>
+            {user?.role !== 'itAdmin' && (
+                <div className="max-w-6xl mx-auto rounded-xl mb-12">
+                    {/* Section Header */}
+                    <div>
+                        <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl">
+                            <h2 className="text-2xl font-bold text-white flex items-center">
+                                <Shield className="mr-3 h-5 w-5" />
+                                Manual Entry Controls
+                            </h2>
                         </div>
 
-                    </div>
+                        <div className='grid lg:grid-cols-2 gap-3 shadow-2xl rounded-b-2xl bg-base-100'>
+                            {/* Add Guest Vehicle */}
+                            <div className="p-5">
+                                <h3 className="font-semibold mb-3 flex items-center text-base-content">
+                                    Add Guest Vehicle
+                                </h3>
+                                <input
+                                    type="text"
+                                    placeholder="Plate Number"
+                                    className="input input-bordered w-full mb-3"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Make and Model"
+                                    className="input input-bordered w-full mb-3"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Owner's Name"
+                                    className="input input-bordered w-full mb-3"
+                                />
+                                <button className="btn btn-primary w-full">Authorize Vehicle</button>
+                            </div>
+                            {/* Manual Plate Entry */}
+                            <div className="p-5">
+                                <label
+                                    htmlFor="license-plate"
+                                    className="font-semibold mb-3 flex items-center text-base-content"
+                                >
+                                    Manual License Plate Entry
+                                </label>
+                                <input
+                                    type="text"
+                                    id="license-plate"
+                                    placeholder="Enter license plate number"
+                                    className="input input-bordered w-full mb-4"
+                                />
+                                <button className="btn btn-primary w-full">Verify</button>
+                            </div>
 
+                        </div>
+
+                    </div>
                 </div>
-            </div>
+            )}
+
 
         </div>
     );

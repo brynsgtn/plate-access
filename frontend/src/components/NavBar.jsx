@@ -89,6 +89,7 @@ const NavBar = () => {
                                     <>
                                         <li><Link to="/dashboard">Dashboard</Link></li>
                                         <li><Link to="/access-logs">Access Logs</Link></li>
+                                        <li><Link to="/access-control">Access Controls</Link></li>
                                         {user?.role === "admin" && (
                                             <>
                                                 <li><Link to="/vehicle-management">Vehicle Management</Link></li>
@@ -142,6 +143,7 @@ const NavBar = () => {
                             // Admin desktop menu
                             <>
                                 <li><Link to="/dashboard" className="hover:bg-primary-focus transition-colors">Dashboard</Link></li>
+                                <li><Link to="/access-control" className="hover:bg-primary-focus transition-colors">Access Controls</Link></li>
                                 {user?.role === "admin" && (
                                     <>
                                         <li><Link to="/access-logs" className="hover:bg-primary-focus transition-colors">Access Logs</Link></li>
