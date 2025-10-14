@@ -1,29 +1,27 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { io as clientIO } from "socket.io-client";
 
-// Create a broadcast channel for cross-tab communication
 const channel = typeof window !== 'undefined' ? new BroadcastChannel('gate-updates') : null;
+const socket = clientIO("http://localhost:5001"); // backend URL
 
 export const useGateStore = create()(
   persist(
     (set, get) => ({
-      // Initial states
       isEntranceGateOpen: false,
       isExitGateOpen: false,
       lastEntranceAction: null,
       lastExitAction: null,
 
-      // Initialize cross-tab listener
       initCrossTabSync: () => {
         if (channel) {
           channel.onmessage = (event) => {
             const { type, data } = event.data;
-            
             if (type === 'ENTRANCE_GATE_UPDATE') {
               set({
                 isEntranceGateOpen: data.isOpen,
                 lastEntranceAction: data.lastAction,
-              }, false); // Don't trigger persistence
+              }, false);
             } else if (type === 'EXIT_GATE_UPDATE') {
               set({
                 isExitGateOpen: data.isOpen,
@@ -34,7 +32,6 @@ export const useGateStore = create()(
         }
       },
 
-      // Actions
       setIsEntranceGateOpen: (value) => {
         const newState = {
           isEntranceGateOpen: value,
@@ -43,10 +40,7 @@ export const useGateStore = create()(
             time: new Date().toLocaleTimeString(),
           },
         };
-        
         set(newState);
-        
-        // Broadcast to other tabs
         if (channel) {
           channel.postMessage({
             type: 'ENTRANCE_GATE_UPDATE',
@@ -66,10 +60,7 @@ export const useGateStore = create()(
             time: new Date().toLocaleTimeString(),
           },
         };
-        
         set(newState);
-        
-        // Broadcast to other tabs
         if (channel) {
           channel.postMessage({
             type: 'EXIT_GATE_UPDATE',
@@ -79,6 +70,27 @@ export const useGateStore = create()(
             },
           });
         }
+      },
+
+      // NEW: Listen to backend live logs
+      listenLiveLogs: () => {
+        socket.off("newLog");
+        socket.on("newLog", (log) => {
+          if (log.gateType === "entrance") {
+            if (log.success) get().setIsEntranceGateOpen(true);
+            else get().setIsEntranceGateOpen(false);
+
+            // Auto-close after 5 seconds if it was opened
+            if (log.success) setTimeout(() => get().setIsEntranceGateOpen(false), 5000);
+          }
+
+          if (log.gateType === "exit") {
+            if (log.success) get().setIsExitGateOpen(true);
+            else get().setIsExitGateOpen(false);
+
+            if (log.success) setTimeout(() => get().setIsExitGateOpen(false), 5000);
+          }
+        });
       },
     }),
     {

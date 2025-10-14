@@ -6,7 +6,6 @@ import {
     Lock,
     Shield,
     Camera,
-    CameraOffIcon,
     Clock,
     AlertCircle,
     CheckCircle,
@@ -28,10 +27,12 @@ const AccessControlPage = () => {
     const setIsEntranceGateOpen = useGateStore((s) => s.setIsEntranceGateOpen);
     const setIsExitGateOpen = useGateStore((s) => s.setIsExitGateOpen);
     const initCrossTabSync = useGateStore((s) => s.initCrossTabSync);
+    const { listenLiveLogs } = useGateStore();
     // Initialize cross-tab sync on mount
     useEffect(() => {
         initCrossTabSync();
-    }, [initCrossTabSync]);
+        listenLiveLogs();   // live updates from backend
+    }, [initCrossTabSync, listenLiveLogs]);
 
 
 
@@ -45,6 +46,7 @@ const AccessControlPage = () => {
     const [lprExitPlate, setLprExitPlate] = useState('');
 
     const { manualEntryLogAttempt, manualExitLogAttempt, lprEntryLogAttempt, lprExitLogAttempt } = useLogStore();
+
 
     const { addGuestVehicle } = useGuestVehicleStore();
     const { user } = useUserStore();

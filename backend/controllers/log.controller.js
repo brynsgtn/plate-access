@@ -20,164 +20,156 @@ function removeAllWhitespace(plateNumber) {
 
 // Entry log controller
 export const entryLogLPR = async (req, res) => {
+    const { plates, branch } = req.body; // plates is an array
 
-    const { plateNumber } = req.body;
-    console.log(req.user)
-    const currentUserBranch = req.user.branch
-    console.log(currentUserBranch)
+    if (!plates || !Array.isArray(plates) || plates.length === 0) {
+        return res.status(400).json({ message: "No plate data provided" });
+    }
 
     try {
-        if (!plateNumber) {
-            return res.status(400).json({ message: "Plate number is required" });
-        }
 
-        const cleanedPlateNumber = removeAllWhitespace(plateNumber);
+        // Get the first object in the array
+        const firstPlateObj = plates[0];
+
+        // Get the plate text
+        const plateText = firstPlateObj.text;
+
+        const cleanedPlateNumber = removeAllWhitespace(plateText);
 
         // Find the last log for this plate
         const lastLog = await Log.findOne({ plateNumber: cleanedPlateNumber })
             .sort({ timestamp: -1 });
 
-        // If the last log exists and was an entrance (no exit yet)
         if (lastLog && lastLog.gateType === "entrance" && lastLog.success) {
             return res.status(400).json({
                 message: "Vehicle has not exited yet. Cannot enter again.",
             });
         }
 
-
-        // First, check if it’s a registered vehicle
+        // Registered vehicle
         const vehicle = await Vehicle.findOne({ plateNumber: cleanedPlateNumber });
-
         if (vehicle) {
-            // Case 1: Blacklisted
             if (vehicle.isBlacklisted) {
                 const log = await Log.create({
                     vehicle: vehicle._id,
                     plateNumber: cleanedPlateNumber,
-                    branch: currentUserBranch,
+                    branch: branch,
                     gateType: "entrance",
                     method: "LPR",
                     success: false,
                     blacklistHit: true,
                     notes: "Blacklisted registered vehicle"
                 });
-
-                io.emit("newLog", log); // Emit the new log
+                io.emit("newLog", log);
                 return res.status(403).json({ message: "Vehicle is blacklisted", log });
             }
 
-            // Case 2: Not approved
             if (!vehicle.isApproved) {
                 const log = await Log.create({
                     vehicle: vehicle._id,
                     plateNumber: cleanedPlateNumber,
-                    branch: currentUserBranch,
+                    branch: branch,
                     gateType: "entrance",
                     method: "LPR",
                     success: false,
-                    notes: "Pending vehicle registration approval"
+                    notes: "Pending approval"
                 });
-                io.emit("newLog", log); // Emit the new log
+                io.emit("newLog", log);
                 return res.status(400).json({ message: "Pending vehicle registration approval", log });
             }
 
-            // Case 3: Success
             const log = await Log.create({
                 vehicle: vehicle._id,
                 plateNumber: cleanedPlateNumber,
-                branch: currentUserBranch,
+                branch: branch,
                 gateType: "entrance",
                 method: "LPR",
                 success: true,
                 notes: "Verified by LPR"
             });
-            io.emit("newLog", log); // Emit the new log
+            io.emit("newLog", log);
             return res.status(201).json({ message: "Entry granted", log });
         }
 
-        // Check if it’s a guest vehicle
+        // Guest vehicle
         const guestVehicle = await GuestVehicle.findOne({ plateNumber: cleanedPlateNumber });
-
-
         if (guestVehicle) {
-
-            // Case 4: Blacklisted
             if (guestVehicle.isBlacklisted) {
                 const log = await Log.create({
                     vehicle: guestVehicle._id,
                     plateNumber: cleanedPlateNumber,
-                    branch: currentUserBranch,
+                    branch: branch,
                     gateType: "entrance",
                     method: "LPR",
                     success: false,
-                    blacklistHit: true,
-                    isGuest: true,
-                    notes: "Blacklisted guest vehicle"
+                    blacklistHit: true, isGuest: true, notes: "Blacklisted guest vehicle"
                 });
-                io.emit("newLog", log); // Emit the new log
-                return res.status(403).json({ message: "Guest vehicle is blacklisted", log });
+                io.emit("newLog", log);
+                return res.status(201).json({ message: "Entry granted", log });
             }
 
-            // Case 5: Access expired
             if (guestVehicle.validUntil < new Date()) {
                 const log = await Log.create({
                     vehicle: guestVehicle._id,
                     plateNumber: cleanedPlateNumber,
-                    branch: currentUserBranch,
+                    branch: branch,
                     gateType: "entrance",
                     method: "LPR",
                     success: false,
                     isGuest: true,
                     notes: "Guest vehicle access expired"
+
                 });
-                io.emit("newLog", log); // Emit the new log
+                io.emit("newLog", log);
                 return res.status(403).json({ message: "Guest vehicle access expired", log });
             }
 
-            // Case 6: Success
             const log = await Log.create({
                 vehicle: guestVehicle._id,
                 plateNumber: cleanedPlateNumber,
-                branch: currentUserBranch,
+                branch: branch,
                 gateType: "entrance",
                 method: "LPR",
                 success: true,
                 isGuest: true,
                 notes: "Verified by LPR"
+
             });
-            io.emit("newLog", log); // Emit the new log
+            io.emit("newLog", log);
             return res.status(201).json({ message: "Entry granted", log });
         }
 
-        // Case 7: Unregistered vehicle
-        const log = await Log.create({
-            plateNumber: cleanedPlateNumber,
-            branch: currentUserBranch,
-            gateType: "entrance",
-            method: "LPR",
-            success: false,
-            notes: "Unregistered vehicle"
-        });
-        io.emit("newLog", log); // Emit the new log
+        // Unregistered vehicle
+        const log = await Log.create({ plateNumber: cleanedPlateNumber, branch: branch, gateType: "entrance", method: "LPR", success: false, notes: "Unregistered vehicle" });
+        io.emit("newLog", log);
         return res.status(403).json({ message: "Unregistered vehicle", log });
-
-
-    } catch (error) {
+    }
+    catch (error) {
         console.error("Error in entryLogLPR controller:", error);
         res.status(500).json({ message: "Server error" });
     }
 };
 
+
+
 // Exit log controller
 export const exitLogLPR = async (req, res) => {
-    const { plateNumber } = req.body;
-    const currentUserBranch = req.user.branch;
-    try {
-        if (!plateNumber) {
-            return res.status(400).json({ message: "Plate number is required" });
-        }
+  const { plates, branch } = req.body; // plates is an array
 
-        const cleanedPlateNumber = removeAllWhitespace(plateNumber);
+    if (!plates || !Array.isArray(plates) || plates.length === 0) {
+        return res.status(400).json({ message: "No plate data provided" });
+    }
+
+    try {
+
+        // Get the first object in the array
+        const firstPlateObj = plates[0];
+
+        // Get the plate text
+        const plateText = firstPlateObj.text;
+
+        const cleanedPlateNumber = removeAllWhitespace(plateText);
+
         // Find the last log for this plate
         const lastLog = await Log.findOne({ plateNumber: cleanedPlateNumber })
             .sort({ timestamp: -1 });
@@ -200,7 +192,7 @@ export const exitLogLPR = async (req, res) => {
             const log = await Log.create({
                 vehicle: vehicle._id,
                 plateNumber: cleanedPlateNumber,
-                branch: currentUserBranch,
+                branch: branch,
                 gateType: "exit",
                 method: "LPR",
                 success: true,
@@ -217,7 +209,7 @@ export const exitLogLPR = async (req, res) => {
             const log = await Log.create({
                 vehicle: guestVehicle._id,
                 plateNumber: cleanedPlateNumber,
-                branch: currentUserBranch,
+                branch: branch,
                 gateType: "exit",
                 method: "LPR",
                 success: true,
@@ -231,7 +223,7 @@ export const exitLogLPR = async (req, res) => {
         // Case 3: Unrecognized Plate
         const log = await Log.create({
             plateNumber: cleanedPlateNumber,
-            branch: currentUserBranch,
+            branch: branch,
             gateType: "exit",
             method: "LPR",
             success: false,
