@@ -75,17 +75,21 @@ export default App;
 // TODO: 
 
 // PRIORITY
+// parking staff can only view access logs on the branch they are assigned to
 // validation on entarnce cannot entry again if last entry is not exit
 // Add utility function to remove white spaces and extra characters from license plate number
+// list role access and features
 // Dashboard page - integrate with LPR (camera, verification alerts)
 // Access control page - integrate with LPR 
 // Protect routes
 // hide access logs and vehicle management for it admin
+// code for camera links and buttons for switch camera on and off
+
 
 // Testing
 // Deployment
 
 // Low priority
-// Blacklist feature - shared blacklist list or online blacklist list
+// Blacklist feature - shared blacklist list or online blacklist list add blacklist export to csv
 // Navbar component -  styling
-// IT Admin - view user logs 
+

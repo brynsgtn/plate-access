@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { useLogStore } from "../stores/useLogStore";
+import { useUserStore } from "../stores/useUserStore";
 
 import { Search } from "lucide-react";
 
@@ -20,6 +21,9 @@ const AccessLogPage = () => {
 
 
     const { logs: accessLog, fetchLogs } = useLogStore();
+    const { user } = useUserStore();
+
+    const currentUser = user;
 
     useEffect(() => {
         fetchLogs();
@@ -34,11 +38,23 @@ const AccessLogPage = () => {
             console.log("Sample log:", accessLog[0]);
         }
     }, [accessLog]);
-    const logs = [...accessLog].sort((a, b) => {
-        return sortOrder === "newest"
-            ? new Date(b.timestamp) - new Date(a.timestamp)
-            : new Date(a.timestamp) - new Date(b.timestamp);
-    });
+
+    const logs = [...accessLog]
+        .filter(log => {
+            // If parkingStaff, only show logs from their branch
+            if (currentUser.role === "parkingStaff") {
+                return log.branch === currentUser.branch;
+            }
+
+            // Admin and IT Admin can see all logs
+            return true;
+        })
+        .sort((a, b) => {
+            return sortOrder === "newest"
+                ? new Date(b.timestamp) - new Date(a.timestamp)
+                : new Date(a.timestamp) - new Date(b.timestamp);
+        });
+
 
 
     // Filtering
@@ -128,7 +144,7 @@ const AccessLogPage = () => {
             </div>
 
             {/* Logs */}
-            <div className="container mx-auto max-w-6xl shadow-xl rounded-xl border border-base-300 overflow-x-auto mt-10">
+            <div className="container mx-auto max-w-6xl shadow-xl rounded-xl border border-base-300 overflow-x-auto mt-10 mb-10">
                 <div className="border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4 ">
                         <h2 className="text-2xl font-bold text-white">Logs</h2>
@@ -173,7 +189,7 @@ const AccessLogPage = () => {
                         </select>
                     </div>
                 </div>
-                                {/* Vehicle Table */}
+                {/* Vehicle Table */}
                 <table className="table table-zebra w-full">
                     <thead className="bg-base-200">
                         <tr>
