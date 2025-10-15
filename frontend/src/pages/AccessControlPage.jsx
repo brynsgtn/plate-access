@@ -714,7 +714,6 @@ const AccessControlPage = () => {
                 </div>
             )}
 
-
         </div>
     );
 };
