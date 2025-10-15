@@ -92,6 +92,9 @@ export const entryLogLPR = async (req, res) => {
                 notes: "Verified by LPR"
             });
             io.emit("newLog", log);
+            if (log.success) {
+                io.emit('gateStatusUpdate', { entranceOpen: false, exitOpen: true });
+            }
             return res.status(201).json({ message: "Entry granted", log });
         }
 
@@ -143,18 +146,23 @@ export const entryLogLPR = async (req, res) => {
 
             });
             io.emit("newLog", log);
+            // For a successful entrance
+            if (log.success && log.gateType === 'entrance') {
+                io.emit('gateStatusUpdate', { entranceOpen: true, exitOpen: false });
+            }
+
             return res.status(201).json({ message: "Entry granted", log });
         }
 
         // Unregistered vehicle
-        const log = await Log.create({ 
-            plateNumber: cleanedPlateNumber, 
-            branch: branch, 
-            gateType: "entrance", 
+        const log = await Log.create({
+            plateNumber: cleanedPlateNumber,
+            branch: branch,
+            gateType: "entrance",
             method: "LPR",
-            confidence: confidence, 
-            success: false, 
-            notes: "Unregistered vehicle" 
+            confidence: confidence,
+            success: false,
+            notes: "Unregistered vehicle"
         });
         io.emit("newLog", log);
         return res.status(403).json({ message: "Unregistered vehicle", log });
@@ -169,7 +177,7 @@ export const entryLogLPR = async (req, res) => {
 
 // Exit log controller
 export const exitLogLPR = async (req, res) => {
-  const { plates, branch } = req.body; // plates is an array
+    const { plates, branch } = req.body; // plates is an array
 
     if (!plates || !Array.isArray(plates) || plates.length === 0) {
         return res.status(400).json({ message: "No plate data provided" });
@@ -216,6 +224,9 @@ export const exitLogLPR = async (req, res) => {
                 notes: "Verified by LPR"
             });
             io.emit("newLog", log); // Emit the new log
+            if (log.success) {
+                io.emit('gateStatusUpdate', { entranceOpen: false, exitOpen: true });
+            }
             return res.status(201).json({ message: "Exit granted", log });
         }
 
@@ -235,6 +246,9 @@ export const exitLogLPR = async (req, res) => {
                 notes: "Verified by LPR"
             });
             io.emit("newLog", log); // Emit the new log
+            if (log.success) {
+                io.emit('gateStatusUpdate', { entranceOpen: false, exitOpen: true });
+            }
             return res.status(201).json({ message: "Exit granted for guest vehicle", log });
         }
 

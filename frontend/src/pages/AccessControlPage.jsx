@@ -61,18 +61,39 @@ const AccessControlPage = () => {
         console.log('Manual entry plate:', manualPlate);
     })
 
-    // Add this after your existing useEffects
+    // Entrance gate animation sync
     useEffect(() => {
-        // Sync local state with store state
-        setEntranceGate(isEntranceGateOpen ? 'open' : 'closed');
+        if (isEntranceGateOpen) {
+            setEntranceGate('opening');
+            setTimeout(() => setEntranceGate('open'), 1500);
+        } else {
+            setEntranceGate('closing');
+            setTimeout(() => setEntranceGate('closed'), 1500);
+        }
     }, [isEntranceGateOpen]);
 
+    // Exit gate animation sync
     useEffect(() => {
-        // Sync local state with store state
-        setExitGate(isExitGateOpen ? 'open' : 'closed');
+        if (isExitGateOpen) {
+            setExitGate('opening');
+            setTimeout(() => setExitGate('open'), 1500);
+        } else {
+            setExitGate('closing');
+            setTimeout(() => setExitGate('closed'), 1500);
+        }
     }, [isExitGateOpen]);
 
+    const lastEntranceAction = useGateStore(s => s.lastEntranceAction);
+    const lastExitAction = useGateStore(s => s.lastExitAction);
 
+    useEffect(() => {
+        if (lastEntranceAction) setLastActivity({ type: 'entrance', ...lastEntranceAction });
+    }, [lastEntranceAction]);
+
+    useEffect(() => {
+        if (lastExitAction) setLastActivity({ type: 'exit', ...lastExitAction });
+    }, [lastExitAction]);
+    
     // Gate operation functions
     const operateGate = (gateType, action) => {
         const setGate = gateType === 'entrance' ? setEntranceGate : setExitGate;
