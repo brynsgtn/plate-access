@@ -22,6 +22,7 @@ import AccessLogPage from './pages/AccessLogPage';
 import LoadingSpinner from './components/LoadingSpinner';
 
 import { useUserStore } from './stores/useUserStore';
+import NotFoundPage from './pages/NotFoundPage';
 
 // Main application component
 function App() {
@@ -59,7 +60,7 @@ function App() {
           <Route path="/profile" element={!user ? <Navigate to="/login" /> : <ProfilePage />} />
           <Route path="/user-management" element={!user ? <Navigate to="/login" /> : <UserManagementPage />} />
           <Route path="/vehicle-management" element={!user ? <Navigate to="/login" /> : <VehicleManagementPage />} />
-
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
       <Footer />
@@ -73,17 +74,8 @@ export default App;
 
 
 // TODO: 
-
-// PRIORITY
-
-// list role access and features
-// Dashboard page - integrate with LPR (camera)
-// Protect routes
-// Navbar component -  styling
-
-
-// Testing
 // Deployment
+// Testing
 
 
 
