@@ -47,7 +47,7 @@ const DashboardPage = () => {
         ? 0
         : ((totalEntryFail / totalLogs) * 100).toFixed(1); // 1 decimal place
 
-    const recentLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 5);
+    const recentLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 6);
 
     const recentBlacklistLogs = logs.filter((log) => log.blacklistHit === true).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);
 
@@ -272,7 +272,7 @@ const DashboardPage = () => {
                                     <Activity className="mr-3 h-5 w-5 text-white" />
                                     Live Access Logs
                                 </h2>
-                                <p className="text-white/80 mt-2">Recent 5 access logs</p>
+                                <p className="text-white/80 mt-2">Recent access logs</p>
                             </div>
                             {/* Recent Log Entries */}
                             {recentLogs.length > 0 ? (
