@@ -6,7 +6,7 @@ import path from "path";
 
 
 // Import route modules
-import authRoutes from "../backend/routes/auth.route.js";
+import authRoutes from "../backend/routes/auth.route.js"
 import userRoutes from "../backend/routes/user.route.js"
 import vehicleRoutes from "./routes/vehicle.route.js"
 import logRoutes from "./routes/log.route.js"
@@ -49,7 +49,7 @@ if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "frontend/dist")));
 
     app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+        res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
     });
 }
 
