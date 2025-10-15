@@ -3,10 +3,11 @@ import axios from "../lib/axios";
 import { toast } from "react-hot-toast";
 import { io as clientIO } from "socket.io-client";
 
-const BASE_URL =
-  import.meta.env.MODE === "development" ? "http://localhost:5001" : window.location.origin;
+const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : window.location.origin;
 
-const socket = clientIO(BASE_URL);
+const socket = io(BASE_URL, {
+  transports: ["websocket", "polling"]
+});
 
 export const useLogStore = create((set) => ({
     logs: [],
