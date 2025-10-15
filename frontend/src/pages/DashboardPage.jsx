@@ -32,6 +32,7 @@ const DashboardPage = () => {
     // Initialize cross-tab sync on mount
     useEffect(() => {
         initCrossTabSync();
+        logLiveUpdate(); 
     }, [initCrossTabSync]);
 
 
