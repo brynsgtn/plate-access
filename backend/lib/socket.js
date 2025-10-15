@@ -6,9 +6,10 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-    cors: {
-        origin: "*",
-    },
+  cors: {
+    origin: "https://plate-access.onrender.com/", // replace with actual frontend URL
+    methods: ["GET", "POST"],
+  },
 });
 
 io.on("connection", (socket) => {
