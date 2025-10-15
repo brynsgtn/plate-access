@@ -76,42 +76,29 @@ export const useGateStore = create()(
         }
       },
 
-     // Listen to backend live logs
+      // Listen to backend live logs
       listenLiveLogs: () => {
         // Remove previous listeners to avoid duplicates
         socket.off("newLog");
-        socket.off("gateStatusUpdate");
 
         // Listen for new log events
         socket.on("newLog", (log) => {
           const time = new Date().toLocaleTimeString();
+          const action = log.success ? "opened" : "closed";
 
           if (log.gateType === "entrance") {
-            const action = log.success ? "opened" : "closed";
             get().setIsEntranceGateOpen(log.success);
-            get().set({ lastEntranceAction: { action, time } });
+            set({ lastEntranceAction: { action, time } });
 
             if (log.success) setTimeout(() => get().setIsEntranceGateOpen(false), 5000);
           }
 
           if (log.gateType === "exit") {
-            const action = log.success ? "opened" : "closed";
             get().setIsExitGateOpen(log.success);
-            get().set({ lastExitAction: { action, time } });
+            set({ lastExitAction: { action, time } });
 
             if (log.success) setTimeout(() => get().setIsExitGateOpen(false), 5000);
           }
-        });
-
-        // Listen for direct gate status updates from backend
-        socket.on("gateStatusUpdate", ({ entranceOpen, exitOpen }) => {
-          const time = new Date().toLocaleTimeString();
-
-          get().setIsEntranceGateOpen(entranceOpen);
-          get().set({ lastEntranceAction: { action: entranceOpen ? "opened" : "closed", time } });
-
-          get().setIsExitGateOpen(exitOpen);
-          get().set({ lastExitAction: { action: exitOpen ? "opened" : "closed", time } });
         });
       }
 

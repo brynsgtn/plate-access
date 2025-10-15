@@ -92,9 +92,6 @@ export const entryLogLPR = async (req, res) => {
                 notes: "Verified by LPR"
             });
             io.emit("newLog", log);
-            if (log.success) {
-                io.emit('gateStatusUpdate', { entranceOpen: false, exitOpen: true });
-            }
             return res.status(201).json({ message: "Entry granted", log });
         }
 
@@ -110,10 +107,11 @@ export const entryLogLPR = async (req, res) => {
                     method: "LPR",
                     confidence: confidence,
                     success: false,
-                    blacklistHit: true, isGuest: true, notes: "Blacklisted guest vehicle"
+                    blacklistHit: true, isGuest: true, 
+                    notes: "Blacklisted guest vehicle"
                 });
                 io.emit("newLog", log);
-                return res.status(201).json({ message: "Entry granted", log });
+                return res.status(201).json({ message: "Vehicle is blacklisted", log });
             }
 
             if (guestVehicle.validUntil < new Date()) {
@@ -147,10 +145,6 @@ export const entryLogLPR = async (req, res) => {
             });
             io.emit("newLog", log);
             // For a successful entrance
-            if (log.success && log.gateType === 'entrance') {
-                io.emit('gateStatusUpdate', { entranceOpen: true, exitOpen: false });
-            }
-
             return res.status(201).json({ message: "Entry granted", log });
         }
 
@@ -224,9 +218,6 @@ export const exitLogLPR = async (req, res) => {
                 notes: "Verified by LPR"
             });
             io.emit("newLog", log); // Emit the new log
-            if (log.success) {
-                io.emit('gateStatusUpdate', { entranceOpen: false, exitOpen: true });
-            }
             return res.status(201).json({ message: "Exit granted", log });
         }
 
@@ -246,9 +237,6 @@ export const exitLogLPR = async (req, res) => {
                 notes: "Verified by LPR"
             });
             io.emit("newLog", log); // Emit the new log
-            if (log.success) {
-                io.emit('gateStatusUpdate', { entranceOpen: false, exitOpen: true });
-            }
             return res.status(201).json({ message: "Exit granted for guest vehicle", log });
         }
 

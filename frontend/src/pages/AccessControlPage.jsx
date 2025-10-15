@@ -93,7 +93,7 @@ const AccessControlPage = () => {
     useEffect(() => {
         if (lastExitAction) setLastActivity({ type: 'exit', ...lastExitAction });
     }, [lastExitAction]);
-    
+
     // Gate operation functions
     const operateGate = (gateType, action) => {
         const setGate = gateType === 'entrance' ? setEntranceGate : setExitGate;
@@ -639,7 +639,7 @@ const AccessControlPage = () => {
 
 
             {/* LPR Simulation Controls Section - for testing LPR functionality , to integrate with the flask backend */}
-            {user?.role !== 'itAdmin' && (
+            {user?.role === 'itAdmin' && (
                 <div className="max-w-6xl mx-auto rounded-xl mb-12 mt-10">
                     {/* Section Header */}
                     <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl shadow-lg">
@@ -731,65 +731,6 @@ const AccessControlPage = () => {
                             <h3 className="font-bold">Simulation Mode</h3>
                             <div className="text-xs">Enter a plate number and click the button to simulate LPR detection at entry or exit gates.</div>
                         </div>
-                    </div>
-                </div>
-            )}
-
-
-            {/* Manual Entry Controls Section */}
-            {user?.role !== 'itAdmin' && (
-                <div className="max-w-6xl mx-auto rounded-xl mb-12">
-                    {/* Section Header */}
-                    <div>
-                        <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl">
-                            <h2 className="text-2xl font-bold text-white flex items-center">
-                                <Shield className="mr-3 h-5 w-5" />
-                                Manual Entry Controls
-                            </h2>
-                        </div>
-
-                        <div className='grid lg:grid-cols-2 gap-3 shadow-2xl rounded-b-2xl bg-base-100'>
-                            {/* Add Guest Vehicle */}
-                            <div className="p-5">
-                                <h3 className="font-semibold mb-3 flex items-center text-base-content">
-                                    Add Guest Vehicle
-                                </h3>
-                                <input
-                                    type="text"
-                                    placeholder="Plate Number"
-                                    className="input input-bordered w-full mb-3"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Make and Model"
-                                    className="input input-bordered w-full mb-3"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Owner's Name"
-                                    className="input input-bordered w-full mb-3"
-                                />
-                                <button className="btn btn-primary w-full">Authorize Vehicle</button>
-                            </div>
-                            {/* Manual Plate Entry */}
-                            <div className="p-5">
-                                <label
-                                    htmlFor="license-plate"
-                                    className="font-semibold mb-3 flex items-center text-base-content"
-                                >
-                                    Manual License Plate Entry
-                                </label>
-                                <input
-                                    type="text"
-                                    id="license-plate"
-                                    placeholder="Enter license plate number"
-                                    className="input input-bordered w-full mb-4"
-                                />
-                                <button className="btn btn-primary w-full">Verify</button>
-                            </div>
-
-                        </div>
-
                     </div>
                 </div>
             )}
