@@ -56,33 +56,6 @@ const AccessControlPage = () => {
         ownerName: "",
     });
 
-    // Manual plate entry value
-    useEffect(() => {
-        console.log('Manual entry plate:', manualPlate);
-    })
-
-    // Entrance gate animation sync
-    useEffect(() => {
-        if (isEntranceGateOpen) {
-            setEntranceGate('opening');
-            setTimeout(() => setEntranceGate('open'), 1500);
-        } else {
-            setEntranceGate('closing');
-            setTimeout(() => setEntranceGate('closed'), 1500);
-        }
-    }, [isEntranceGateOpen]);
-
-    // Exit gate animation sync
-    useEffect(() => {
-        if (isExitGateOpen) {
-            setExitGate('opening');
-            setTimeout(() => setExitGate('open'), 1500);
-        } else {
-            setExitGate('closing');
-            setTimeout(() => setExitGate('closed'), 1500);
-        }
-    }, [isExitGateOpen]);
-
     const lastEntranceAction = useGateStore(s => s.lastEntranceAction);
     const lastExitAction = useGateStore(s => s.lastExitAction);
 
