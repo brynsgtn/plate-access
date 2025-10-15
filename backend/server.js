@@ -2,6 +2,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import path from "path";
 
 
 // Import route modules
@@ -43,8 +44,18 @@ app.use("/api/guest-vehicle", guestVehicleRoutes);
 // Routes for vehicle logs
 app.use("/api/log", logRoutes);
 
+const __dirname = path.resolve()
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+    app.get("*", (req, res) => {
+        res.sendFile(path.resolve(__dirname, "../frontend", "dist", "index.html"));
+    });
+}
+
+
 // Start server and listen on defined port
-server.listen(PORT,  () => {
+server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     connectDB(); // connects to mongoDB
 });
