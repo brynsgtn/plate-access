@@ -42,8 +42,8 @@ const AccessControlPage = () => {
     const [lastActivity, setLastActivity] = useState(null);
     const [gateAttempting, setGateAttempting] = useState({ entrance: false, exit: false });
     const [manualPlate, setManualPlate] = useState('');
-    const [lprEntryPlate, setLprEntryPlate] = useState('');
-    const [lprExitPlate, setLprExitPlate] = useState('');
+    // const [lprEntryPlate, setLprEntryPlate] = useState('');
+    // const [lprExitPlate, setLprExitPlate] = useState('');
 
     const { manualEntryLogAttempt, manualExitLogAttempt, lprEntryLogAttempt, lprExitLogAttempt } = useLogStore();
 
@@ -184,88 +184,88 @@ const AccessControlPage = () => {
 
     // LPR entry attempt simulation (to be replaced by actual LPR integration)
 
-    const LPREntryAttemptSimulation = (plateNumber, gateType) => {
-        // Mark LPR simulation entrance as attempting
-        setGateAttempting(prev => ({ ...prev, [gateType]: true }));
+    // const LPREntryAttemptSimulation = (plateNumber, gateType) => {
+    //     // Mark LPR simulation entrance as attempting
+    //     setGateAttempting(prev => ({ ...prev, [gateType]: true }));
 
-        // Set last activity
-        setLastActivity({ type: gateType, action: 'verifying entrance access', time: new Date().toLocaleTimeString() });
+    //     // Set last activity
+    //     setLastActivity({ type: gateType, action: 'verifying entrance access', time: new Date().toLocaleTimeString() });
 
-        setTimeout(async () => {
-            setGateAttempting(prev => ({ ...prev, [gateType]: false }));
+    //     setTimeout(async () => {
+    //         setGateAttempting(prev => ({ ...prev, [gateType]: false }));
 
-            const result = await lprEntryLogAttempt({ plateNumber });
+    //         const result = await lprEntryLogAttempt({ plateNumber });
 
-            if (result.success) {
-                setEntranceGate('opening');
-                setTimeout(() => {
-                    setEntranceGate('open');
-                    setIsEntranceGateOpen(true);
+    //         if (result.success) {
+    //             setEntranceGate('opening');
+    //             setTimeout(() => {
+    //                 setEntranceGate('open');
+    //                 setIsEntranceGateOpen(true);
 
-                    // Set last activity
-                    setLastActivity({ type: gateType, action: 'LPR entrance success', time: new Date().toLocaleTimeString() });
+    //                 // Set last activity
+    //                 setLastActivity({ type: gateType, action: 'LPR entrance success', time: new Date().toLocaleTimeString() });
 
-                    // Auto-close after 5 sec
-                    setTimeout(() => {
-                        setEntranceGate('closing');
-                        setTimeout(() => {
-                            setEntranceGate('closed');
-                            setIsEntranceGateOpen(false);
-                        }, 1500); // closing animation
-                    }, 5000);
-                }, 1500); // opening animation
-            } else {
-                // Set last activity
-                setLastActivity({ type: gateType, action: 'LPR entrance failed', time: new Date().toLocaleTimeString() });
+    //                 // Auto-close after 5 sec
+    //                 setTimeout(() => {
+    //                     setEntranceGate('closing');
+    //                     setTimeout(() => {
+    //                         setEntranceGate('closed');
+    //                         setIsEntranceGateOpen(false);
+    //                     }, 1500); // closing animation
+    //                 }, 5000);
+    //             }, 1500); // opening animation
+    //         } else {
+    //             // Set last activity
+    //             setLastActivity({ type: gateType, action: 'LPR entrance failed', time: new Date().toLocaleTimeString() });
 
-            }
-        }, 2000);
+    //         }
+    //     }, 2000);
 
-        setLprEntryPlate('');
+    //     setLprEntryPlate('');
 
-    };
+    // };
 
     // LPR exit attempt simulation (to be replaced by actual LPR integration)
-    const LPRExitAttemptSimulation = (plateNumber, gateType) => {
+    // const LPRExitAttemptSimulation = (plateNumber, gateType) => {
 
-        // Mark lpr exit as attempting
-        setGateAttempting(prev => ({ ...prev, [gateType]: true }));
+    //     // Mark lpr exit as attempting
+    //     setGateAttempting(prev => ({ ...prev, [gateType]: true }));
 
-        // Set last activity
-        setLastActivity({ type: gateType, action: 'verifying exit access', time: new Date().toLocaleTimeString() });
+    //     // Set last activity
+    //     setLastActivity({ type: gateType, action: 'verifying exit access', time: new Date().toLocaleTimeString() });
 
-        setTimeout(async () => {
-            setGateAttempting(prev => ({ ...prev, [gateType]: false }));
+    //     setTimeout(async () => {
+    //         setGateAttempting(prev => ({ ...prev, [gateType]: false }));
 
-            const result = await lprExitLogAttempt({ plateNumber });
+    //         const result = await lprExitLogAttempt({ plateNumber });
 
-            if (result.success) {
-                setExitGate('opening');
-                setTimeout(() => {
-                    setExitGate('open');
-                    setIsExitGateOpen(true);
+    //         if (result.success) {
+    //             setExitGate('opening');
+    //             setTimeout(() => {
+    //                 setExitGate('open');
+    //                 setIsExitGateOpen(true);
 
-                    // Set last activity
-                    setLastActivity({ type: gateType, action: 'lpr exit success', time: new Date().toLocaleTimeString() });
+    //                 // Set last activity
+    //                 setLastActivity({ type: gateType, action: 'lpr exit success', time: new Date().toLocaleTimeString() });
 
-                    // Auto-close after 5 sec
-                    setTimeout(() => {
-                        setExitGate('closing');
-                        setTimeout(() => {
-                            setExitGate('closed');
-                            setIsExitGateOpen(false);
-                        }, 1500); // closing animation
-                    }, 5000);
-                }, 1500); // opening animation
-            } else {
-                // Set last activity
-                setLastActivity({ type: gateType, action: 'lpr exit failed', time: new Date().toLocaleTimeString() });
-            }
-        }, 2000);
+    //                 // Auto-close after 5 sec
+    //                 setTimeout(() => {
+    //                     setExitGate('closing');
+    //                     setTimeout(() => {
+    //                         setExitGate('closed');
+    //                         setIsExitGateOpen(false);
+    //                     }, 1500); // closing animation
+    //                 }, 5000);
+    //             }, 1500); // opening animation
+    //         } else {
+    //             // Set last activity
+    //             setLastActivity({ type: gateType, action: 'lpr exit failed', time: new Date().toLocaleTimeString() });
+    //         }
+    //     }, 2000);
 
-        setLprExitPlate('');
+    //     setLprExitPlate('');
 
-    };
+    // };
 
     // Add and authorize guest vehicle
     const addAndAuthorizeGuestVehicle = async (vehicle, gateType) => {
@@ -618,9 +618,9 @@ const AccessControlPage = () => {
 
 
             {/* LPR Simulation Controls Section - for testing LPR functionality , to integrate with the flask backend */}
-            {user?.role === 'itAdmin' && (
+            {/* {user?.role === 'itAdmin' && (
                 <div className="max-w-6xl mx-auto rounded-xl mb-12 mt-10">
-                    {/* Section Header */}
+    
                     <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl shadow-lg">
                         <h2 className="text-2xl font-bold text-white flex items-center">
                             <Camera className="mr-3 h-6 w-6" />
@@ -630,7 +630,7 @@ const AccessControlPage = () => {
                     </div>
 
                     <div className="grid lg:grid-cols-2 gap-6 p-6 shadow-2xl rounded-b-2xl bg-base-100 border-x border-b border-base-300">
-                        {/* LPR Entry Simulation */}
+                   
                         <div className="bg-base-200 rounded-xl p-6 border border-base-300">
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
@@ -666,7 +666,6 @@ const AccessControlPage = () => {
                             </div>
                         </div>
 
-                        {/* LPR Exit Simulation */}
                         <div className="bg-base-200 rounded-xl p-6 border border-base-300">
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="w-10 h-10 rounded-full bg-error/20 flex items-center justify-center">
@@ -703,7 +702,7 @@ const AccessControlPage = () => {
                         </div>
                     </div>
 
-                    {/* Info Alert */}
+                
                     <div className="mt-4 alert alert-info shadow-lg">
                         <Camera className="w-5 h-5" />
                         <div>
@@ -712,7 +711,7 @@ const AccessControlPage = () => {
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
 
         </div>
     );
