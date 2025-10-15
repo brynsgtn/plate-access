@@ -5,7 +5,7 @@ import { io as clientIO } from "socket.io-client";
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : window.location.origin;
 
-const socket = io(BASE_URL, {
+const socket = clientIO(BASE_URL, {
   transports: ["websocket", "polling"]
 });
 
