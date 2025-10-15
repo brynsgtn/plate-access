@@ -1,7 +1,7 @@
 {
   "name": "plate-access",
   "version": "1.0.0",
-  "main": "index.js",
+    "main": "backend/server.js",
   "scripts": {
     "dev": "nodemon backend/server.js",
     "start": "node backend/server.js",
