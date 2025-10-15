@@ -3,7 +3,10 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { io as clientIO } from "socket.io-client";
 
 const channel = typeof window !== 'undefined' ? new BroadcastChannel('gate-updates') : null;
-const socket = clientIO("http://localhost:5001"); // backend URL
+const BASE_URL =
+  import.meta.env.MODE === "development" ? "http://localhost:5001" : window.location.origin;
+
+const socket = clientIO(BASE_URL);
 
 export const useGateStore = create()(
   persist(
