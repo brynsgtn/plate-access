@@ -76,26 +76,45 @@ export const useGateStore = create()(
         }
       },
 
-      // NEW: Listen to backend live logs
+     // Listen to backend live logs
       listenLiveLogs: () => {
+        // Remove previous listeners to avoid duplicates
         socket.off("newLog");
-        socket.on("newLog", (log) => {
-          if (log.gateType === "entrance") {
-            if (log.success) get().setIsEntranceGateOpen(true);
-            else get().setIsEntranceGateOpen(false);
+        socket.off("gateStatusUpdate");
 
-            // Auto-close after 5 seconds if it was opened
+        // Listen for new log events
+        socket.on("newLog", (log) => {
+          const time = new Date().toLocaleTimeString();
+
+          if (log.gateType === "entrance") {
+            const action = log.success ? "opened" : "closed";
+            get().setIsEntranceGateOpen(log.success);
+            get().set({ lastEntranceAction: { action, time } });
+
             if (log.success) setTimeout(() => get().setIsEntranceGateOpen(false), 5000);
           }
 
           if (log.gateType === "exit") {
-            if (log.success) get().setIsExitGateOpen(true);
-            else get().setIsExitGateOpen(false);
+            const action = log.success ? "opened" : "closed";
+            get().setIsExitGateOpen(log.success);
+            get().set({ lastExitAction: { action, time } });
 
             if (log.success) setTimeout(() => get().setIsExitGateOpen(false), 5000);
           }
         });
-      },
+
+        // Listen for direct gate status updates from backend
+        socket.on("gateStatusUpdate", ({ entranceOpen, exitOpen }) => {
+          const time = new Date().toLocaleTimeString();
+
+          get().setIsEntranceGateOpen(entranceOpen);
+          get().set({ lastEntranceAction: { action: entranceOpen ? "opened" : "closed", time } });
+
+          get().setIsExitGateOpen(exitOpen);
+          get().set({ lastExitAction: { action: exitOpen ? "opened" : "closed", time } });
+        });
+      }
+
     }),
     {
       name: "gate-store",
