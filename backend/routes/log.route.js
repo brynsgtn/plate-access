@@ -7,11 +7,12 @@ import {
     entryLogLPR,
     exitLogLPR,
     entryLogManual,
-    exitLogManual
+    exitLogManual,
+    deleteOldLogs
 } from "../controllers/log.controller.js";
 
 // Import middleware
-import { protectRoute } from "../middlewares/auth.middleware.js";
+import { authorizeRoles, protectRoute } from "../middlewares/auth.middleware.js";
 
 // Initialize Express router
 const router = express.Router();
@@ -22,6 +23,7 @@ router.post("/entry-log-lpr", protectRoute, entryLogLPR);
 router.post("/exit-log-lpr", protectRoute, exitLogLPR);
 router.post("/entry-log-manual", protectRoute, entryLogManual);
 router.post("/exit-log-manual", protectRoute, exitLogManual);
+router.delete("/delete-old-logs", protectRoute, authorizeRoles("itAdmin"), deleteOldLogs);
 
 // Export router
 export default router;

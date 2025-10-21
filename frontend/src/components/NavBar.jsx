@@ -61,13 +61,8 @@ const NavBar = () => {
             { to: "/user-management", label: "User Management" },
         ];
 
-        const itAdminLinks = [
-            { to: "/dashboard", label: "Dashboard" },
-            { to: "/access-control", label: "Access Controls" },
-            { to: "/user-management", label: "User Management" },
-        ];
 
-        const links = user.role === "parkingStaff" ? parkingStaffLinks : user.role === "admin" ? adminLinks : itAdminLinks;
+        const links = user.role === "parkingStaff" ? parkingStaffLinks :  adminLinks;
 
         return links.map(link => (
             <li key={link.to}>

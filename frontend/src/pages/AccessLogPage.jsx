@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useLogStore } from "../stores/useLogStore";
 import { useUserStore } from "../stores/useUserStore";
 
-import { Search, BadgeCheckIcon, BadgeXIcon } from "lucide-react";
+import { Search, BadgeCheckIcon, BadgeXIcon, Trash2, X } from "lucide-react";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -18,9 +18,10 @@ const AccessLogPage = () => {
     const [filterType, setFilterType] = useState("all"); // all, guest, non-guest
     const [sortOrder, setSortOrder] = useState("newest");
     const [page, setPage] = useState(1);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
 
-    const { logs: accessLog, fetchLogs } = useLogStore();
+    const { logs: accessLog, fetchLogs, deleteOldLogs } = useLogStore();
     const { user } = useUserStore();
 
     const currentUser = user;
@@ -83,6 +84,12 @@ const AccessLogPage = () => {
 
         return matchesSearch && matchesType;
     });
+
+    const handleDeleteOldLogs = () => {
+            deleteOldLogs();
+            fetchLogs(); // Refresh table after deletion
+            setShowDeleteModal(false);
+    };
 
 
     const totalPages = filteredLogs ? Math.ceil(filteredLogs.length / LOGS_PER_PAGE) : 1;
@@ -187,6 +194,52 @@ const AccessLogPage = () => {
                             <option value="newest">Newest First</option>
                             <option value="oldest">Oldest First</option>
                         </select>
+                        {/* Delete Old Logs */}
+                        {currentUser.role === "itAdmin" && (
+                            <>
+                                <button
+                                    className="btn btn-error btn-outline flex items-center gap-2 hover:scale-105 transition-transform duration-200 ms-auto"
+                                    onClick={() => setShowDeleteModal(true)}
+                                >
+                                    <Trash2 className="w-5 h-5" />
+                                    Delete Old Logs
+                                </button>
+
+
+                                {/* Modal */}
+                                {showDeleteModal && (
+                                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                                        <div className="bg-gradient-to-r from-primary to-secondary  rounded-lg shadow-lg max-w-md w-full p-6 relative">
+                                            <button
+                                                className="absolute top-3 right-3 btn btn-sm btn-ghost bg-transparent border-none"
+                                                onClick={() => setShowDeleteModal(false)}
+                                            >
+                                                <X className="w-5 h-5 text-white" />
+                                            </button>
+                                            <h2 className="text-xl font-bold text-white mb-4">Confirm Deletion</h2>
+                                            <p className="mb-6 text-white/80">
+                                                Are you sure you want to permanently delete all logs older than 1 year? This
+                                                action cannot be undone.
+                                            </p>
+                                            <div className="flex justify-end gap-4">
+                                                <button
+                                                    className="btn btn-outline"
+                                                    onClick={() => setShowDeleteModal(false)}
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button
+                                                    className="btn btn-error"
+                                                    onClick={handleDeleteOldLogs}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
                 </div>
                 {/* Vehicle Table */}
@@ -293,8 +346,8 @@ const AccessLogPage = () => {
                                                 <button
                                                     key={pageNumber}
                                                     className={`join-item btn btn-square ${page === pageNumber
-                                                            ? "btn-primary font-bold"
-                                                            : "btn-ghost hover:bg-gray-200"
+                                                        ? "btn-primary font-bold"
+                                                        : "btn-ghost hover:bg-gray-200"
                                                         }`}
                                                     onClick={() => setPage(pageNumber)}
                                                 >

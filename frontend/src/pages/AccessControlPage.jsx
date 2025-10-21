@@ -467,7 +467,7 @@ const AccessControlPage = () => {
                     Access Controls
                 </h1>
                 <p className="text-center text-base-content/70">
-                    Control and manage the entry and exit gates and Cameras for your vehicle access system.
+                    Control and manage the entry and exit gates  for your vehicle access system.
                 </p>
             </div>
 

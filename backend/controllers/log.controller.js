@@ -107,7 +107,7 @@ export const entryLogLPR = async (req, res) => {
                     method: "LPR",
                     confidence: confidence,
                     success: false,
-                    blacklistHit: true, isGuest: true, 
+                    blacklistHit: true, isGuest: true,
                     notes: "Blacklisted guest vehicle"
                 });
                 io.emit("newLog", log);
@@ -166,8 +166,6 @@ export const entryLogLPR = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
-
-
 
 // Exit log controller
 export const exitLogLPR = async (req, res) => {
@@ -482,5 +480,32 @@ export const exitLogManual = async (req, res) => {
     } catch (error) {
         console.error("Error in exitLogManual controller:", error);
         res.status(500).json({ message: "Server error" });
+    }
+};
+
+// Delete logs older than 1 year
+export const deleteOldLogs = async (req, res) => {
+    try {
+
+        const itAdmin = req.user.role === "itAdmin";
+
+        if (!itAdmin) {
+            return res.status(403).json({
+                message: "Access denied. Only IT admins can delete old logs."
+            });
+        }
+        // Calculate the date 1 year ago
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+        // Delete all logs with timestamp older than one year
+        const result = await Log.deleteMany({ timestamp: { $lt: oneYearAgo } });
+
+        res.status(200).json({
+            message: `Deleted ${result.deletedCount} logs older than 1 year`,
+        });
+    } catch (error) {
+        console.error("Error deleting old logs:", error);
+        res.status(500).json({ message: "Server error while deleting old logs" });
     }
 };

@@ -83,6 +83,20 @@ export const useLogStore = create((set) => ({
             return { success: false, error: error.response?.data }; // return failure
         }
     },
+    deleteOldLogs: async () => {
+        set({ loading: true });
+        try {
+            const response = await axios.delete("/log/delete-old-logs");
+            set({ loading: false });
+            toast.success(response.data.message || "Logs deleted successfully!");
+            return { success: true, data: response.data }; // return result
+        } catch (error) {
+            set({ loading: false });
+            console.error("Delete logs failed:", error);
+            toast.error(error.response?.data?.message || "Failed to delete logs.");
+            return { success: false, error: error.response?.data }; // return failure
+        }
+    },
 
     logLiveUpdate: () => {
         socket.off("newLog"); // Ensures no duplicate
