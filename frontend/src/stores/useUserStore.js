@@ -15,9 +15,10 @@ export const useUserStore = create((set, get) => ({
     usersLoading: false,
     checkingAuth: true,
     socket: null,
+    error: null,
 
     login: async (usernameOrEmail, password) => {
-        set({ loading: true });
+        set({ loading: true, error: null });
         try {
             const response = await axios.post("/auth/login", { usernameOrEmail, password });
             set({ user: response.data, loading: false });
@@ -25,7 +26,7 @@ export const useUserStore = create((set, get) => ({
 
             get().connectSocket();
         } catch (error) {
-            set({ loading: false });
+            set({ loading: false, error: error.response.data.message });
             console.error("Login failed:", error);
             toast.error(error.response.data.message);
         }

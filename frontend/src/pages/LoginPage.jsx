@@ -7,10 +7,10 @@ const LoginPage = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  
 
 
-  const { login, loading } = useUserStore();
+
+  const { login, loading, error } = useUserStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -36,9 +36,9 @@ const LoginPage = () => {
 
       <form
         onSubmit={handleLogin}
-        className="fieldset bg-base-100 border-base-300 rounded-box w-full max-w-xs border p-6 shadow"
+        className="fieldset bg-base-100 border-base-300 rounded-box w-full max-w-sm border p-6 shadow"
       >
-        <legend className="fieldset-legend">Login</legend>
+        <h2 className="text-2xl font-semibold text-primary mb-4">Login</h2>
 
         {/* Username or Email */}
         <label className="label" htmlFor="identifier">
@@ -77,12 +77,20 @@ const LoginPage = () => {
           </button>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <p className="text-error text-sm mt-3 text-center">
+            {error}
+          </p>
+        )}
+
+
         {/* Submit */}
         <button
           type="submit"
           className="btn btn-primary w-full mt-6"
         >
-         { loading ? <span className="loading loading-spinner loading-xs"></span> : "Login"}
+          {loading ? <span className="loading loading-spinner loading-xs"></span> : "Login"}
         </button>
       </form>
     </div>

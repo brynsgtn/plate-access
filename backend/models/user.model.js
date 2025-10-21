@@ -44,6 +44,8 @@ const userSchema = new mongoose.Schema(
             type: Date,
             default: null,
         },
+        failedLoginAttempts: { type: Number, default: 0 },
+        lockUntil: { type: Date, default: null },
     },
     {
         timestamps: true, // Created at, updated at, etc..

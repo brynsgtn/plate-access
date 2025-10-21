@@ -39,11 +39,13 @@ export const loginUser = async (req, res) => {
     // Destructures variables from request body
     const { usernameOrEmail, password } = req.body;
 
+    const MAX_ATTEMPTS = 5;
+    const LOCK_TIME = 10 * 60 * 1000; // 10 minutes
+
+
     try {
         // If neither username nor email is provided, OR password is missing
         if (!usernameOrEmail || !password) {
-            // If true logs message in console and returns status code of 400 (bad request)
-            console.log("loginUser controller : Either username/email or password are required")
             return res.status(400).json({ message: "Either username/email or password are required" });
         }
 
@@ -52,40 +54,63 @@ export const loginUser = async (req, res) => {
             $or: [{ 'email': usernameOrEmail }, { 'username': usernameOrEmail }]
         });
 
-        // Checks if user exist and password matched the hashed password
-        if (user && (await user.comparePassword(password))) {
+        // If no user found, return generic invalid creds
+        if (!user) {
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
 
-            // Checks if user is active
-            if(!user.isActive){
-                // If user is not active logs message in console and returns status code of 400 (bad request)
-                console.log("loginUser controller : User is not active")
-                return res.status(400).json({ message: "User is not active, please contact IT admin" });
+        // Check if account is temporarily locked
+        if (user.lockUntil && user.lockUntil > Date.now()) {
+            const remainingMinutes = Math.ceil((user.lockUntil - Date.now()) / 60000);
+            return res.status(403).json({
+                message: `Too many failed attempts, try again in ${remainingMinutes} minute(s).`
+            });
+        }
+
+
+        // Verify password
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+            user.failedLoginAttempts += 1;
+
+            // If max attempts reached, lock account temporarily
+            if (user.failedLoginAttempts >= MAX_ATTEMPTS) {
+                user.lockUntil = new Date(Date.now() + LOCK_TIME);
+                user.failedLoginAttempts = 0; // reset after locking
             }
 
-            // Update last login timestamp
-            user.lastLogin = new Date();
             await user.save();
+            return res.status(400).json({ message: "Invalid credentials" });
+        }
 
-            // Generate a JWT for the logged-in user and store it in a secure HTTP-only cookie
-            generateToken(user._id, res);
 
-            // Returns status code 200 (success) and json data (_id, name, email, and isAdmin)
-            res.status(200).json({
-                _id: user._id,
-                username: user.username,
-                email: user.email,
-                role: user.role,
-                branch: user.branch,
-                createdAt: user.createdAt,
-                lastLogin: user.lastLogin,
-            });
-        } else {
-            // If invalid credentials (username/email or password) logs a message into the console and returns status code of 400 (bad request)
-            console.log("loginUser : Invalid credentials");
-            res.status(400).json({ message: "Invalid credentials" });
-        };
+        // If user is inactive
+        if (!user.isActive) {
+            return res.status(400).json({ message: "User is not active, please contact IT admin" });
+        }
 
-    } catch (error) {
+        // Successful login: reset attempts and lock
+        user.failedLoginAttempts = 0;
+        user.lockUntil = null;
+        user.lastLogin = new Date();
+        await user.save();
+        await user.save();
+
+        // Generate a JWT for the logged-in user and store it in a secure HTTP-only cookie
+        generateToken(user._id, res);
+
+        // Returns status code 200 (success) and json data (_id, name, email, and isAdmin)
+        res.status(200).json({
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            branch: user.branch,
+            createdAt: user.createdAt,
+            lastLogin: user.lastLogin
+        });
+    }
+    catch (error) {
         // Logs error message in terminal
         console.log("Error in loginUser controller", error.message);
         // Returns status 500 (Internal Server Error) and the error message
