@@ -97,7 +97,7 @@ export const loginUser = async (req, res) => {
         await user.save();
 
         // Generate a JWT for the logged-in user and store it in a secure HTTP-only cookie
-        generateToken(user._id, res);
+        generateToken(user._id, user.role, res);
 
         // Returns status code 200 (success) and json data (_id, name, email, and isAdmin)
         res.status(200).json({

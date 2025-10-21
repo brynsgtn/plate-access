@@ -17,6 +17,8 @@ export const useUserStore = create((set, get) => ({
     socket: null,
     error: null,
 
+    set: (updates) => set(updates),
+
     login: async (usernameOrEmail, password) => {
         set({ loading: true, error: null });
         try {
@@ -65,7 +67,6 @@ export const useUserStore = create((set, get) => ({
         } catch (error) {
             set({ user: null, checkingAuth: false });
             console.error("Authentication check failed:", error);
-            toast.error("Session expired. Please log in again.");
         }
     },
     fetchAllUsers: async () => {
