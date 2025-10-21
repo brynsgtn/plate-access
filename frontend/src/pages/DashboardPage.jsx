@@ -33,7 +33,7 @@ const DashboardPage = () => {
     // Initialize cross-tab sync on mount
     useEffect(() => {
         initCrossTabSync();
-        logLiveUpdate(); 
+        logLiveUpdate();
     }, [initCrossTabSync]);
 
 
@@ -281,45 +281,83 @@ const DashboardPage = () => {
                             </div>
                             {/* Recent Log Entries */}
                             {recentLogs.length > 0 ? (
-                                recentLogs.map((log) => (
-                                    <div key={log._id} className="p-2 space-y-2">
-                                        <div className={`flex items-center justify-between p-4 ${log.success ? (log.gateType === "entrance" ? "bg-green-50 border-l-4 border-green-500" : "bg-orange-50 rounded-xl border-l-4 border-orange-500") : ("bg-error/50 border-l-4 border-error")} rounded-xl border-l-4`}>
-                                            <div className="flex items-center">
-                                                <div
-                                                    className={`w-2 h-2 rounded-full mr-3 ${log.success
-                                                        ? log.gateType === "entrance"
-                                                            ? "bg-green-500" // successful entry
-                                                            : "bg-orange-500" // successful exit
-                                                        : "bg-red-500" // failed attempt
-                                                        }`}
-                                                />
-                                                <div>
-                                                    <p className="font-semibold text-base-content">{log.plateNumber}</p>
-                                                    <p className="text-sm text-base-content/70">
-                                                        <span>{log.success ? (log.gateType === "entrance" ? "Entry • " : "Exit • ") : "Failed • "}</span>
-                                                        <span>{dayjs(log.timestamp).fromNow()}</span>
-                                                        <span>{log.isGuest ? " • (Guest)" : ""}</span>
-                                                        {!log.success && (
-                                                            log.blacklistHit ? (
-                                                                <span className="text-sm text-error/80 ms-2">• Blacklisted</span>
-                                                            ) : log.isGuest ? (
-                                                                <span className="text-sm text-error/80 ms-2">• Guest Access Expired</span>
-                                                            ) : (
-                                                                <span className="text-sm text-error/80 ms-2">• Unrecognized Vehicle</span>
-                                                            )
-                                                        )}
-                                                    </p>
+                                recentLogs.map((log) => {
+                                    const isEntrance = log.gateType === "entrance";
+                                    const isSuccess = log.success;
 
+                                    return (
+                                        <div key={log._id} className="p-2">
+                                            <div
+                                                className={`flex items-center justify-between p-4 rounded-xl border-l-4 shadow-sm hover:shadow-md transition-all duration-200
+            ${isSuccess
+                                                        ? isEntrance
+                                                            ? "bg-green-50 border-green-500"
+                                                            : "bg-orange-50 border-orange-500"
+                                                        : "bg-red-50 border-red-500"
+                                                    }`}
+                                            >
+                                                <div className="flex items-start">
+                                                    <div
+                                                        className={`w-2 h-2 rounded-full mr-3 mt-1 ${isSuccess
+                                                                ? isEntrance
+                                                                    ? "bg-green-500"
+                                                                    : "bg-orange-500"
+                                                                : "bg-red-500"
+                                                            }`}
+                                                    />
+                                                    <div>
+                                                        <p className="font-semibold text-base-content">{log.plateNumber}</p>
+                                                        <p className="text-xs text-base-content/60 italic mt-0.5">
+                                                          {log.branch || "N/A"}
+                                                        </p>
+                                                        <p className="text-xs text-base-content/60 italic mt-0.5">
+                                                            {log.method || "N/A"}
+                                                        </p>
+                                                        <p className="text-sm text-base-content/70 mt-1">
+                                                            <span>
+                                                                {isSuccess
+                                                                    ? isEntrance
+                                                                        ? "Entry • "
+                                                                        : "Exit • "
+                                                                    : "Failed • "}
+                                                            </span>
+                                                            <span>{dayjs(log.timestamp).fromNow()}</span>
+                                                            <span>{log.isGuest ? " • Guest" : ""}</span>
+                                                            {!isSuccess && (
+                                                                <>
+                                                                    {log.blacklistHit ? (
+                                                                        <span className="text-error/80 ms-2">• Blacklisted</span>
+                                                                    ) : log.isGuest ? (
+                                                                        <span className="text-error/80 ms-2">• Guest Access Expired</span>
+                                                                    ) : (
+                                                                        <span className="text-error/80 ms-2">• Unrecognized Vehicle</span>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <span className={`px-3 py-1 ${log.success ? (log.gateType === "entrance" ? "bg-green-100 text-green-800" : "bg-red-100 text-orange-800") : "bg-error/10 text-error/80"} font-medium text-xs rounded-full`}>{log.gateType === "entrance" ? "ENTRY" : "EXIT"}</span>
 
+                                                <span
+                                                    className={`px-3 py-1 font-medium text-xs rounded-full
+              ${isSuccess
+                                                            ? isEntrance
+                                                                ? "bg-green-100 text-green-800"
+                                                                : "bg-orange-100 text-orange-800"
+                                                            : "bg-red-100 text-red-800"
+                                                        }`}
+                                                >
+                                                    {isEntrance ? "ENTRY" : "EXIT"}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
+                                    );
+                                })
                             ) : (
                                 <p className="text-sm text-base-content/50 italic">No recent logs yet</p>
                             )}
+
+
                         </div>
 
                         {/* Verification & Blacklist Alerts */}
@@ -336,24 +374,40 @@ const DashboardPage = () => {
                                 <div className="p-6 space-y-4">
                                     {verificationAlerts.length > 0 ? (
                                         verificationAlerts.map((alert) => (
-                                            <div key={alert._id} className="p-4 bg-yellow-50 rounded-xl border border-yellow-300">
+                                            <div
+                                                key={alert._id}
+                                                className="p-4 bg-yellow-50 rounded-xl border border-yellow-300 shadow-sm hover:shadow-md transition-shadow duration-200"
+                                            >
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex items-start">
                                                         <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3 mt-0.5" />
                                                         <div>
-                                                            <p className="font-semibold text-yellow-800">Low Confidence Reading</p>
-                                                            <p className="text-sm text-yellow-700">Plate: {alert.plateNumber} ({alert.confidence * 100}%)</p>
+                                                            <p className="font-semibold text-yellow-800">
+                                                                Low Confidence Reading
+                                                            </p>
+                                                            <p className="text-sm text-yellow-700">
+                                                                {alert.plateNumber} ({alert.confidence * 100}%)
+                                                            </p>
+                                                            <p className="text-xs text-yellow-600 italic mt-1">
+                                                                {alert.branch || "N/A"}
+                                                            </p>
                                                         </div>
                                                     </div>
-                                                    <span className="text-xs text-yellow-600">{dayjs(alert.timestamp).fromNow()}</span>
+
+                                                    <span className="text-xs text-yellow-600">
+                                                        {dayjs(alert.timestamp).fromNow()}
+                                                    </span>
                                                 </div>
                                             </div>
                                         ))
                                     ) : (
-                                        <p className="text-sm text-base-content/50 italic">No recent verification alerts yet</p>
+                                        <p className="text-sm text-base-content/50 italic">
+                                            No recent verification alerts yet
+                                        </p>
                                     )}
                                 </div>
                             </div>
+
 
                             {/* Blacklist Alerts */}
                             <div className="bg-base-100 rounded-2xl shadow-lg border border-base-300">
@@ -367,24 +421,39 @@ const DashboardPage = () => {
                                 <div className="p-6 space-y-4">
                                     {recentBlacklistLogs.length > 0 ? (
                                         recentBlacklistLogs.map((log) => (
-                                            <div key={log._id} className="p-4 bg-red-50 rounded-xl border border-red-300">
+                                            <div
+                                                key={log._id}
+                                                className="p-4 bg-red-50 rounded-xl border border-red-300 shadow-sm hover:shadow-md transition-shadow duration-200"
+                                            >
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex items-start">
                                                         <Ban className="h-5 w-5 text-red-600 mr-3 mt-0.5" />
                                                         <div>
-                                                            <p className="font-semibold text-red-800">Blacklisted Vehicle</p>
-                                                            <p className="text-sm text-red-700">Plate: {log.plateNumber} - Access Denied</p>
+                                                            <p className="font-semibold text-red-800">
+                                                                Blacklisted Vehicle
+                                                            </p>
+                                                            <p className="text-sm text-red-700">
+                                                                {log.plateNumber} - Access Denied
+                                                            </p>
+                                                            <p className="text-xs text-red-500 italic mt-1">
+                                                                {log.branch || "N/A"}
+                                                            </p>
                                                         </div>
                                                     </div>
-                                                    <span className="text-xs text-red-600">{dayjs(log.timestamp).fromNow()}</span>
+
+                                                    <span className="text-xs text-red-600">
+                                                        {dayjs(log.timestamp).fromNow()}
+                                                    </span>
                                                 </div>
                                             </div>
                                         ))
                                     ) : (
-                                        <p className="text-sm text-base-content/50 italic">No recent blacklist logs yet</p>
-                                    )
-                                    }
+                                        <p className="text-sm text-base-content/50 italic">
+                                            No recent blacklist logs yet
+                                        </p>
+                                    )}
                                 </div>
+
                             </div>
                         </div>
                     </div>
