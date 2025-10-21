@@ -15,6 +15,14 @@ export const registerUser = async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         };
 
+        // Password policy check
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{10,}$/;
+        if (!passwordRegex.test(password)) {
+            return res.status(400).json({
+                message: "Password must be at least 10 characters long and include uppercase, lowercase, number, and special character"
+            });
+        }
+
         // Defines a variable if a user exists or not.
         const userExists = await User.findOne({
             $or: [{ username }, { email }]
