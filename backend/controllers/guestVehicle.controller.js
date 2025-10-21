@@ -29,15 +29,25 @@ export const addGuestVehicle = async (req, res) => {
         };
         const cleanedPlateNumber = removeAllWhitespace(plateNumber);
 
+        // Check if registered vehicle 
         const registeredVehicleExists = await Vehicle.findOne({ plateNumber: cleanedPlateNumber });
         if (registeredVehicleExists) {
             return res.status(400).json({ message: "Vehicle already registered" });
         };
 
-        const guestVehicleExists = await GuestVehicle.findOne({ plateNumber });
+        // Prevent duplicates in guest vehicles
+        const guestVehicleExists = await GuestVehicle.findOne({ plateNumber: cleanedPlateNumber });
         if (guestVehicleExists) {
-            return res.status(400).json({ message: "Guest vehicle already exists" });
-        };
+            // Check if max 3-month period exceeded
+            const maxAllowedDate = new Date(guestVehicleExists.validFrom);
+            maxAllowedDate.setMonth(maxAllowedDate.getMonth() + 3);
+
+            if (Date.now() > maxAllowedDate) {
+                await GuestVehicle.findByIdAndDelete(guestVehicleExists._id);
+            } else {
+                return res.status(400).json({ message: "Guest vehicle already exists" });
+            }
+        }
 
         const newGuestVehicle = new GuestVehicle({
             plateNumber: cleanedPlateNumber,
@@ -75,6 +85,16 @@ export const extendGuestVehicle = async (req, res) => {
 
         if (!guestVehicle) {
             return res.status(404).json({ message: "Guest vehicle not found" });
+        }
+
+        // Check 3-month max rule
+        const maxAllowedDate = new Date(guestVehicle.validFrom);
+        maxAllowedDate.setMonth(maxAllowedDate.getMonth() + 3);
+        if (Date.now() > maxAllowedDate) {
+            await GuestVehicle.findByIdAndDelete(guestVehicle._id);
+            return res.status(400).json({
+                message: "Guest vehicle has reached maximum 3-month duration and has been removed. Please reapply for guest access."
+            });
         }
 
         // Only allow extension if expired
@@ -145,6 +165,18 @@ export const blacklistOrUnblacklistGuestVehicle = async (req, res) => {
             await guestVehicle.save();
             return res.status(200).json({ message: "Guest vehicle unblacklisted", guestVehicle });
         }
+
+
+        // Check 3-month max rule
+        const maxAllowedDate = new Date(guestVehicle.validFrom);
+        maxAllowedDate.setMonth(maxAllowedDate.getMonth() + 3);
+        if (Date.now() > maxAllowedDate) {
+            await GuestVehicle.findByIdAndDelete(guestVehicle._id);
+            return res.status(400).json({
+                message: "Guest vehicle has reached maximum 3-month duration and has been removed. Please reapply."
+            });
+        }
+
 
         guestVehicle.isBlacklisted = true;
         guestVehicle.isBlacklistedAt = Date.now();

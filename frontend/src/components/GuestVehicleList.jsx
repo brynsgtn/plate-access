@@ -100,7 +100,6 @@ const GuestVehicleList = () => {
     const handleBlacklist = () => {
         blacklistOrUnblacklistGuestVehicle(formData.id);
         console.log("Blacklisting vehicle with ID:", formData.id);
-
         setBlacklistModal(false);
     };
 
