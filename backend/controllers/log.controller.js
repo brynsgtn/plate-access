@@ -43,7 +43,7 @@ export const entryLogLPR = async (req, res) => {
 
         if (lastLog && lastLog.gateType === "entrance" && lastLog.success) {
             return res.status(400).json({
-                message: "Vehicle has not exited yet. Cannot enter again.",
+                message: "Vehicle has no recent exit log. Please use manual entry."
             });
         }
 
@@ -195,7 +195,7 @@ export const exitLogLPR = async (req, res) => {
         // If there’s no previous entrance or last log was already an exit
         if (!lastLog || lastLog.gateType === "exit") {
             return res.status(400).json({
-                message: "Vehicle cannot exit without an active entrance record.",
+                message: "Vehicle has no recent entry log. Please use manual exit.",
             });
         }
 
@@ -279,12 +279,12 @@ export const entryLogManual = async (req, res) => {
         const lastLog = await Log.findOne({ plateNumber: cleanedPlateNumber })
             .sort({ timestamp: -1 });
 
-        // If the last log exists and was an entrance (no exit yet)
-        if (lastLog && lastLog.gateType === "entrance" && lastLog.success) {
-            return res.status(400).json({
-                message: "Vehicle has not exited yet. Cannot enter again.",
-            });
-        }
+        // // If the last log exists and was an entrance (no exit yet)
+        // if (lastLog && lastLog.gateType === "entrance" && lastLog.success) {
+        //     return res.status(400).json({
+        //         message: "Vehicle has not exited yet. Cannot enter again.",
+        //     });
+        // }
 
         // First, check if it’s a registered vehicle
         const vehicle = await Vehicle.findOne({ plateNumber: cleanedPlateNumber });
@@ -426,11 +426,11 @@ export const exitLogManual = async (req, res) => {
             .sort({ timestamp: -1 });
 
         // If there’s no previous entrance or last log was already an exit
-        if (!lastLog || lastLog.gateType === "exit") {
-            return res.status(400).json({
-                message: "Vehicle cannot exit without an active entrance record.",
-            });
-        }
+        // if (!lastLog || lastLog.gateType === "exit") {
+        //     return res.status(400).json({
+        //         message: "Vehicle cannot exit without an active entrance record.",
+        //     });
+        // }
 
         // First, check if it’s a registered vehicle
         const vehicle = await Vehicle.findOne({ plateNumber: cleanedPlateNumber }); // check if it's a registered vehicle
