@@ -24,10 +24,10 @@ export const useLogStore = create((set) => ({
         }
     },
 
-    manualEntryLogAttempt: async ({ plateNumber }) => {
+    manualEntryLogAttempt: async ({ plateNumber, notes }) => {
         set({ loading: true });
         try {
-            const response = await axios.post("/log/entry-log-manual", { plateNumber });
+            const response = await axios.post("/log/entry-log-manual", { plateNumber, notes });
             set({ loading: false });
             toast.success(response.data.message || "Log created successfully!");
             return { success: true, data: response.data }; // return result
@@ -39,10 +39,10 @@ export const useLogStore = create((set) => ({
         }
     },
 
-    manualExitLogAttempt: async ({ plateNumber }) => {
+    manualExitLogAttempt: async ({ plateNumber, notes }) => {
         set({ loading: true });
         try {
-            const response = await axios.post("/log/exit-log-manual", { plateNumber });
+            const response = await axios.post("/log/exit-log-manual", { plateNumber, notes });
             set({ loading: false });
             toast.success(response.data.message || "Log created successfully!");
             return { success: true, data: response.data }; // return result

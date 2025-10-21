@@ -299,16 +299,16 @@ const DashboardPage = () => {
                                                 <div className="flex items-start">
                                                     <div
                                                         className={`w-2 h-2 rounded-full mr-3 mt-1 ${isSuccess
-                                                                ? isEntrance
-                                                                    ? "bg-green-500"
-                                                                    : "bg-orange-500"
-                                                                : "bg-red-500"
+                                                            ? isEntrance
+                                                                ? "bg-green-500"
+                                                                : "bg-orange-500"
+                                                            : "bg-red-500"
                                                             }`}
                                                     />
                                                     <div>
                                                         <p className="font-semibold text-base-content">{log.plateNumber}</p>
                                                         <p className="text-xs text-base-content/60 italic mt-0.5">
-                                                          {log.branch || "N/A"}
+                                                            {log.branch || "N/A"}
                                                         </p>
                                                         <p className="text-xs text-base-content/60 italic mt-0.5">
                                                             {log.method || "N/A"}
@@ -323,7 +323,7 @@ const DashboardPage = () => {
                                                             </span>
                                                             <span>{dayjs(log.timestamp).fromNow()}</span>
                                                             <span>{log.isGuest ? " • Guest" : ""}</span>
-                                                            {!isSuccess && (
+                                                            {!isSuccess ? (
                                                                 <>
                                                                     {log.blacklistHit ? (
                                                                         <span className="text-error/80 ms-2">• Blacklisted</span>
@@ -333,7 +333,14 @@ const DashboardPage = () => {
                                                                         <span className="text-error/80 ms-2">• Unrecognized Vehicle</span>
                                                                     )}
                                                                 </>
-                                                            )}
+                                                            ) : <span
+                                                                className={`${isEntrance ? "text-success/80 ms-2" : "text-warning/80 ms-2"
+                                                                    }`}
+                                                            >
+                                                                • {log.notes}
+                                                            </span>
+
+                                                            }
                                                         </p>
                                                     </div>
                                                 </div>

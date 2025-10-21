@@ -20,6 +20,7 @@ import { useUserStore } from '../stores/useUserStore';
 
 
 
+
 const AccessControlPage = () => {
 
     const isEntranceGateOpen = useGateStore((s) => s.isEntranceGateOpen);
@@ -42,6 +43,7 @@ const AccessControlPage = () => {
     const [lastActivity, setLastActivity] = useState(null);
     const [gateAttempting, setGateAttempting] = useState({ entrance: false, exit: false });
     const [manualPlate, setManualPlate] = useState('');
+    const [manualReason, setManualReason] = useState('');
     // const [lprEntryPlate, setLprEntryPlate] = useState('');
     // const [lprExitPlate, setLprExitPlate] = useState('');
 
@@ -97,7 +99,7 @@ const AccessControlPage = () => {
     };
 
     // Manual plate entry attempt
-    const manualEntryAttempt = (plateNumber, gateType) => {
+    const manualEntryAttempt = (plateNumber, notes, gateType) => {
 
         // Mark manual entry as attempting
         setGateAttempting(prev => ({ ...prev, [gateType]: true }));
@@ -108,7 +110,7 @@ const AccessControlPage = () => {
         setTimeout(async () => {
             setGateAttempting(prev => ({ ...prev, [gateType]: false }));
 
-            const result = await manualEntryLogAttempt({ plateNumber });
+            const result = await manualEntryLogAttempt({ plateNumber, notes });
 
             if (result.success) {
                 setEntranceGate('opening');
@@ -135,12 +137,13 @@ const AccessControlPage = () => {
             }
 
             setManualPlate('');
+            setManualReason('');
         }, 2000);
 
     }
 
     // Manual plate exit attempt
-    const manualExitAttempt = (plateNumber, gateType) => {
+    const manualExitAttempt = (plateNumber, notes, gateType) => {
 
         // Mark manual exit as attempting
         setGateAttempting(prev => ({ ...prev, [gateType]: true }));
@@ -151,7 +154,7 @@ const AccessControlPage = () => {
         setTimeout(async () => {
             setGateAttempting(prev => ({ ...prev, [gateType]: false }));
 
-            const result = await manualExitLogAttempt({ plateNumber });
+            const result = await manualExitLogAttempt({ plateNumber, notes });
 
             if (result.success) {
                 setExitGate('opening');
@@ -179,6 +182,7 @@ const AccessControlPage = () => {
         }, 2000);
 
         setManualPlate('');
+        setManualReason('');
 
     };
 
@@ -565,16 +569,28 @@ const AccessControlPage = () => {
                                     className="input input-bordered w-full mb-4"
                                     value={manualPlate}
                                     onChange={(e) => setManualPlate(e.target.value)}
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="Reason for manual override"
+                                    className="input input-bordered w-full mb-3"
+                                    value={manualReason}
+                                    onChange={(e) => setManualReason(e.target.value)}
+                                    required
                                 />
                                 <div className='grid grid-cols-2 gap-3'>
                                     <button
                                         className="btn btn-success w-full"
-                                        onClick={() => manualEntryAttempt(manualPlate, 'entrance')}>
+                                        onClick={() => manualEntryAttempt(manualPlate, manualReason, 'entrance')}
+                                        disabled={!manualPlate || !manualReason}>
                                         Manual Entry
                                     </button>
                                     <button
                                         className="btn btn-error w-full"
-                                        onClick={() => manualExitAttempt(manualPlate, 'exit')}>
+                                        onClick={() => manualExitAttempt(manualPlate, manualReason, 'exit')}
+                                        disabled={!manualPlate || !manualReason}
+                                    >
                                         Manual Exit
                                     </button>
                                 </div>

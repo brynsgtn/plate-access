@@ -261,12 +261,16 @@ export const exitLogLPR = async (req, res) => {
 
 // Manual entrance log controller
 export const entryLogManual = async (req, res) => {
-    const { plateNumber } = req.body;
+    const { plateNumber, notes } = req.body;
     const currentUserBranch = req.user.branch;
 
     try {
         if (!plateNumber) {
             return res.status(400).json({ message: "Plate number is required" });
+        }
+
+        if (!notes) {
+            return res.status(400).json({ message: "Notes are required" });
         }
 
         const cleanedPlateNumber = removeAllWhitespace(plateNumber);
@@ -325,7 +329,7 @@ export const entryLogManual = async (req, res) => {
                 gateType: "entrance",
                 method: "manual",
                 success: true,
-                notes: "Verified by manual entry"
+                notes: notes
             });
             io.emit("newLog", log); // Emit the new log
             return res.status(201).json({ message: "Entry granted", log });
@@ -379,7 +383,7 @@ export const entryLogManual = async (req, res) => {
                 method: "manual",
                 success: true,
                 isGuest: true,
-                notes: "Verified by manual entry"
+                notes: notes
             });
             io.emit("newLog", log); // Emit the new log
             return res.status(201).json({ message: "Entry granted", log });
@@ -404,11 +408,15 @@ export const entryLogManual = async (req, res) => {
 
 // Manual exit log controller
 export const exitLogManual = async (req, res) => {
-    const { plateNumber } = req.body;
+    const { plateNumber, notes } = req.body;
     const currentUserBranch = req.user.branch
     try {
         if (!plateNumber) {
             return res.status(400).json({ message: "Plate number is required" });
+        }
+
+        if (!notes) {
+            return res.status(400).json({ message: "Notes are required" });
         }
 
         const cleanedPlateNumber = removeAllWhitespace(plateNumber);
@@ -436,7 +444,7 @@ export const exitLogManual = async (req, res) => {
                 gateType: "exit",
                 method: "manual",
                 success: true,
-                notes: "Verified by manual entry"
+                notes: notes
             });
             io.emit("newLog", log); // Emit the new log
             return res.status(201).json({ message: "Exit granted", log });
@@ -454,7 +462,7 @@ export const exitLogManual = async (req, res) => {
                 method: "manual",
                 success: true,
                 isGuest: true,
-                notes: "Verified by manual entry"
+                notes: notes
             });
             io.emit("newLog", log); // Emit the new log
             return res.status(201).json({ message: "Exit granted for guest vehicle", log });
