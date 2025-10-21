@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useLogStore } from "../stores/useLogStore";
 import { useUserStore } from "../stores/useUserStore";
 
-import { Search } from "lucide-react";
+import { Search, BadgeCheckIcon, BadgeXIcon } from "lucide-react";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -221,27 +221,27 @@ const AccessLogPage = () => {
                                     <td className="py-4">{log.branch}</td>
                                     <td className="py-4">{log.gateType}</td>
                                     <td className="py-4">{log.method}</td>
-                                    <td className="py-4">
+                                    <td className="py-4 ">
                                         {/* Status badge */}
                                         {(log.success ? (
                                             <div>
                                                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
-                                            text-success border border-success shadow-sm">
-                                                    Authorized
+                                            text-success border-none">
+                                                    <BadgeCheckIcon className="w-5 h-5" />
                                                 </span>
                                             </div>
 
                                         ) :
                                             <div>
                                                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
-                                            text-error border border-error shadow-sm">
-                                                    Denied
+                                            text-error border-none">
+                                                    <BadgeXIcon className="w-5 h-5" />
                                                 </span>
                                             </div>
                                         )}
                                     </td>
                                     <td className="max-w-[100px]">
-                                        {!log.success && log.notes ? (
+                                        {log.notes ? (
                                             <div className="tooltip tooltip-left" data-tip={log.notes}>
                                                 <div className="truncate cursor-help w-[100px]">
                                                     {log.notes}
@@ -269,21 +269,56 @@ const AccessLogPage = () => {
                 {totalPages > 1 && (
                     <div className="flex justify-center my-10">
                         <div className="join">
-                            {Array.from({ length: totalPages }).map((_, i) => (
-                                <input
-                                    key={i}
-                                    className="join-item btn btn-square"
-                                    type="radio"
-                                    name="log-pagination"
-                                    aria-label={String(i + 1)}
-                                    checked={page === i + 1}
-                                    onChange={() => setPage(i + 1)}
-                                    readOnly
-                                />
-                            ))}
+                            {(() => {
+                                const maxPagesToShow = 10;
+                                const startPage =
+                                    Math.floor((page - 1) / maxPagesToShow) * maxPagesToShow + 1;
+                                const endPage = Math.min(startPage + maxPagesToShow - 1, totalPages);
+
+                                return (
+                                    <>
+                                        {/* Prev Button */}
+                                        <button
+                                            className="join-item btn btn-square btn-outline hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            onClick={() => page > 1 && setPage(page - 1)}
+                                            disabled={page === 1}
+                                        >
+                                            &lt;
+                                        </button>
+
+                                        {/* Page Number Buttons */}
+                                        {Array.from({ length: endPage - startPage + 1 }, (_, i) => {
+                                            const pageNumber = startPage + i;
+                                            return (
+                                                <button
+                                                    key={pageNumber}
+                                                    className={`join-item btn btn-square ${page === pageNumber
+                                                            ? "btn-primary font-bold"
+                                                            : "btn-ghost hover:bg-gray-200"
+                                                        }`}
+                                                    onClick={() => setPage(pageNumber)}
+                                                >
+                                                    {pageNumber}
+                                                </button>
+                                            );
+                                        })}
+
+                                        {/* Next Button */}
+                                        <button
+                                            className="join-item btn btn-square btn-outline hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            onClick={() => page < totalPages && setPage(page + 1)}
+                                            disabled={page === totalPages}
+                                        >
+                                            &gt;
+                                        </button>
+                                    </>
+                                );
+                            })()}
                         </div>
                     </div>
                 )}
+
+
             </div>
         </div>
 
