@@ -75,7 +75,7 @@ const ProfilePage = () => {
                                     <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center">
                                         <UserCheck className="w-8 h-8 text-success" />
                                     </div>
-                                    <span className="text-2xl font-bold text-success">{user.isActive ? "Active" : "Inactive"}</span>
+                                    <span className="text-2xl font-bold text-success">Active</span>
                                     <p className="text-sm text-base-content/60 text-center">Your account is in good standing</p>
                                 </div>
                             </div>
@@ -119,7 +119,7 @@ const ProfilePage = () => {
                             <UserCheck className="w-8 h-8" />
                         </div>
                         <div className="stat-title">Account Status</div>
-                        <div className="stat-value text-success text-2xl">{user.isActive ? "Active" : "Inactive"}</div>
+                        <div className="stat-value text-success text-2xl">Active</div>
                         <div className="stat-desc">All systems operational</div>
                     </div>
 

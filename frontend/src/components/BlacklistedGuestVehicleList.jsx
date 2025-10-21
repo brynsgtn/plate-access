@@ -26,7 +26,7 @@ const BlacklistedGuestVehicleList = () => {
     const { loadingVehicles } = useVehicleStore();
 
     const { guestVehicles, blacklistOrUnblacklistGuestVehicle, fetchGuestVehicles } = useGuestVehicleStore();
-    const blacklistedVehicles = guestVehicles.filter((vehicle) => vehicle.isBlacklisted);
+    const blacklistedVehicles = guestVehicles.filter((vehicle) => vehicle.isBlacklisted).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
 
     useEffect(() => {
@@ -107,7 +107,7 @@ const BlacklistedGuestVehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Plate Number</th>
                             <th className="text-base font-semibold text-base-content">Make & Model</th>
                             <th className="text-base font-semibold text-base-content">Owner</th>
-                            <th className="text-base font-semibold text-base-content">Blacklisted At</th>
+                            <th className="text-base font-semibold text-base-content">Blacklisted Since</th>
                             {user.role === "admin" && <th className="text-base font-semibold text-base-content">Action</th>}
                         </tr>
                     </thead>

@@ -23,7 +23,7 @@ const BlacklistedVehicleList = () => {
 
     const { user } = useUserStore();
     const { vehicles, blacklistOrUnblacklistVehicle, viewVehicles, loadingVehicles } = useVehicleStore();
-    const blacklistedVehicles = vehicles.filter((vehicle) => vehicle.isBlacklisted);
+    const blacklistedVehicles = vehicles.filter((vehicle) => vehicle.isBlacklisted).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
 
     useEffect(() => {
@@ -105,7 +105,7 @@ const BlacklistedVehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Make & Model</th>
                             <th className="text-base font-semibold text-base-content">Owner</th>
                             <th className="text-base font-semibold text-base-content">Branch</th>
-                            <th className="text-base font-semibold text-base-content">Blacklisted At</th>
+                            <th className="text-base font-semibold text-base-content">Blacklisted Since</th>
                             {user.role === "admin" && <th className="text-base font-semibold text-base-content">Action</th>}
                         </tr>
                     </thead>
