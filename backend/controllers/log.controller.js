@@ -296,7 +296,7 @@ export const entryLogManual = async (req, res) => {
                     method: "manual",
                     success: false,
                     blacklistHit: true,
-                    notes: "Blacklisted registered vehicle"
+                    notes: "Blacklisted"
                 });
                 io.emit("newLog", log); // Emit the new log
                 return res.status(403).json({ message: "Vehicle is blacklisted", log });
@@ -311,7 +311,7 @@ export const entryLogManual = async (req, res) => {
                     gateType: "entrance",
                     method: "manual",
                     success: false,
-                    notes: "Pending vehicle registration approval"
+                    notes: "Pending registration"
                 });
                 io.emit("newLog", log); // Emit the new log
                 return res.status(400).json({ message: "Pending vehicle registration approval", log });
@@ -348,7 +348,7 @@ export const entryLogManual = async (req, res) => {
                     success: false,
                     blacklistHit: true,
                     isGuest: true,
-                    notes: "Blacklisted guest vehicle"
+                    notes: "Blacklisted"
                 });
                 io.emit("newLog", log); // Emit the new log
                 return res.status(403).json({ message: "Guest vehicle is blacklisted", log });
@@ -364,7 +364,7 @@ export const entryLogManual = async (req, res) => {
                     method: "manual",
                     success: false,
                     isGuest: true,
-                    notes: "Guest vehicle access expired"
+                    notes: "Guest access expired"
                 });
                 io.emit("newLog", log); // Emit the new log
                 return res.status(403).json({ message: "Guest vehicle access expired", log });
@@ -392,7 +392,7 @@ export const entryLogManual = async (req, res) => {
             gateType: "entrance",
             method: "manual",
             success: false,
-            notes: "Unregistered vehicle"
+            notes: "Unregistered"
         });
         io.emit("newLog", log); // Emit the new log
         return res.status(403).json({ message: "Unregistered vehicle", log });
