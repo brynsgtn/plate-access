@@ -6,13 +6,14 @@ import {
     Eye,
     AlertTriangle,
     Ban,
+    FileChartColumnIcon
 
 } from 'lucide-react';
 
 import { useGateStore } from '../stores/useGateStore';
 import { useLogStore } from '../stores/useLogStore';
 import { useEffect, useState } from 'react';
-import CameraFeed from '../components/CameraFeed';
+// import CameraFeed from '../components/CameraFeed';
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -130,7 +131,10 @@ const DashboardPage = () => {
                 <div className="max-w-7xl mx-auto px-4 mb-12">
                     {/* Header */}
                     <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
-                        <h1 className="text-2xl font-bold text-white">System Summary</h1>
+                        <h1 className="text-2xl font-bold text-white">
+                            <FileChartColumnIcon className="inline-block mr-3 h-6 w-6 stroke-current" />
+                            System Summary
+                        </h1>
                         <p className="text-white/80 mt-2">Summary of the system's current status and performance.</p>
                     </div>
 
@@ -197,9 +201,9 @@ const DashboardPage = () => {
                     <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl ">
                         <h1 className="text-2xl font-bold text-white flex items-center">
                             <Eye className="mr-3 h-6 w-6" />
-                            System Status
+                            Gate Status
                         </h1>
-                        <p className="text-white/80 mt-2">Live feed of the system's current status and performance.</p>
+                        <p className="text-white/80 mt-2">Live status of the gates and their last actions.</p>
                     </div>
 
                     {/* Grid */}
@@ -228,9 +232,9 @@ const DashboardPage = () => {
                             </div>
 
                             {/* Entrance Camera */}
-                            <div className='bg-base-200 p-4 rounded-lg'>
+                            {/* <div className='bg-base-200 p-4 rounded-lg'>
                                 <CameraFeed title="Entrance Camera" defaultURL="rtsp://localhost:8554/mystream" />
-                            </div>
+                            </div> */}
                         </div>
 
                         {/* Exit Section */}
@@ -256,9 +260,9 @@ const DashboardPage = () => {
                             </div>
 
                             {/* Exit Camera */}
-                            <div className="bg-base-200 p-4 rounded-lg">
+                            {/* <div className="bg-base-200 p-4 rounded-lg">
                                 <CameraFeed title="Exit Camera" defaultURL="rtsp://localhost:8554/mystream" />
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
