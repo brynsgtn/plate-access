@@ -3,7 +3,7 @@ import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFront
 import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
-
+import Papa from "papaparse";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
@@ -19,6 +19,19 @@ const VehicleList = () => {
     const [deleteModal, setDeleteModal] = useState(false);
     const [blacklistModal, setBlacklistModal] = useState(false);
     const [deleteReason, setDeleteReason] = useState("");
+
+    const [exportModal, setExportModal] = useState(false);
+
+    // Columns for CSV export
+    const [exportColumns, setExportColumns] = useState({
+        "Plate Number": true,
+        "Make & Model": true,
+        "Owner": true,
+        "Status": true,
+        "Branch": true,
+        "Added On": true,
+    });
+
 
 
     const [formData, setFormData] = useState({
@@ -128,6 +141,44 @@ const VehicleList = () => {
     }
 
 
+    const handleExportCSV = () => {
+        // Filter based on parking staff branch
+        const exportData = vehicleList
+            .filter(v => user.role === "parkingStaff" ? v.branch === currentUserBranch : true)
+            .map(v => {
+                const row = {};
+                if (exportColumns["Plate Number"]) row["Plate Number"] = v.plateNumber;
+                if (exportColumns["Make & Model"]) row["Make & Model"] = v.makeModel;
+                if (exportColumns["Owner"]) row["Owner"] = v.ownerName;
+                if (exportColumns["Status"]) row["Status"] = v.isBlacklisted ? "Blacklisted" : "Authorized";
+                if (exportColumns["Branch"]) row["Branch"] = v.branch || "-";
+                if (exportColumns["Added On"]) row["Added On"] = v.createdAt ? dayjs(v.createdAt).format("MMM D YYYY") : "-";
+                return row;
+            });
+
+        if (exportData.length === 0) {
+            alert("No data to export.");
+            return;
+        }
+
+        const csvContent = [
+            Object.keys(exportData[0]).join(","), // header
+            ...exportData.map(row => Object.values(row).join(",")) // rows
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        const timestamp = dayjs().format("MMM-DD-YYYY");
+        link.href = url;
+        link.setAttribute("download", `registered_vehicles_${timestamp}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setExportModal(false);
+    };
+
+
     const vehicleList = vehicles
         .filter(vehicle => {
             // Only show approved vehicles
@@ -156,6 +207,8 @@ const VehicleList = () => {
 
     const approvedVehicles = vehicleList.filter((vehicle) => (vehicle.isApproved && !vehicle.isBlacklisted));
     const blacklistedVehicles = vehicleList.filter((vehicle) => vehicle.isBlacklisted);
+
+
 
 
     if (loadingVehicles) {
@@ -188,6 +241,15 @@ const VehicleList = () => {
                         </div>
                     </div>
                     <p className="text-white/80 mt-2">Vehicle details will be displayed here</p>
+                    <div className="flex justify-end">
+                        <button
+                              className="btn btn-sm btn-accent text-white"
+                            onClick={() => setExportModal(true)}
+                        >
+                            Export CSV
+                        </button>
+
+                    </div>
                 </div>
 
 
@@ -535,6 +597,55 @@ const VehicleList = () => {
                     </div>
                 </div>
             )}
+
+            {exportModal && (
+                <div
+                    className="modal modal-open backdrop-blur-sm bg-black/40"
+                    onClick={() => setExportModal(false)}
+                >
+                    <div
+                        className="modal-box max-w-md w-full bg-base-100 p-6 rounded-xl shadow-xl transform scale-100 transition-transform duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-2xl font-bold mb-4 text-center text-primary">Export Vehicles</h3>
+                        <p className="text-sm text-gray-500 mb-4 text-center">
+                            Select the columns to include in your CSV export.
+                        </p>
+
+                        <div className="flex flex-col gap-3 mb-6">
+                            {Object.keys(exportColumns).map((col) => (
+                                <label key={col} className="flex items-center gap-3 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="checkbox checkbox-primary"
+                                        checked={exportColumns[col]}
+                                        onChange={() =>
+                                            setExportColumns({ ...exportColumns, [col]: !exportColumns[col] })
+                                        }
+                                    />
+                                    <span className="text-base font-medium">{col}</span>
+                                </label>
+                            ))}
+                        </div>
+
+                        <div className="modal-action justify-between">
+                            <button
+                                onClick={() => setExportModal(false)}
+                                className="btn btn-outline btn-sm text-gray-600 hover:text-gray-800 hover:border-gray-400"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleExportCSV}
+                                className="btn btn-primary btn-sm text-white"
+                            >
+                                Export CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </>
     );
 };
