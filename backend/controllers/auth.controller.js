@@ -94,7 +94,6 @@ export const loginUser = async (req, res) => {
         user.lockUntil = null;
         user.lastLogin = new Date();
         await user.save();
-        await user.save();
 
         // Generate a JWT for the logged-in user and store it in a secure HTTP-only cookie
         generateToken(user._id, user.role, res);
