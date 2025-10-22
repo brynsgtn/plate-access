@@ -9,11 +9,11 @@ export const generateToken = (userId, role, res) => {
     
     if (role === "admin" || role === "itAdmin") {
         // Admin and IT Admin: 1 hour
-        expiresIn = "1h";
+        expiresIn = "1m";
         maxAge = 1 * 60 * 1000; // 1 hour in milliseconds
     } else {
         // Parking Staff: 8 hours
-        expiresIn = "8h";
+        expiresIn = "2m";
         maxAge = 2 * 60 * 1000; // 8 hours in milliseconds
     } 
     // 1. Create a token signed with the user's ID and role as payload
