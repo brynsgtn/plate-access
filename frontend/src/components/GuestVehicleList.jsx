@@ -4,6 +4,7 @@ import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
 import { useGuestVehicleStore } from "../stores/useGuestVehicleStore";
+import Papa from "papaparse";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -20,6 +21,17 @@ const GuestVehicleList = () => {
     const [deleteModal, setDeleteModal] = useState(false);
     const [blacklistModal, setBlacklistModal] = useState(false);
     const [deleteReason, setDeleteReason] = useState("");
+
+    const [exportModal, setExportModal] = useState(false);
+
+    const [exportColumns, setExportColumns] = useState({
+        "Plate Number": true,
+        "Make & Model": true,
+        "Owner": true,
+        "Status": true,
+        "Added On": true,
+    });
+
 
 
     const [formData, setFormData] = useState({
@@ -108,6 +120,40 @@ const GuestVehicleList = () => {
         console.log("Unblacklisting vehicle with ID:", id);
     };
 
+    const handleExportCSV = () => {
+        try {
+            // Filter by role
+            let vehiclesToExport = guestVehicles;
+
+            // Map only selected columns
+            const data = vehiclesToExport.map(v => {
+                const row = {};
+                if (exportColumns["Plate Number"]) row["Plate Number"] = v.plateNumber;
+                if (exportColumns["Make & Model"]) row["Make & Model"] = v.makeModel;
+                if (exportColumns["Owner"]) row["Owner"] = v.ownerName;
+                if (exportColumns["Status"]) row["Status"] = v.isBlacklisted ? "Blacklisted" : "Authorized";
+                if (exportColumns["Added On"]) row["Added On"] = v.createdAt ? dayjs(v.createdAt).format("MMM D YYYY") : "-";
+                return row;
+            });
+
+            const csv = Papa.unparse(data);
+
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            const timestamp = dayjs().format("YYYY-MM-DD_HH-mm");
+            link.setAttribute("href", URL.createObjectURL(blob));
+            link.setAttribute("download", `Guest_Vehicles_${timestamp}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            setExportModal(false);
+        } catch (error) {
+            console.error("CSV export error:", error);
+        }
+    };
+
+
 
     // const handleSubmit = (e) => {
     //     e.preventDefault();
@@ -186,6 +232,14 @@ const GuestVehicleList = () => {
                         </div>
                     </div>
                     <p className="text-white/80 mt-2">Vehicle details will be displayed here</p>
+                    <div className="flex items-end justify-end gap-2 mt-2">
+                        <button
+                            onClick={() => setExportModal(true)}
+                            className="btn btn-sm btn-accent text-white"
+                        >
+                            Export CSV
+                        </button>
+                    </div>
                 </div>
 
 
@@ -309,21 +363,21 @@ const GuestVehicleList = () => {
                                             ? dayjs(vehicle.createdAt).fromNow() : '-'}
                                     </td>
                                     <td className="flex gap-2">
-                                            <button
-                                                onClick={() => handleExtendAccess(vehicle._id)}
-                                                className="btn btn-xs btn-ghost text-primary bg-transparent hover:bg-transparent border-none tooltip"
-                                                data-tip="Extend access"
-                                                title="Edit"
-                                            >
-                                                <Edit className="h-4 w-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(vehicle._id)}
-                                                className="btn btn-xs btn-ghost text-red-500 hover:text-red-700 bg-transparent hover:bg-transparent border-none"
-                                                title="Delete"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </button>
+                                        <button
+                                            onClick={() => handleExtendAccess(vehicle._id)}
+                                            className="btn btn-xs btn-ghost text-primary bg-transparent hover:bg-transparent border-none tooltip"
+                                            data-tip="Extend access"
+                                            title="Edit"
+                                        >
+                                            <Edit className="h-4 w-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(vehicle._id)}
+                                            className="btn btn-xs btn-ghost text-red-500 hover:text-red-700 bg-transparent hover:bg-transparent border-none"
+                                            title="Delete"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
                                     </td>
                                 </tr>
                             ))
@@ -416,7 +470,7 @@ const GuestVehicleList = () => {
                                 onClick={handleConfirmDelete}
                                 className="btn btn-error"
                             >
-                            Delete Vehicle
+                                Delete Vehicle
                             </button>
                         </div>
                     </div>
@@ -456,6 +510,63 @@ const GuestVehicleList = () => {
                     </div>
                 </div>
             )}
+
+            {exportModal && (
+                <div
+                    className="modal modal-open backdrop-blur-sm bg-black/40"
+                    onClick={() => setExportModal(false)}
+                >
+                    <div
+                        className="modal-box max-w-md w-full bg-base-100 p-6 rounded-xl shadow-xl transform scale-100 transition-transform duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-2xl font-bold mb-4 text-center text-primary">Export Guest Vehicles</h3>
+
+                        <p className="text-sm text-gray-500 mb-4 text-center">
+                            Select the columns you want to include in your CSV export.
+                        </p>
+
+                        <div className="flex flex-col gap-3 mb-6">
+                            {Object.keys(exportColumns).map((col) => (
+                                <label
+                                    key={col}
+                                    className="flex items-center gap-3 cursor-pointer"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="checkbox checkbox-primary"
+                                        checked={exportColumns[col]}
+                                        onChange={() =>
+                                            setExportColumns({
+                                                ...exportColumns,
+                                                [col]: !exportColumns[col]
+                                            })
+                                        }
+                                    />
+                                    <span className="text-base font-medium">{col}</span>
+                                </label>
+                            ))}
+                        </div>
+
+                        <div className="modal-action justify-between">
+                            <button
+                                onClick={() => setExportModal(false)}
+                                className="btn btn-outline btn-sm text-gray-600 hover:text-gray-800 hover:border-gray-400"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleExportCSV}
+                                className="btn btn-primary btn-sm text-white"
+                            >
+                                Export CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
         </>
     );
 }
