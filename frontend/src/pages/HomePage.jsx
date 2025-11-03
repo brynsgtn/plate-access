@@ -1,9 +1,40 @@
-import { ScanSearch, ShieldCheck, ThumbsUpIcon } from "lucide-react";
+import { ScanSearch, ShieldCheck, ThumbsUp, Shield, Users, Camera, ClipboardList } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
 
 const HomePage = () => {
   const { user } = useUserStore();
+
+  const rolePrivileges = {
+    "itAdmin": [
+      { icon: Shield, title: "Full System Access", description: "Secure login with administrative dashboard access" },
+      { icon: Users, title: "User Management", description: "Create users, assign roles, and manage account status" },
+      { icon: ClipboardList, title: "Account Administration", description: "View user details, change roles, and modify branch assignments" },
+      { icon: Camera, title: "Camera Configuration", description: "Configure network camera streams and RTSP settings" },
+      { icon: Shield, title: "System Security", description: "Manage system access and security protocols" }
+    ],
+    "admin": [
+      { icon: Shield, title: "Dashboard Access", description: "Secure login to access the administrative dashboard" },
+      { icon: Users, title: "View Registered Users", description: "Access to view all registered users in the system" },
+      { icon: ClipboardList, title: "Vehicle Management", description: "Add, edit, delete, approve, and deny requests for vehicle information" },
+      { icon: ScanSearch, title: "License Plate Monitoring", description: "View and manage license plate recognition data" }
+    ],
+    "parkingStaff": [
+      { icon: Shield, title: "Dashboard Access", description: "Secure login to access staff dashboard" },
+      { icon: ScanSearch, title: "Plate Recognition", description: "Monitor real-time vehicle plate detection" },
+      { icon: ClipboardList, title: "Basic Vehicle Lookup", description: "View vehicle information and entry logs" },
+      { icon: ThumbsUp, title: "Access Verification", description: "Verify vehicle access permissions" }
+    ]
+  };
+
+  const getUserRole = () => {
+    if (!user) return null;
+    return user.role || null;
+  };
+
+  const currentRole = getUserRole();
+  const privileges = currentRole ? rolePrivileges[currentRole] : null;
+
   return (
     <>
       <div className="flex flex-col">
@@ -23,18 +54,20 @@ const HomePage = () => {
                       />
                     </div>
                     <div className="lg:w-1/2 text-center lg:text-left">
-                      <h1 className="text-3xl lg:text-5xl font-bold my-10 text-white">Welcome!</h1>
-                      <p className="text-lg mb-6 leading-relaxed">
+                      <h1 className="text-3xl lg:text-4xl font-extrabold my-10 text-white tracking-tight leading-tight drop-shadow-lg">
+                        WELCOME {user ? (user.username).toUpperCase() : "TO PLATEACCESS"}!
+                      </h1>
+                      <p className="text-base lg:text-lg mb-6 leading-relaxed text-white/90 font-light">
                         PlateAccess is your all-in-one solution for modern parking management. Effortlessly monitor, control, and secure your parking facilities with real-time updates and intuitive tools.
                       </p>
                       {user ? (
-                        <Link to="/dashboard" className="btn btn-outline btn-accent text-primary-content border-primary-content">
+                        <Link to="/dashboard" className="btn btn-outline btn-accent text-primary-content border-primary-content hover:bg-white hover:text-primary transition-all duration-300 font-semibold">
                           Get Started
                         </Link>
                       ) : (
                         <Link
                           to="/login"
-                          className="btn btn-outline btn-accent text-primary-content border-primary-content"
+                          className="btn btn-outline btn-accent text-primary-content border-primary-content hover:bg-white hover:text-primary transition-all duration-300 font-semibold"
                         >
                           Login
                         </Link>
@@ -43,6 +76,31 @@ const HomePage = () => {
                   </div>
                 </div>
               </div>
+
+              {/* User Privileges Section - Only shown when user is logged in */}
+              {user && privileges && (
+                <div className="w-full flex flex-col items-center mb-12 px-4 bg-none my-15">
+                  <h2 className="text-3xl font-semibold mb-4">Your Access Privileges</h2>
+                  <p className="text-lg mb-8 text-center max-w-2xl">
+                    As a <span className="font-bold text-primary">{currentRole === "itAdmin" ? "IT Admin" : currentRole === "admin" ? "Admin" : "Parking Staff"}</span>, you have access to the following features and capabilities:
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-5xl">
+                    {privileges.map((privilege, index) => {
+                      const Icon = privilege.icon;
+                      return (
+                        <div key={index} className="card bg-base-100 shadow-xl border-2 border-primary/20">
+                          <div className="card-body items-center text-center">
+                            <Icon className="h-10 w-10 text-primary mb-2" />
+                            <h3 className="card-title text-lg">{privilege.title}</h3>
+                            <p className="text-sm">{privilege.description}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              {/* End User Privileges Section */}
               {/* Key Features Section */}
               <div className="w-full flex flex-col items-center my-15 mb-12 px-4 bg-none">
                 <h2 className="text-3xl font-semibold mb-8">Key Features</h2>
@@ -66,7 +124,7 @@ const HomePage = () => {
                   {/* Card 3 */}
                   <div className="card bg-base-100 shadow-xl">
                     <div className="card-body items-center text-center">
-                      <ThumbsUpIcon className="h-12 w-12 text-primary" />
+                      <ThumbsUp className="h-12 w-12 text-primary" />
                       <h3 className="card-title">User-Friendly Dashboard</h3>
                       <p>Monitor activity, manage vehicles, and view alerts with an intuitive and easy-to-use interface designed for all staff levels.</p>
                     </div>
@@ -108,6 +166,8 @@ const HomePage = () => {
                 </div>
               </div>
               {/* End How It Works Section */}
+
+
 
             </div>
           </div>
