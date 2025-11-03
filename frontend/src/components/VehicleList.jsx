@@ -296,7 +296,7 @@ const VehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Status</th>
                             <th className="text-base font-semibold text-base-content">Branch</th>
                             <th className="text-base font-semibold text-base-content">Added On</th>
-                            <th className="text-base font-semibold text-base-content">Actions</th>
+                            {user.role !== "itAdmin" && <th className="text-base font-semibold text-base-content">Actions</th>}  
                         </tr>
                     </thead>
                     <tbody>
@@ -339,7 +339,7 @@ const VehicleList = () => {
                                         {vehicle.createdAt
                                             ? dayjs(vehicle.createdAt).fromNow() : '-'}
                                     </td>
-                                    <td className="flex gap-2">
+                                    {user.role !== "itAdmin" && <td className="flex gap-2">
                                         <button
                                             onClick={() => handleEdit(vehicle._id)}
                                             className="btn btn-xs btn-ghost text-primary"
@@ -355,7 +355,7 @@ const VehicleList = () => {
                                             >
                                                 <ArchiveIcon className="h-4 w-4" />
                                             </button>)}
-                                    </td>
+                                    </td>}
                                 </tr>
                             ))
                         )}

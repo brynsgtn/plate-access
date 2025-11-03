@@ -79,6 +79,16 @@ const VehicleManagementPage = () => {
 
     const { user } = useUserStore();
 
+    // Hide "add" and "add guest" tabs for itAdmin users
+    const visibleTabs = user?.role === "itAdmin"
+        ? tabs.filter(tab => tab.id !== "add" && tab.id !== "requests") 
+        : tabs;
+
+    const visibleGuestTabs = user?.role === "itAdmin"
+        ? guestVehicleTabs.filter(tab => tab.id !== "add")
+        : guestVehicleTabs;
+
+
     const totalVehicles = vehicles
         .filter(vehicle => {
             // Only show approved vehicles
@@ -170,7 +180,7 @@ const VehicleManagementPage = () => {
                     <p className="text-white/80 mt-2">Quickly add, view, or manage your registered vehicles.</p>
                 </div>
                 <div className="flex flex-col lg:flex-row w-full justify-center items-center space-y-4 lg:space-y-0 lg:space-x-6 py-8 bg-base-100 rounded-b-xl">
-                    {tabs.map((tab) => (
+                    {visibleTabs.map((tab) => (
                         <button
                             key={tab.id}
                             className={`btn shadow-md ${tab.id === "add" ? "btn-primary" : tab.id === "view" ? "btn-secondary" : tab.id === "blacklisted" ? "btn-error" : "btn-accent"}`}
@@ -194,7 +204,7 @@ const VehicleManagementPage = () => {
                     <p className="text-white/80 mt-2">Quickly add, view, or manage your guest vehicles.</p>
                 </div>
                 <div className="flex flex-col lg:flex-row w-full justify-center items-center space-y-4 lg:space-y-0 lg:space-x-6 py-8 bg-base-100 rounded-b-xl">
-                    {guestVehicleTabs.map((tab) => (
+                    {visibleGuestTabs.map((tab) => (
                         <button
                             key={tab.id}
                             className={`btn shadow-md ${tab.id === "add" ? "btn-primary" : tab.id === "view" ? "btn-secondary" : tab.id === "blacklisted" ? "btn-error" : "btn-accent"}`}
@@ -209,7 +219,7 @@ const VehicleManagementPage = () => {
             {guestActiveTab === "add" && <AddGuestVehicleForm />}
             {guestActiveTab === "view" && <GuestVehicleList />}
             {guestActiveTab === "blacklisted" && <BlacklistedGuestVehicleList />}
-            {guestActiveTab === "archive" && <ArchivedGuestVehicleList/>}
+            {guestActiveTab === "archive" && <ArchivedGuestVehicleList />}
 
         </div>
     );

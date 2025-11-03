@@ -8,6 +8,7 @@ import Papa from "papaparse";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { set } from "mongoose";
 
 
 dayjs.extend(relativeTime);
@@ -20,7 +21,7 @@ const GuestVehicleList = () => {
     const [page, setPage] = useState(1);
     const [archiveModal, setArchiveModal] = useState(false);
     const [blacklistModal, setBlacklistModal] = useState(false);
-    const [deleteReason, setDeleteReason] = useState("");
+
 
     const [exportModal, setExportModal] = useState(false);
 
@@ -289,7 +290,7 @@ const GuestVehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Owner</th>
                             <th className="text-base font-semibold text-base-content">Access</th>
                             <th className="text-base font-semibold text-base-content">Added On</th>
-                            <th className="text-base font-semibold text-base-content">Actions</th>
+                            {user.role !== "itAdmin" && <th className="text-base font-semibold text-base-content">Actions</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -353,7 +354,8 @@ const GuestVehicleList = () => {
                                         {vehicle.createdAt
                                             ? dayjs(vehicle.createdAt).fromNow() : '-'}
                                     </td>
-                                    <td className="flex gap-2">
+                                    {user.role !== "itAdmin" && (
+                                        <td className="py-4">
                                         <button
                                             onClick={() => handleExtendAccess(vehicle._id)}
                                             className="btn btn-xs btn-ghost text-primary bg-transparent hover:bg-transparent border-none tooltip"
@@ -370,7 +372,7 @@ const GuestVehicleList = () => {
                                             >
                                                 <ArchiveIcon className="h-4 w-4" />
                                         </button> )}
-                                    </td>
+                                    </td>)}
                                 </tr>
                             ))
                         )}
@@ -453,7 +455,7 @@ const GuestVehicleList = () => {
 
                         <div className="modal-action">
                             <button
-                                onClick={() => setDeleteModal(false)}
+                                onClick={() => setArchiveModal(false)}
                                 className="btn btn-sm btn-ghost text-white"
                             >
                                 Cancel

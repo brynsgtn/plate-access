@@ -234,7 +234,7 @@ const BlacklistedGuestVehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Make & Model</th>
                             <th className="text-base font-semibold text-base-content">Owner</th>
                             <th className="text-base font-semibold text-base-content">Blacklisted Since</th>
-                            {(user.role === "admin" || user.role === "itAdmin") && (
+                            {(user.role !== "itAdmin") && (
                                 <th className="text-base font-semibold text-base-content">Action</th>
                             )}
                         </tr>
@@ -258,7 +258,7 @@ const BlacklistedGuestVehicleList = () => {
                                         ? dayjs(vehicle.isBlacklistedAt).fromNow()
                                         : "-"}
                                 </td>
-                                {(user.role === "admin" || user.role === "itAdmin") && (
+                                {(user.role !== "itAdmin") && (
                                     <td>
                                         <button
                                             onClick={() => handleUnblacklist(vehicle._id)}
