@@ -9,6 +9,7 @@ import AddGuestVehicleForm from "../components/AddGuestVehicleForm";
 import GuestVehicleList from "../components/GuestVehicleList";
 import BlacklistedGuestVehicleList from "../components/BlacklistedGuestVehicleList";
 import ArchivedVehicleList from "../components/ArchivedVehicleList";
+import ArchivedGuestVehicleList from "../components/ArchivedGuestVehicleList";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import { useGuestVehicleStore } from "../stores/useGuestVehicleStore";
 import { useUserStore } from "../stores/useUserStore";
@@ -27,6 +28,7 @@ const guestVehicleTabs = [
     { id: "add", label: "Add Guest Vehicle", icon: Plus },
     { id: "view", label: "View Guest Vehicles", icon: Car },
     { id: "blacklisted", label: "Blacklisted Guest Vehicles", icon: CircleParkingOff },
+    { id: "archive", label: "Archived Guest Vehicles", icon: ArchiveIcon }
 ];
 
 const VehicleManagementPage = () => {
@@ -74,16 +76,6 @@ const VehicleManagementPage = () => {
     }, [fetchGuestVehicles]);
 
 
-    // Separate useEffect to log vehicles when they change
-    useEffect(() => {
-        console.log("Vehicles:", vehicles);
-    }, [vehicles]);
-
-
-    // Separate useEffect to log vehicles when they change
-    useEffect(() => {
-        console.log("Guest vehicles:", guestVehicles);
-    }, [guestVehicles]);
 
     const { user } = useUserStore();
 
@@ -209,7 +201,7 @@ const VehicleManagementPage = () => {
                     {guestVehicleTabs.map((tab) => (
                         <button
                             key={tab.id}
-                            className={`btn btn-wide shadow-md ${tab.id === "add" ? "btn-primary" : tab.id === "view" ? "btn-secondary" : tab.id === "blacklisted" ? "btn-error" : "btn-accent"}`}
+                            className={`btn shadow-md ${tab.id === "add" ? "btn-primary" : tab.id === "view" ? "btn-secondary" : tab.id === "blacklisted" ? "btn-error" : "btn-accent"}`}
                             onClick={() => setGuestActiveTab(tab.id)}
                         >
                             <tab.icon className="h-5 w-5" />
@@ -221,6 +213,7 @@ const VehicleManagementPage = () => {
             {guestActiveTab === "add" && <AddGuestVehicleForm />}
             {guestActiveTab === "view" && <GuestVehicleList />}
             {guestActiveTab === "blacklisted" && <BlacklistedGuestVehicleList />}
+            {guestActiveTab === "archive" && <ArchivedGuestVehicleList/>}
 
         </div>
     );

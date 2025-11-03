@@ -121,8 +121,8 @@ export const extendGuestVehicle = async (req, res) => {
     }
 }
 
-// Delete guest vehicle controller
-export const deleteGuestVehicle = async (req, res) => {
+// Archive/unarchive guest vehicle controller
+export const archiveUnarchiveGuestVehicle = async (req, res) => {
     const { id } = req.body;
 
     try {
@@ -130,16 +130,22 @@ export const deleteGuestVehicle = async (req, res) => {
             return res.status(400).json({ message: "Id is required" });
         }
 
-        const guestVehicle = await GuestVehicle.findOneAndDelete({ _id: id });
+        const guestVehicle = await GuestVehicle.findOne({ _id: id });
 
         if (!guestVehicle) {
             return res.status(404).json({ message: "Guest vehicle not found" });
         }
 
-        res.status(200).json({ message: "Guest vehicle deleted", guestVehicle });
+        guestVehicle.isArchived = !guestVehicle.isArchived;
+        await guestVehicle.save();
+
+        res.status(200).json({
+            message: `Guest vehicle ${guestVehicle.isArchived ? "archived" : "unarchived"} successfully`,
+            guestVehicle
+        });
 
     } catch (error) {
-        console.error("Error in deleteGuestVehicle controller:", error);
+        console.error("Error in archiveUnarchiveGuestVehicle controller:", error);
         res.status(500).json({ message: "Server error" });
     }
 }

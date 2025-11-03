@@ -40,6 +40,10 @@ const guestVehicleSchema = new mongoose.Schema(
             type: Date,
             default: null,
         },
+        isArchived: {
+            type: Boolean,
+            default: false,
+        },
     },
     {
         timestamps: true

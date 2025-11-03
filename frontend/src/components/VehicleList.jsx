@@ -180,8 +180,8 @@ const VehicleList = () => {
 
     const vehicleList = vehicles
         .filter(vehicle => {
-            // Only show approved vehicles
-            if (!vehicle?.isApproved) return false;
+            // Only show approved vehicles and not archived
+            if (!vehicle?.isApproved || vehicle?.isArchived) return false;
 
             // If the user is parkingStaff, only show their branch
             if (user.role === "parkingStaff") {
@@ -206,7 +206,7 @@ const VehicleList = () => {
 
     const approvedVehicles = vehicleList.filter((vehicle) => (vehicle.isApproved && !vehicle.isBlacklisted));
     const blacklistedVehicles = vehicleList.filter((vehicle) => vehicle.isBlacklisted);
-    const archivedVehicles = vehicleList.filter((vehicle) => !vehicle.isArchived);
+
 
 
 
@@ -273,17 +273,6 @@ const VehicleList = () => {
                         <div className="stat-title">Authorized Vehicles</div>
                         <div className="stat-value text-warning">
                             {approvedVehicles.length}
-                        </div>
-                    </div>
-
-
-                    <div className="stat">
-                        <div className="stat-figure text-accent">
-                            <ArchiveIcon className="h-8 w-8" />
-                        </div>
-                        <div className="stat-title">Archived Vehicles</div>
-                        <div className="stat-value text-accent">
-                            {archivedVehicles.length}
                         </div>
                     </div>
 

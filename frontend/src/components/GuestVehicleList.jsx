@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, PlusCircle, Sparkles } from "lucide-react";
+import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, ArchiveIcon} from "lucide-react";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
@@ -18,7 +18,7 @@ const GuestVehicleList = () => {
     const [extendAccessModal, setExtendAccessModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
-    const [deleteModal, setDeleteModal] = useState(false);
+    const [archiveModal, setArchiveModal] = useState(false);
     const [blacklistModal, setBlacklistModal] = useState(false);
     const [deleteReason, setDeleteReason] = useState("");
 
@@ -47,10 +47,6 @@ const GuestVehicleList = () => {
         console.log("Search Data:", searchTerm);
     }, [formData, searchTerm]);
 
-    const {
-        loadingVehicles,
-
-    } = useVehicleStore();
     const { user } = useUserStore();
 
     const {
@@ -59,7 +55,7 @@ const GuestVehicleList = () => {
         fetchGuestVehicles,
         blacklistOrUnblacklistGuestVehicle,
         extendGuestVehicleAccess,
-        deleteGuestVehicle
+        archiveUnarchiveGuestVehicle
     } = useGuestVehicleStore();
 
 
@@ -88,24 +84,23 @@ const GuestVehicleList = () => {
     }
 
 
-    const handleDelete = (id) => {
-        const vehicleToDelete = guestVehicles.find((v) => v._id === id);
+    const handleArchive= (id) => {
+        const vehicleToArchive = guestVehicles.find((v) => v._id === id);
         setFormData({
-            id: vehicleToDelete._id,
-            plateNumber: vehicleToDelete.plateNumber,
-            makeModel: vehicleToDelete.makeModel,
-            ownerName: vehicleToDelete.ownerName,
+            id: vehicleToArchive._id,
+            plateNumber: vehicleToArchive.plateNumber,
+            makeModel: vehicleToArchive.makeModel,
+            ownerName: vehicleToArchive.ownerName,
         });
-        setDeleteReason("");
-        setDeleteModal(true);
+        setArchiveModal(true);
     };
 
-    const handleConfirmDelete = () => {
-        deleteGuestVehicle(formData.id);
+    const handleConfirmArchive = () => {
+        archiveUnarchiveGuestVehicle(formData.id);
         setFormData({
             id: "", plateNumber: "", makeModel: "", ownerName: "", reason: "",
         })
-        setDeleteModal(false);
+        setArchiveModal(false);
     };
 
 
@@ -180,8 +175,8 @@ const GuestVehicleList = () => {
         setBlacklistModal(true);
     }
 
-
-    const guestVehicleList = guestVehicles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // Sort and show only non-archived vehicles
+    const guestVehicleList = guestVehicles.filter(vehicle => !vehicle.isArchived).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     // Filter vehicles by plate number
     const filteredVehicles = guestVehicleList.filter((vehicle) =>
         vehicle.plateNumber.toLowerCase().includes(searchTerm.toLowerCase())
@@ -194,12 +189,8 @@ const GuestVehicleList = () => {
 
     const authorizedGuestVehicles = guestVehicleList.filter((vehicle) => (!vehicle.isBlacklisted && new Date(vehicle.validUntil) > new Date()));
     const blacklistedVehicles = guestVehicleList.filter((vehicle) => vehicle.isBlacklisted);
-    const expiredGuestAccess = guestVehicles.filter((vehicle) => new Date(vehicle.validUntil) < new Date());
+    const expiredGuestAccess = guestVehicleList.filter((vehicle) => new Date(vehicle.validUntil) < new Date());
 
-    useEffect(() => {
-        console.log("blacklistedVehicles:", blacklistedVehicles);
-        console.log("expiredGuestAccess:", expiredGuestAccess);
-    })
 
 
     if (loadingGuestVehicles) {
@@ -252,7 +243,7 @@ const GuestVehicleList = () => {
                         </div>
                         <div className="stat-title">Guest Vehicles</div>
                         <div className="stat-value text-warning">
-                            {guestVehicles.length}
+                            {guestVehicleList.length}
                         </div>
                     </div>
 
@@ -371,13 +362,14 @@ const GuestVehicleList = () => {
                                         >
                                             <Edit className="h-4 w-4" />
                                         </button>
-                                        <button
-                                            onClick={() => handleDelete(vehicle._id)}
-                                            className="btn btn-xs btn-ghost text-red-500 hover:text-red-700 bg-transparent hover:bg-transparent border-none"
-                                            title="Delete"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </button>
+                                        {user.role === "admin" && (
+                                            <button
+                                                onClick={() => handleArchive(vehicle._id)}
+                                                className="btn btn-xs btn-ghost text-red-500 hover:text-red-700 bg-transparent hover:bg-transparent border-none"
+                                                title="Archive"
+                                            >
+                                                <ArchiveIcon className="h-4 w-4" />
+                                        </button> )}
                                     </td>
                                 </tr>
                             ))
@@ -443,19 +435,19 @@ const GuestVehicleList = () => {
                 </div>
             )}
 
-            {deleteModal && (
+            {archiveModal && (
                 <div
                     className="modal modal-open backdrop-blur-md"
-                    onClick={() => setDeleteModal(false)}
+                    onClick={() => setArchiveModal(false)}
                 >
                     <div
                         className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <h3 className="text-2xl font-semibold mb-6 text-white">Delete Vehicle</h3>
+                        <h3 className="text-2xl font-semibold mb-6 text-white">Archive Vehicle</h3>
 
                         <p className="text-gray-200 mb-4">
-                            Are you sure you want to delete vehicle{" "}
+                            Are you sure you want to archive vehicle{" "}
                             <span className="font-bold">{formData.plateNumber}</span>?
                         </p>
 
@@ -467,10 +459,10 @@ const GuestVehicleList = () => {
                                 Cancel
                             </button>
                             <button
-                                onClick={handleConfirmDelete}
+                                onClick={handleConfirmArchive}
                                 className="btn btn-error"
                             >
-                                Delete Vehicle
+                                Archive Vehicle
                             </button>
                         </div>
                     </div>

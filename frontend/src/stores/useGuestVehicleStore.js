@@ -76,17 +76,20 @@ export const useGuestVehicleStore = create((set, get) => ({
         }
     },
 
-    deleteGuestVehicle: async (guestVehicleId) => {
+    archiveUnarchiveGuestVehicle: async (guestVehicleId) => {
         try {
-            const response = await axios.delete(`/guest-vehicle/delete-guest-vehicle`, { data: { id: guestVehicleId } });
-            console.log("Guest vehicle deleted:", response.data);
+            const response = await axios.patch(`/guest-vehicle/archive/unarchive-guest-vehicle`, { id: guestVehicleId });
+            console.log("Guest vehicle archived/unarchived:", response.data);
             set((prevState) => ({
-                guestVehicles: prevState.guestVehicles.filter((guestVehicle) => guestVehicle._id !== guestVehicleId)
+                guestVehicles: prevState.guestVehicles.map((guestVehicle) =>
+                    guestVehicle._id === guestVehicleId ? response.data.guestVehicle : guestVehicle
+                )
             }));
-            toast.success(response?.data?.message || "Guest vehicle deleted successfully!");
+            toast.success(response?.data?.message || "Guest vehicle archived/unarchived successfully!");
         } catch (error) {
-            console.error("Error deleting guest vehicle:", error);
-            toast.error(error.response?.data?.message || "Failed to delete guest vehicle.");
+            console.error("Error archiving/unarchiving guest vehicle:", error);
+            toast.error(error.response?.data?.message || "Failed to archive/unarchive guest vehicle.");
         }
     }
 }));
+          

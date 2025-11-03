@@ -146,7 +146,6 @@ const ArchivedVehicleList = () => {
                 <div className="border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div className="flex items-center gap-3">
-                            <Archive className="h-8 w-8 text-white" />
                             <h2 className="text-2xl font-bold text-white">Archived Vehicles</h2>
                         </div>
                         <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">

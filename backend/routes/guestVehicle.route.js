@@ -7,7 +7,7 @@ import {
     viewGuestVehicles,
     addGuestVehicle,
     extendGuestVehicle,
-    deleteGuestVehicle,
+    archiveUnarchiveGuestVehicle,
     blacklistOrUnblacklistGuestVehicle,
 } from "../controllers/guestVehicle.controller.js";
 import { protectRoute } from "../middlewares/auth.middleware.js";
@@ -20,7 +20,7 @@ router.get("/view-guest-vehicles", protectRoute, viewGuestVehicles);
 router.post("/add-guest-vehicle", protectRoute, addGuestVehicle);
 router.patch("/extend-guest-vehicle-access", protectRoute, extendGuestVehicle);
 router.patch("/blacklist-or-unblacklist-guest-vehicle", protectRoute, blacklistOrUnblacklistGuestVehicle);
-router.delete("/delete-guest-vehicle", protectRoute, deleteGuestVehicle);
+router.patch("/archive/unarchive-guest-vehicle", protectRoute, archiveUnarchiveGuestVehicle);
 
 // Export router
 export default router;
