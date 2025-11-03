@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Car, CarFront, CircleParkingOff, FilePen, Plus, CirclePlusIcon } from "lucide-react";
+import { Car, CarFront, CircleParkingOff, FilePen, Plus, CirclePlusIcon, ArchiveIcon } from "lucide-react";
 
 import AddVehicleForm from "../components/AddVehicleForm";
 import VehicleList from "../components/VehicleList";
@@ -8,6 +8,7 @@ import VehicleRequestList from "../components/VehicleRequestList";
 import AddGuestVehicleForm from "../components/AddGuestVehicleForm";
 import GuestVehicleList from "../components/GuestVehicleList";
 import BlacklistedGuestVehicleList from "../components/BlacklistedGuestVehicleList";
+import ArchivedVehicleList from "../components/ArchivedVehicleList";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import { useGuestVehicleStore } from "../stores/useGuestVehicleStore";
 import { useUserStore } from "../stores/useUserStore";
@@ -19,6 +20,7 @@ const tabs = [
     { id: "view", label: "View Vehicles", icon: Car },
     { id: "blacklisted", label: "Blacklisted Vehicles", icon: CircleParkingOff },
     { id: "requests", label: "Vehicle Requests", icon: FilePen },
+    { id: "archive", label: "Archived Vehicles", icon: ArchiveIcon }
 ];
 
 const guestVehicleTabs = [
@@ -40,7 +42,7 @@ const VehicleManagementPage = () => {
         return savedGuestTab || "add"; // Fallback to "add" if nothing saved
     });
     const { viewVehicles, vehicles } = useVehicleStore();
-    const { fetchGuestVehicles, guestVehicles} = useGuestVehicleStore();
+    const { fetchGuestVehicles, guestVehicles } = useGuestVehicleStore();
 
     // Restore active tab from localStorage on mount
     useEffect(() => {
@@ -66,7 +68,7 @@ const VehicleManagementPage = () => {
         viewVehicles();
     }, [viewVehicles]);
 
-        useEffect(() => {
+    useEffect(() => {
         // Fetch guest vehicles data when the component mounts
         fetchGuestVehicles();
     }, [fetchGuestVehicles]);
@@ -78,12 +80,12 @@ const VehicleManagementPage = () => {
     }, [vehicles]);
 
 
-        // Separate useEffect to log vehicles when they change
+    // Separate useEffect to log vehicles when they change
     useEffect(() => {
         console.log("Guest vehicles:", guestVehicles);
     }, [guestVehicles]);
 
-    const {user } = useUserStore();
+    const { user } = useUserStore();
 
     const totalVehicles = vehicles
         .filter(vehicle => {
@@ -116,6 +118,8 @@ const VehicleManagementPage = () => {
     }) : [];
 
     const editDeleteRequests = updateRequests.length + deleteRequests.length;
+
+    const archivedVehicles = Array.isArray(totalVehicles) ? totalVehicles.filter((vehicle) => vehicle.isArchived).length : 0;
 
 
     return (
@@ -152,20 +156,21 @@ const VehicleManagementPage = () => {
                         <div className="stat-value text-error">{blacklistedVehicles}</div>
                     </div>
 
+
                     <div className="stat p-6">
                         <div className="stat-figure text-accent">
-                            <CirclePlusIcon className="inline-block h-10 w-10 stroke-current" />
+                            <ArchiveIcon className="inline-block h-10 w-10 stroke-current" />
                         </div>
-                        <div className="stat-title text-lg font-bold text-base-content/80">Registration Requests</div>
-                        <div className="stat-value text-accent">{unapprovedVehicles.length}</div>
+                        <div className="stat-title text-lg font-bold text-base-content/80">Archived Vehicles</div>
+                        <div className="stat-value text-accent">{archivedVehicles}</div>
                     </div>
 
                     <div className="stat p-6">
                         <div className="stat-figure text-accent">
                             <FilePen className="inline-block h-10 w-10 stroke-current" />
                         </div>
-                        <div className="stat-title text-lg font-bold text-base-content/80">Edit/Delete Requests</div>
-                        <div className="stat-value text-accent">{editDeleteRequests}</div>
+                        <div className="stat-title text-lg font-bold text-base-content/80">Requests</div>
+                        <div className="stat-value text-accent">{unapprovedVehicles.length + editDeleteRequests}</div>
                     </div>
                 </div>
             </div>
@@ -180,7 +185,7 @@ const VehicleManagementPage = () => {
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
-                            className={`btn btn-wide shadow-md ${tab.id === "add" ? "btn-primary" : tab.id === "view" ? "btn-secondary" : tab.id === "blacklisted" ? "btn-error" : "btn-accent"}`}
+                            className={`btn shadow-md ${tab.id === "add" ? "btn-primary" : tab.id === "view" ? "btn-secondary" : tab.id === "blacklisted" ? "btn-error" : "btn-accent"}`}
                             onClick={() => setActiveTab(tab.id)}
                         >
                             <tab.icon className="h-5 w-5" />
@@ -193,6 +198,7 @@ const VehicleManagementPage = () => {
             {activeTab === "view" && <VehicleList />}
             {activeTab === "blacklisted" && <BlacklistedVehicleList />}
             {activeTab === "requests" && <VehicleRequestList />}
+            {activeTab === "archive" && <ArchivedVehicleList />}
 
             <div className="shadow-xl m-8 max-w-6xl mx-auto rounded-xl border border-base-300 bg-base-200">
                 <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">

@@ -206,6 +206,7 @@ const VehicleList = () => {
 
     const approvedVehicles = vehicleList.filter((vehicle) => (vehicle.isApproved && !vehicle.isBlacklisted));
     const blacklistedVehicles = vehicleList.filter((vehicle) => vehicle.isBlacklisted);
+    const archivedVehicles = vehicleList.filter((vehicle) => !vehicle.isArchived);
 
 
 
@@ -275,6 +276,17 @@ const VehicleList = () => {
                         </div>
                     </div>
 
+
+                    <div className="stat">
+                        <div className="stat-figure text-accent">
+                            <ArchiveIcon className="h-8 w-8" />
+                        </div>
+                        <div className="stat-title">Archived Vehicles</div>
+                        <div className="stat-value text-accent">
+                            {archivedVehicles.length}
+                        </div>
+                    </div>
+
                     <div className="stat">
                         <div className="stat-figure text-primary">
                             <ParkingCircleOffIcon className="h-8 w-8" />
@@ -284,6 +296,7 @@ const VehicleList = () => {
                             {blacklistedVehicles.length}
                         </div>
                     </div>
+
                 </div>
 
                 {/* Vehicle Table */}
@@ -297,7 +310,6 @@ const VehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Status</th>
                             <th className="text-base font-semibold text-base-content">Branch</th>
                             <th className="text-base font-semibold text-base-content">Added On</th>
-                            <th className="text-base font-semibold text-base-content">Archived</th>
                             <th className="text-base font-semibold text-base-content">Actions</th>
                         </tr>
                     </thead>
@@ -341,7 +353,6 @@ const VehicleList = () => {
                                         {vehicle.createdAt
                                             ? dayjs(vehicle.createdAt).fromNow() : '-'}
                                     </td>
-                                    <td>{vehicle.isArchived ? 'Yes' : 'No'}</td>
                                     <td className="flex gap-2">
                                         <button
                                             onClick={() => handleEdit(vehicle._id)}
