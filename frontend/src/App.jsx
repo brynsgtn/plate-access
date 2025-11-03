@@ -53,7 +53,7 @@ function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
+          <Route path="/login" element={user ? <Navigate to="/" /> : <LoginPage />} />
           <Route path="/dashboard" element={!user ? <Navigate to="/login" /> : <DashboardPage />} />
           <Route path="/access-control" element={!user ? <Navigate to="/login" /> : <AccessControlPage />} />
           <Route path="/access-logs" element={!user ? <Navigate to="/login" /> : <AccessLogPage />} />
