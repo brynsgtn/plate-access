@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, PlusCircle } from "lucide-react";
+import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, PlusCircle, ArchiveIcon } from "lucide-react";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
@@ -16,7 +16,7 @@ const VehicleList = () => {
     const [editModal, setEditModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [page, setPage] = useState(1);
-    const [deleteModal, setDeleteModal] = useState(false);
+    const [archiveModal, setArchiveModal] = useState(false);
     const [blacklistModal, setBlacklistModal] = useState(false);
     const [deleteReason, setDeleteReason] = useState("");
 
@@ -52,7 +52,7 @@ const VehicleList = () => {
         vehicles,
         loadingVehicles,
         updateVehicle,
-        deleteVehicle,
+        archiveVehicle,
         blacklistOrUnblacklistVehicle,
         requestUpdateVehicle,
         requestDeleteVehicle,
@@ -79,29 +79,28 @@ const VehicleList = () => {
         setEditModal(true);
     };
 
-    const handleDelete = (id) => {
-        const vehicleToDelete = vehicles.find((v) => v._id === id);
+    const handleArchive = (id) => {
+        const vehicleToArchive = vehicles.find((v) => v._id === id);
         setFormData({
-            id: vehicleToDelete._id,
-            plateNumber: vehicleToDelete.plateNumber,
-            makeModel: vehicleToDelete.makeModel,
-            ownerName: vehicleToDelete.ownerName,
-            branch: vehicleToDelete.branch
+            id: vehicleToArchive._id,
+            plateNumber: vehicleToArchive.plateNumber,
+            makeModel: vehicleToArchive.makeModel,
+            ownerName: vehicleToArchive.ownerName,
+            branch: vehicleToArchive.branch
         });
-        setDeleteReason("");
-        setDeleteModal(true);
+        setArchiveModal(true);
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmArchive = () => {
         if (user.role === "admin") {
-            deleteVehicle(formData.id);
+            archiveVehicle(formData.id);
         } else {
             requestDeleteVehicle(formData.id, deleteReason);
         }
         setFormData({
             id: "", plateNumber: "", makeModel: "", ownerName: "", branch: "", reason: "",
         })
-        setDeleteModal(false);
+        setArchiveModal(false);
     };
 
 
@@ -182,11 +181,11 @@ const VehicleList = () => {
     const vehicleList = vehicles
         .filter(vehicle => {
             // Only show approved vehicles
-            if (!vehicle.isApproved) return false;
+            if (!vehicle?.isApproved) return false;
 
             // If the user is parkingStaff, only show their branch
             if (user.role === "parkingStaff") {
-                return vehicle.branch === currentUserBranch;
+                return vehicle?.branch === currentUserBranch;
             }
 
             // Admin can see all
@@ -243,7 +242,7 @@ const VehicleList = () => {
                     <p className="text-white/80 mt-2">Vehicle details will be displayed here</p>
                     <div className="flex justify-end">
                         <button
-                              className="btn btn-sm btn-accent text-white"
+                            className="btn btn-sm btn-accent text-white"
                             onClick={() => setExportModal(true)}
                         >
                             Export CSV
@@ -298,6 +297,7 @@ const VehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Status</th>
                             <th className="text-base font-semibold text-base-content">Branch</th>
                             <th className="text-base font-semibold text-base-content">Added On</th>
+                            <th className="text-base font-semibold text-base-content">Archived</th>
                             <th className="text-base font-semibold text-base-content">Actions</th>
                         </tr>
                     </thead>
@@ -341,6 +341,7 @@ const VehicleList = () => {
                                         {vehicle.createdAt
                                             ? dayjs(vehicle.createdAt).fromNow() : '-'}
                                     </td>
+                                    <td>{vehicle.isArchived ? 'Yes' : 'No'}</td>
                                     <td className="flex gap-2">
                                         <button
                                             onClick={() => handleEdit(vehicle._id)}
@@ -350,11 +351,11 @@ const VehicleList = () => {
                                             <Edit className="h-4 w-4" />
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(vehicle._id)}
+                                            onClick={() => handleArchive(vehicle._id)}
                                             className="btn btn-xs btn-ghost text-red-500 hover:text-red-700"
-                                            title="Delete"
+                                            title="Archive"
                                         >
-                                            <Trash2 className="h-4 w-4" />
+                                            <ArchiveIcon className="h-4 w-4" />
                                         </button>
                                     </td>
                                 </tr>
@@ -516,48 +517,34 @@ const VehicleList = () => {
                 </div>
             )}
 
-            {deleteModal && (
+            {archiveModal && (
                 <div
                     className="modal modal-open backdrop-blur-md"
-                    onClick={() => setDeleteModal(false)}
+                    onClick={() => setArchiveModal(false)}
                 >
                     <div
                         className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <h3 className="text-2xl font-semibold mb-6 text-white">Delete Vehicle</h3>
+                        <h3 className="text-2xl font-semibold mb-6 text-white">Archive Vehicle</h3>
 
                         <p className="text-gray-200 mb-4">
-                            Are you sure you want to delete vehicle{" "}
+                            Are you sure you want to archive vehicle{" "}
                             <span className="font-bold">{formData.plateNumber}</span>?
                         </p>
 
-                        {/* Show reason if not admin */}
-                        {!user.role === "admin" && (
-                            <div className="mt-4">
-                                <textarea
-                                    value={deleteReason}
-                                    onChange={(e) => setDeleteReason(e.target.value)}
-                                    rows="3"
-                                    placeholder="Enter reason..."
-                                    className="mt-1 block w-full bg-base-200 text-base-content border border-gray-600 rounded-md shadow-sm py-2 px-3"
-                                    required
-                                />
-                            </div>
-                        )}
-
                         <div className="modal-action">
                             <button
-                                onClick={() => setDeleteModal(false)}
+                                onClick={() => setArchiveModal(false)}
                                 className="btn btn-sm btn-ghost text-white"
                             >
                                 Cancel
                             </button>
                             <button
-                                onClick={handleConfirmDelete}
+                                onClick={handleConfirmArchive}
                                 className="btn btn-error"
                             >
-                                Request Delete
+                                Archive Vehicle
                             </button>
                         </div>
                     </div>

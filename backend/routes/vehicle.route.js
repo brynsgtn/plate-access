@@ -9,7 +9,7 @@ import {
     blackListOrUnblacklistVehicle, 
     approveVehicleRequest, 
     requestUpdateVehicle,
-    deleteVehicle,
+    archiveVehicle,
     approveUpdateVehicleRequest,
     requestDeleteVehicle,
     approveDeleteVehicleRequest,
@@ -56,8 +56,8 @@ router.patch("/reject-update-vehicle-request", protectRoute, authorizeRoles("adm
 // Reject delete vehicle request (admin only)
 router.patch("/reject-delete-vehicle-request", protectRoute, authorizeRoles("admin"), rejectDeleteVehicleRequest);
 
-// Delete a vehicle (admin only)
-router.delete("/delete-vehicle", protectRoute, authorizeRoles("admin"), deleteVehicle);
+// Archive a vehicle (admin only)
+router.patch("/archive-vehicle", protectRoute, authorizeRoles("admin"), archiveVehicle);
 
 // Approve delete vehicle request (admin only)
 router.delete("/approve-delete-vehicle-request", protectRoute, authorizeRoles("admin"), approveDeleteVehicleRequest);

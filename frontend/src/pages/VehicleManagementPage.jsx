@@ -88,7 +88,7 @@ const VehicleManagementPage = () => {
     const totalVehicles = vehicles
         .filter(vehicle => {
             // Only show approved vehicles
-            if (!vehicle.isApproved) return false;
+            if (!vehicle?.isApproved) return false;
 
             // If the user is parkingStaff, only show their branch
             if (user.role === "parkingStaff") {
@@ -104,15 +104,15 @@ const VehicleManagementPage = () => {
 
     const unapprovedVehicles = Array.isArray(vehicles) ? vehicles.filter(v => {
         // Handle different possible values for isApproved
-        return v.isApproved === false || v.isApproved === "false" || v.isApproved === null || v.isApproved === undefined;
+        return v?.isApproved === false || v?.isApproved === "false" || v?.isApproved === null || v?.isApproved === undefined;
     }) : [];
 
     const updateRequests = Array.isArray(vehicles) ? vehicles.filter(v => {
-        return v.updateRequest && (!v.updateRequest.status || v.updateRequest.status === 'pending');
+        return v?.updateRequest && (!v?.updateRequest.status || v?.updateRequest.status === 'pending');
     }) : [];
 
     const deleteRequests = Array.isArray(vehicles) ? vehicles.filter(v => {
-        return v.deleteRequest && (!v.deleteRequest.status || v.deleteRequest.status === 'pending');
+        return v?.deleteRequest && (!v?.deleteRequest.status || v?.deleteRequest.status === 'pending');
     }) : [];
 
     const editDeleteRequests = updateRequests.length + deleteRequests.length;

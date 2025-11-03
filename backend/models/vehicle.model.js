@@ -50,6 +50,12 @@ const vehicleSchema = new mongoose.Schema(
             ref: "User",
         },
 
+        isArchived: {
+            type: Boolean,
+            default: false
+        },
+
+        // Vehicle's update approval status - for parking staff
         updateRequest: {
             type: new mongoose.Schema({
                 requestedPlateNumber: { type: String },

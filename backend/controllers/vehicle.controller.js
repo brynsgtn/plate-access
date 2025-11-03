@@ -108,8 +108,8 @@ export const updateVehicle = async (req, res) => {
     }
 };
 
-// Delete vehicle controller
-export const deleteVehicle = async (req, res) => {
+// Archive vehicle controller
+export const archiveVehicle = async (req, res) => {
     const { id } = req.body;
     const reqUser = req.user;
 
@@ -130,14 +130,18 @@ export const deleteVehicle = async (req, res) => {
             return res.status(404).json({ message: "Vehicle not found" });
         }
 
-        // Delete the vehicle
-        await Vehicle.deleteOne({ _id: id });
+        // Archive the vehicle
+        if (vehicle.isArchived) {
+            return res.status(400).json({ message: "Vehicle is already archived" });
+        }
+        vehicle.isArchived = true;
+        await vehicle.save();
 
         // Respond with a success message
-        res.status(200).json({ message: "Vehicle deleted successfully" });
+        res.status(200).json({ message: "Vehicle archived successfully" });
     } catch (error) {
         // Handle errors
-        console.error("Error in deleteVehicle controller:", error);
+        console.error("Error in archiveVehicle controller:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
