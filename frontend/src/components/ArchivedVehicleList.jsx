@@ -37,7 +37,7 @@ const ArchivedVehicleList = () => {
     const {
         vehicles,
         loadingVehicles,
-        restoreVehicle,
+        archiveUnarchiveVehicle,
         viewVehicles
     } = useVehicleStore();
     const { user } = useUserStore();
@@ -61,7 +61,7 @@ const ArchivedVehicleList = () => {
     };
 
     const handleConfirmRestore = () => {
-        restoreVehicle(formData.id);
+        archiveUnarchiveVehicle(formData.id);
         setFormData({
             id: "", plateNumber: "", makeModel: "", ownerName: "", branch: "",
         });
@@ -163,7 +163,7 @@ const ArchivedVehicleList = () => {
                             </label>
                         </div>
                     </div>
-                    <p className="text-white/80 mt-2">View and restore archived vehicles</p>
+                    <p className="text-white/80 mt-2">View archived vehicles{user.role === "admin" && " and restore archived vehicles"} </p>
                     <div className="flex justify-end">
                         <button
                             className="btn btn-sm btn-accent text-white"
@@ -218,7 +218,9 @@ const ArchivedVehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Status</th>
                             <th className="text-base font-semibold text-base-content">Branch</th>
                             <th className="text-base font-semibold text-base-content">Archived On</th>
-                            <th className="text-base font-semibold text-base-content">Actions</th>
+                            {user.role === "admin" && (
+                                <th className="text-base font-semibold text-base-content">Actions</th>
+                            )}
                         </tr>
                     </thead>
                     <tbody>
@@ -250,7 +252,7 @@ const ArchivedVehicleList = () => {
                                     <td className="py-4">
                                         {vehicle.updatedAt ? dayjs(vehicle.updatedAt).fromNow() : '-'}
                                     </td>
-                                    <td className="py-4">
+                                    {user.role === "admin" && (<td className="py-4">
                                         <button
                                             onClick={() => handleRestore(vehicle._id)}
                                             className="btn btn-xs btn-success gap-1"
@@ -259,7 +261,7 @@ const ArchivedVehicleList = () => {
                                             <RotateCcw className="h-3 w-3" />
                                             Reactivate
                                         </button>
-                                    </td>
+                                    </td>)}
                                 </tr>
                             ))
                         )}

@@ -123,10 +123,10 @@ const VehicleRequestList = () => {
   const unapprovedVehicles = Array.isArray(vehicles)
     ? vehicles.filter(
       (v) =>
-        (v.isApproved === false ||
-          v.isApproved === "false" ||
-          v.isApproved === null ||
-          v.isApproved === undefined) &&
+        (v?.isApproved === false ||
+          v?.isApproved === "false" ||
+          v?.isApproved === null ||
+          v?.isApproved === undefined) &&
         (user.role === "admin" || isUserRequest(v, "registration"))
     )
     : [];
@@ -134,8 +134,8 @@ const VehicleRequestList = () => {
   const updateRequests = Array.isArray(vehicles)
     ? vehicles.filter(
       (v) =>
-        v.updateRequest &&
-        (!v.updateRequest.status || v.updateRequest.status === "pending") &&
+        v?.updateRequest &&
+        (!v?.updateRequest?.status || v?.updateRequest?.status === "pending") &&
         (user.role === "admin" || isUserRequest(v, "update"))
     )
     : [];
@@ -143,8 +143,8 @@ const VehicleRequestList = () => {
   const deleteRequests = Array.isArray(vehicles)
     ? vehicles.filter(
       (v) =>
-        v.deleteRequest &&
-        (!v.deleteRequest.status || v.deleteRequest.status === "pending") &&
+        v?.deleteRequest &&
+        (!v?.deleteRequest?.status || v?.deleteRequest?.status === "pending") &&
         (user.role === "admin" || isUserRequest(v, "delete"))
     )
     : [];

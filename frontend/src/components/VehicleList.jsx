@@ -52,7 +52,7 @@ const VehicleList = () => {
         vehicles,
         loadingVehicles,
         updateVehicle,
-        archiveVehicle,
+        archiveUnarchiveVehicle,
         blacklistOrUnblacklistVehicle,
         requestUpdateVehicle,
         requestDeleteVehicle,
@@ -80,20 +80,20 @@ const VehicleList = () => {
     };
 
     const handleArchive = (id) => {
-        const vehicleToArchive = vehicles.find((v) => v._id === id);
+        const ve = vehicles.find((v) => v._id === id);
         setFormData({
-            id: vehicleToArchive._id,
-            plateNumber: vehicleToArchive.plateNumber,
-            makeModel: vehicleToArchive.makeModel,
-            ownerName: vehicleToArchive.ownerName,
-            branch: vehicleToArchive.branch
+            id: ve._id,
+            plateNumber: ve.plateNumber,
+            makeModel: ve.makeModel,
+            ownerName: ve.ownerName,
+            branch: ve.branch
         });
         setArchiveModal(true);
     };
 
     const handleConfirmArchive = () => {
         if (user.role === "admin") {
-            archiveVehicle(formData.id);
+            archiveUnarchiveVehicle(formData.id);
         } else {
             requestDeleteVehicle(formData.id, deleteReason);
         }
@@ -361,13 +361,14 @@ const VehicleList = () => {
                                         >
                                             <Edit className="h-4 w-4" />
                                         </button>
-                                        <button
-                                            onClick={() => handleArchive(vehicle._id)}
-                                            className="btn btn-xs btn-ghost text-red-500 hover:text-red-700"
-                                            title="Archive"
-                                        >
-                                            <ArchiveIcon className="h-4 w-4" />
-                                        </button>
+                                        {user.role === "admin" && (
+                                            <button
+                                                onClick={() => handleArchive(vehicle._id)}
+                                                className="btn btn-xs btn-ghost text-red-500 hover:text-red-700"
+                                                title="Archive"
+                                            >
+                                                <ArchiveIcon className="h-4 w-4" />
+                                            </button>)}
                                     </td>
                                 </tr>
                             ))

@@ -64,19 +64,19 @@ export const useVehicleStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Failed to update vehicle.");
         }
     },
-    archiveVehicle: async (vehicleId) => {
+    archiveUnarchiveVehicle: async (vehicleId) => {
         try {
-            const response = await axios.patch(`/vehicle/archive-vehicle`, { id: vehicleId });
-            console.log("Vehicle archived:", response.data);
+            const response = await axios.patch(`/vehicle/archive-unarchive-vehicle`, { id: vehicleId });
+            console.log("Vehicle archived/unarchived:", response.data);
             set((prevState) => ({
                 vehicles: prevState.vehicles.map((vehicle) =>
                     vehicle._id === vehicleId ? response.data.vehicle : vehicle
                 )
             }));
-            toast.success(response?.data?.message || "Vehicle archived successfully!");
+            toast.success(response?.data?.message || "Vehicle archive status changed successfully!");
         } catch (error) {
-            console.error("Error archiving vehicle:", error);
-            toast.error(error.response?.data?.message || "Failed to archive vehicle.");
+            console.error("Error archiving/unarchiving vehicle:", error);
+            toast.error(error.response?.data?.message || "Failed to change vehicle archive status.");
         }
     },
     blacklistOrUnblacklistVehicle: async (vehicleId) => {

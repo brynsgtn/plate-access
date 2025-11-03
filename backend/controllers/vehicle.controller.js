@@ -109,7 +109,7 @@ export const updateVehicle = async (req, res) => {
 };
 
 // Archive vehicle controller
-export const archiveVehicle = async (req, res) => {
+export const archiveUnarchiveVehicle = async (req, res) => {
     const { id } = req.body;
     const reqUser = req.user;
 
@@ -121,7 +121,7 @@ export const archiveVehicle = async (req, res) => {
 
         // Check if user is admin
         if (!reqUser.role === "admin") {
-            return res.status(403).json({ message: "Only admin can delete vehicles with requests" });
+            return res.status(403).json({ message: "Only admin can archive/unarchive vehicles" });
         }
 
         // Find the vehicle by id
@@ -130,18 +130,19 @@ export const archiveVehicle = async (req, res) => {
             return res.status(404).json({ message: "Vehicle not found" });
         }
 
-        // Archive the vehicle
+        // Archive/unarchive the vehicle
         if (vehicle.isArchived) {
-            return res.status(400).json({ message: "Vehicle is already archived" });
+            vehicle.isArchived = false;
+        } else {
+            vehicle.isArchived = true;
         }
-        vehicle.isArchived = true;
         await vehicle.save();
 
         // Respond with a success message
-        res.status(200).json({ message: "Vehicle archived successfully" });
+        res.status(200).json({ message: "Vehicle " + (vehicle.isArchived ? "unarchived" : "archived") + " successfully" });
     } catch (error) {
         // Handle errors
-        console.error("Error in archiveVehicle controller:", error);
+        console.error("Error in archiveUnarchiveVehicle controller:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
