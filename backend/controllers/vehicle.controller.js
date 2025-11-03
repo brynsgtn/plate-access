@@ -138,7 +138,7 @@ export const archiveUnarchiveVehicle = async (req, res) => {
         await vehicle.save();
 
         // Respond with a success message
-        res.status(200).json({ message: "Vehicle " + (vehicle.isArchived ? "unarchived" : "archived") + " successfully" });
+        res.status(200).json({ message: "Vehicle " + (vehicle.isArchived ? "archived" : "unarchived") + " successfully" });
     } catch (error) {
         // Handle errors
         console.error("Error in archiveUnarchiveVehicle controller:", error);

@@ -70,7 +70,7 @@ export const useVehicleStore = create((set, get) => ({
             console.log("Vehicle archived/unarchived:", response.data);
             set((prevState) => ({
                 vehicles: prevState.vehicles.map((vehicle) =>
-                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
+                    vehicle?._id === vehicleId ? response.data.vehicle : vehicle
                 )
             }));
             toast.success(response?.data?.message || "Vehicle archive status changed successfully!");

@@ -137,25 +137,25 @@ const VehicleRequestList = () => {
 
     unapprovedVehicles.forEach((vehicle) => {
       rows.push({
-        id: `${vehicle._id}-registration`,
+        id: `${vehicle?._id}-registration`,
         vehicle,
         type: "registration",
         rowNumber: rowIndex++,
         badge: { text: "Registration", class: "badge-warning" },
-        requestedBy: vehicle.addedBy?.username,
-        requestData: { requestedAt: vehicle.createdAt, reason: "New vehicle registration" },
+        requestedBy: vehicle?.addedBy?.username,
+        requestData: { requestedAt: vehicle?.createdAt, reason: "New vehicle registration" },
       });
     });
 
     updateRequests.forEach((vehicle) => {
       rows.push({
-        id: `${vehicle._id}-update`,
+        id: `${vehicle?._id}-update`,
         vehicle,
         type: "update",
         rowNumber: rowIndex++,
         badge: { text: "Edit Request", class: "badge-info" },
-        requestedBy: vehicle.updateRequest?.requestedBy?.username,
-        requestData: vehicle.updateRequest,
+        requestedBy: vehicle?.updateRequest?.requestedBy?.username,
+        requestData: vehicle?.updateRequest,
       });
     });
 
@@ -166,7 +166,7 @@ const VehicleRequestList = () => {
   // --- apply search ---
   const allRequestRows = getAllRequestRows();
   const filteredRows = allRequestRows.filter((row) =>
-    row.vehicle.plateNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    row.vehicle?.plateNumber.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // --- apply pagination ---

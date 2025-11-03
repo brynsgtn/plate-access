@@ -49,7 +49,7 @@ const ArchivedVehicleList = () => {
     const currentUserBranch = user.branch;
 
     const handleRestore = (id) => {
-        const vehicleToRestore = vehicles.find((v) => v._id === id);
+        const vehicleToRestore = vehicles.find((v) => v?._id === id);
         setFormData({
             id: vehicleToRestore._id,
             plateNumber: vehicleToRestore.plateNumber,

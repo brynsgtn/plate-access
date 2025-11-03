@@ -36,7 +36,7 @@ const BlacklistedVehicleList = () => {
     const { vehicles, blacklistOrUnblacklistVehicle, viewVehicles, loadingVehicles } = useVehicleStore();
     const { guestVehicles, } = useGuestVehicleStore();
 
-    const blacklistedVehicles = vehicles.filter((vehicle) => vehicle.isBlacklisted).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const blacklistedVehicles = vehicles.filter((vehicle) => vehicle?.isBlacklisted).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     useEffect(() => {
         viewVehicles();

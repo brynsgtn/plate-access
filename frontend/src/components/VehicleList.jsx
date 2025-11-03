@@ -79,7 +79,7 @@ const VehicleList = () => {
     };
 
     const handleArchive = (id) => {
-        const ve = vehicles.find((v) => v._id === id);
+        const ve = vehicles.find((v) => v?._id === id);
         setFormData({
             id: ve._id,
             plateNumber: ve.plateNumber,
