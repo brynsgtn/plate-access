@@ -127,19 +127,6 @@ export const useVehicleStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Failed to approve vehicle request.");
         }
     },
-    approveDeleteVehicleRequest: async (vehicleId) => {
-        try {
-            const response = await axios.delete(`/vehicle/approve-delete-vehicle-request`, { data: { id: vehicleId } });
-            console.log("Vehicle request approved:", response.data);
-            set((prevState) => ({
-                vehicles: prevState.vehicles.filter((vehicle) => vehicle._id !== vehicleId)
-            }));
-            toast.success(response?.data?.message || "Vehicle request approved successfully!");
-        } catch (error) {
-            console.error("Error approving vehicle request:", error);
-            toast.error(error.response?.data?.message || "Failed to approve vehicle request.");
-        }
-    },
     denyVehicleRequest: async (vehicleId) => {
         try {
             const response = await axios.delete(`/vehicle/deny-vehicle-request`, { data: { id: vehicleId } });
@@ -168,21 +155,6 @@ export const useVehicleStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Failed to reject vehicle request.");
         }
     },
-    rejectDeleteVehicleRequest: async (vehicleId) => {
-        try {
-            const response = await axios.patch(`/vehicle/reject-delete-vehicle-request`, { id: vehicleId });
-            console.log("Vehicle request rejected:", response.data);
-            set((prevState) => ({
-                vehicles: prevState.vehicles.map((vehicle) =>
-                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
-                )
-            }));
-            toast.success(response?.data?.message || "Vehicle request rejected successfully!");
-        } catch (error) {
-            console.error("Error rejecting vehicle request:", error);
-            toast.error(error.response?.data?.message || "Failed to reject vehicle request.");
-        }
-    },
     requestUpdateVehicle: async (vehicleId, updateRequestData) => {
         try {
             const response = await axios.put(`/vehicle/request-update-vehicle`, { id: vehicleId, ...updateRequestData });
@@ -196,24 +168,6 @@ export const useVehicleStore = create((set, get) => ({
         } catch (error) {
             console.error("Error sending vehicle update request:", error);
             toast.error(error.response?.data?.message || "Failed to send vehicle update request.");
-        }
-    },
-    requestDeleteVehicle: async (vehicleId, reason) => {
-        try {
-            const response = await axios.put(`/vehicle/request-delete-vehicle`, {
-                id: vehicleId,
-                reason
-            });
-            console.log("Vehicle delete request sent:", response.data);
-            set((prevState) => ({
-                vehicles: prevState.vehicles.map((vehicle) =>
-                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
-                )
-            }));
-            toast.success(response?.data?.message || "Vehicle delete request sent successfully!");
-        } catch (error) {
-            console.error("Error sending vehicle delete request:", error);
-            toast.error(error.response?.data?.message || "Failed to send vehicle delete request.");
         }
     },
 

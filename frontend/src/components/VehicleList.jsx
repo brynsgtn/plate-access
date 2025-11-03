@@ -18,7 +18,7 @@ const VehicleList = () => {
     const [page, setPage] = useState(1);
     const [archiveModal, setArchiveModal] = useState(false);
     const [blacklistModal, setBlacklistModal] = useState(false);
-    const [deleteReason, setDeleteReason] = useState("");
+
 
     const [exportModal, setExportModal] = useState(false);
 
@@ -55,7 +55,6 @@ const VehicleList = () => {
         archiveUnarchiveVehicle,
         blacklistOrUnblacklistVehicle,
         requestUpdateVehicle,
-        requestDeleteVehicle,
         viewVehicles
     } = useVehicleStore();
     const { user } = useUserStore();
@@ -94,9 +93,7 @@ const VehicleList = () => {
     const handleConfirmArchive = () => {
         if (user.role === "admin") {
             archiveUnarchiveVehicle(formData.id);
-        } else {
-            requestDeleteVehicle(formData.id, deleteReason);
-        }
+        } 
         setFormData({
             id: "", plateNumber: "", makeModel: "", ownerName: "", branch: "", reason: "",
         })

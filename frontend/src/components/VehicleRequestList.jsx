@@ -12,10 +12,9 @@ const VehicleRequestList = () => {
     loadingVehicles,
     approveVehicleRequest,
     approveUpdateVehicleRequest,
-    approveDeleteVehicleRequest,
+
     denyVehicleRequest,
     rejectUpdateVehicleRequest,
-    rejectDeleteVehicleRequest,
     viewVehicles
   } = useVehicleStore();
   const { user } = useUserStore();
@@ -52,10 +51,7 @@ const VehicleRequestList = () => {
     console.log(`Approving update for vehicle with ID: ${vehicleId}`);
   };
 
-  const handleApproveDeleteVehicle = (vehicleId) => {
-    approveDeleteVehicleRequest(vehicleId);
-    console.log(`Approving delete for vehicle with ID: ${vehicleId}`);
-  };
+
 
   const handleRejectRegistration = (vehicleId) => {
     denyVehicleRequest(vehicleId);
@@ -65,11 +61,6 @@ const VehicleRequestList = () => {
   const handleRejectUpdateRequest = (vehicleId, type) => {
     rejectUpdateVehicleRequest(vehicleId);
     console.log(`Rejecting ${type} for vehicle with ID: ${vehicleId}`);
-  };
-
-  const handleRejectDeleteRequest = (vehicleId) => {
-    rejectDeleteVehicleRequest(vehicleId);
-    console.log(`Rejecting delete for vehicle with ID: ${vehicleId}`);
   };
 
   // Open/close modal
@@ -95,9 +86,7 @@ const VehicleRequestList = () => {
     if (type === "update") {
       return vehicle.updateRequest;
     }
-    if (type === "delete") {
-      return vehicle.deleteRequest;
-    }
+
     return null;
   };
 
@@ -111,9 +100,6 @@ const VehicleRequestList = () => {
       case "update":
         return vehicle.updateRequest?.requestedBy?._id === user._id ||
           vehicle.updateRequest?.requestedBy?.id === user._id;
-      case "delete":
-        return vehicle.deleteRequest?.requestedBy?._id === user._id ||
-          vehicle.deleteRequest?.requestedBy?.id === user._id;
       default:
         return false;
     }
@@ -140,17 +126,9 @@ const VehicleRequestList = () => {
     )
     : [];
 
-  const deleteRequests = Array.isArray(vehicles)
-    ? vehicles.filter(
-      (v) =>
-        v?.deleteRequest &&
-        (!v?.deleteRequest?.status || v?.deleteRequest?.status === "pending") &&
-        (user.role === "admin" || isUserRequest(v, "delete"))
-    )
-    : [];
 
   const totalRequests =
-    unapprovedVehicles.length + updateRequests.length + deleteRequests.length;
+    unapprovedVehicles.length + updateRequests.length
 
   // Build rows
   const getAllRequestRows = () => {
@@ -181,17 +159,6 @@ const VehicleRequestList = () => {
       });
     });
 
-    deleteRequests.forEach((vehicle) => {
-      rows.push({
-        id: `${vehicle._id}-delete`,
-        vehicle,
-        type: "delete",
-        rowNumber: rowIndex++,
-        badge: { text: "Delete Request", class: "badge-error" },
-        requestedBy: vehicle.deleteRequest?.requestedBy?.username,
-        requestData: vehicle.deleteRequest,
-      });
-    });
 
     return rows;
   };
@@ -231,8 +198,8 @@ const VehicleRequestList = () => {
             </h2>
             <p className="text-white/80 mt-2">
               {user.role === "admin"
-                ? "Manage all registration, edit and delete requests"
-                : "View your submitted registration, edit and delete requests"
+                ? "Manage all registration and edit requests"
+                : "View your submitted registration and edit requests"
               }
             </p>
           </div>
@@ -271,16 +238,6 @@ const VehicleRequestList = () => {
             <div className="stat-title">Edit Requests</div>
             <div className="stat-value text-primary">
               {updateRequests.length}
-            </div>
-          </div>
-
-          <div className="stat">
-            <div className="stat-figure text-error">
-              <Trash2 className="h-8 w-8" />
-            </div>
-            <div className="stat-title">Delete Requests</div>
-            <div className="stat-value text-error">
-              {deleteRequests.length}
             </div>
           </div>
 
@@ -356,9 +313,7 @@ const VehicleRequestList = () => {
                                   handleApproveVehicleRegistration(row.vehicle._id);
                                 } else if (row.type === 'update') {
                                   handleApproveUpdateVehicle(row.vehicle._id);
-                                } else if (row.type === 'delete') {
-                                  handleApproveDeleteVehicle(row.vehicle._id);
-                                }
+                                } 
                               }}
                               className="btn btn-circle btn-sm btn-success hover:bg-success/90"
                             >
@@ -372,8 +327,6 @@ const VehicleRequestList = () => {
                                   handleRejectRegistration(row.vehicle._id);
                                 } else if (row.type === 'update') {
                                   handleRejectUpdateRequest(row.vehicle._id);
-                                } else if (row.type === 'delete') {
-                                  handleRejectDeleteRequest(row.vehicle._id);
                                 }
                               }}
                               className="btn btn-circle btn-sm btn-error hover:bg-error/90"
@@ -426,7 +379,7 @@ const VehicleRequestList = () => {
             <>
               <div className="flex items-center gap-3 mb-6">
                 <div className={`p-3 rounded-lg bg-transparent ${requestType === 'registration' ? 'bg-warning/20' :
-                  requestType === 'update' ? 'bg-info/20' : requestType === 'delete' ? 'bg-error/20' : 'bg-warning/20'
+                  requestType === 'update' ? 'bg-info/20' : 'bg-warning/20'
                   }`}>
                   {requestType === 'registration' ?
                     <UserPlus className="h-6 w-6 text-warning" /> :
@@ -437,8 +390,7 @@ const VehicleRequestList = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-lg text-white">
-                    {requestType === 'registration' ? 'Registration Request Details' :
-                      requestType === 'update' ? 'Edit Request Details' : 'Delete Request Details'}
+                    {requestType === 'registration' ? 'Registration Request Details' : 'Edit Request Details' }
                   </h3>
                   <p className="text-white/60">
                     Vehicle: {selectedVehicle.plateNumber}
@@ -495,9 +447,7 @@ const VehicleRequestList = () => {
                           <div className="bg-base-100 p-2 rounded text-sm font-semibold">
                             {requestType === "registration"
                               ? selectedVehicle.addedBy?.username
-                              : requestType === "update"
-                                ? selectedVehicle.updateRequest?.requestedBy?.username
-                                : selectedVehicle.deleteRequest?.requestedBy?.username
+                              :  selectedVehicle.updateRequest?.requestedBy?.username
                             }
                           </div>
                         </div>
@@ -576,9 +526,7 @@ const VehicleRequestList = () => {
                         handleRejectRegistration(selectedVehicle._id);
                       } else if (requestType === 'update') {
                         handleRejectUpdateRequest(selectedVehicle._id);
-                      } else if (requestType === 'delete') {
-                        handleRejectDeleteRequest(selectedVehicle._id);
-                      }
+                      } 
                       closeModal();
                     }}
                     className="btn btn-error"
@@ -594,9 +542,7 @@ const VehicleRequestList = () => {
                       else if (requestType === 'update') {
                         handleApproveUpdateVehicle(selectedVehicle._id);
                       }
-                      else if (requestType === 'delete') {
-                        handleApproveDeleteVehicle(selectedVehicle._id);
-                      }
+                      
                       closeModal();
                     }}
                     className="btn btn-success"

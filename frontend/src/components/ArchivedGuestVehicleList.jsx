@@ -117,14 +117,14 @@ const ArchivedGuestVehicleList = () => {
                                     <td>{vehicle.plateNumber}</td>
                                     <td>{vehicle.makeModel}</td>
                                     <td>{vehicle.ownerName}</td>
-                                    <td>{vehicle.updatedAt ? dayjs(vehicle.updatedAt).format("MMM D, YYYY") : "-"}</td>
+                                    <td>{vehicle.updatedAt ? dayjs(vehicle.updatedAt).fromNow() : '-'}</td>
                                     {user.role === "admin" && (<td>
                                         <button
                                             onClick={() => handleRestoreClick(vehicle)}
                                             className="btn btn-xs btn-outline btn-success gap-1"
                                         >
                                             <RotateCcwIcon className="h-4 w-4" />
-                                            Restore
+                                            Reactivate
                                         </button>
                                     </td>)}
                                 </tr>
@@ -180,7 +180,7 @@ const ArchivedGuestVehicleList = () => {
                                 onClick={handleConfirmRestore}
                                 className="btn btn-accent btn-sm text-white"
                             >
-                                Restore Vehicle
+                                Reactivate Vehicle
                             </button>
                         </div>
                     </div>

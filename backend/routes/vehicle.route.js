@@ -11,11 +11,8 @@ import {
     requestUpdateVehicle,
     archiveUnarchiveVehicle,
     approveUpdateVehicleRequest,
-    requestDeleteVehicle,
-    approveDeleteVehicleRequest,
     denyVehicleRequest,
     rejectUpdateVehicleRequest,
-    rejectDeleteVehicleRequest,
 } from "../controllers/vehicle.controller.js";
 
 // Import middleware
@@ -38,9 +35,6 @@ router.put("/update-vehicle", protectRoute, authorizeRoles("admin"), updateVehic
 // Request to update a vehicle (user, requires admin approval)
 router.put("/request-update-vehicle", protectRoute, requestUpdateVehicle);
 
-// Request to delete a vehicle (user, requires admin approval)
-router.put("/request-delete-vehicle", protectRoute, requestDeleteVehicle);
-
 // Blacklist or unblacklist a vehicle (admin only)
 router.patch("/blacklist-unblacklist-vehicle", protectRoute, blackListOrUnblacklistVehicle);
 
@@ -53,14 +47,8 @@ router.patch("/approve-update-vehicle-request", protectRoute, authorizeRoles("ad
 // Reject update vehicle request (admin only)
 router.patch("/reject-update-vehicle-request", protectRoute, authorizeRoles("admin"), rejectUpdateVehicleRequest);
 
-// Reject delete vehicle request (admin only)
-router.patch("/reject-delete-vehicle-request", protectRoute, authorizeRoles("admin"), rejectDeleteVehicleRequest);
-
 // Archive a vehicle (admin only)
 router.patch("/archive-unarchive-vehicle", protectRoute, authorizeRoles("admin"), archiveUnarchiveVehicle);
-
-// Approve delete vehicle request (admin only)
-router.delete("/approve-delete-vehicle-request", protectRoute, authorizeRoles("admin"), approveDeleteVehicleRequest);
 
 // Deny vehicle registration request (admin only)
 router.delete("/deny-vehicle-request", protectRoute, authorizeRoles("admin"), denyVehicleRequest);

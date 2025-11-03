@@ -254,7 +254,7 @@ const ArchivedVehicleList = () => {
                                     {user.role === "admin" && (<td className="py-4">
                                         <button
                                             onClick={() => handleRestore(vehicle._id)}
-                                            className="btn btn-xs btn-success gap-1"
+                                            className="btn btn-xs btn-outline btn-success gap-1"
                                             title="Restore Vehicle"
                                         >
                                             <RotateCcw className="h-3 w-3" />
@@ -320,7 +320,7 @@ const ArchivedVehicleList = () => {
                                 className="btn btn-success"
                             >
                                 <RotateCcw className="h-4 w-4 mr-1" />
-                                Restore Vehicle
+                                Reactivate Vehicle
                             </button>
                         </div>
                     </div>

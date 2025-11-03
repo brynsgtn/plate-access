@@ -105,11 +105,7 @@ const VehicleManagementPage = () => {
         return v?.updateRequest && (!v?.updateRequest.status || v?.updateRequest.status === 'pending');
     }) : [];
 
-    const deleteRequests = Array.isArray(vehicles) ? vehicles.filter(v => {
-        return v?.deleteRequest && (!v?.deleteRequest.status || v?.deleteRequest.status === 'pending');
-    }) : [];
-
-    const editDeleteRequests = updateRequests.length + deleteRequests.length;
+    const editDeleteRequests = updateRequests.length
 
     const archivedVehicles = Array.isArray(totalVehicles) ? totalVehicles.filter((vehicle) => vehicle.isArchived).length : 0;
 
