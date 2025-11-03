@@ -18,7 +18,7 @@ const BlacklistedVehicleList = () => {
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-    
+
     // Export modal states
     const [selectedColumns, setSelectedColumns] = useState({
         plateNumber: true,
@@ -34,13 +34,13 @@ const BlacklistedVehicleList = () => {
 
     const { user } = useUserStore();
     const { vehicles, blacklistOrUnblacklistVehicle, viewVehicles, loadingVehicles } = useVehicleStore();
-    const { guestVehicles,  } = useGuestVehicleStore();
-    
+    const { guestVehicles, } = useGuestVehicleStore();
+
     const blacklistedVehicles = vehicles.filter((vehicle) => vehicle.isBlacklisted).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     useEffect(() => {
         viewVehicles();
-      ;
+        ;
     }, [viewVehicles]);
 
     // Filter vehicles by plate number
@@ -99,7 +99,7 @@ const BlacklistedVehicleList = () => {
                         makeModel: v.makeModel,
                         ownerName: v.ownerName,
                         branch: v.branch || 'N/A',
-                        blacklistedSince: v.isBlacklistedAt 
+                        blacklistedSince: v.isBlacklistedAt
                             ? dayjs(v.isBlacklistedAt).format('MMM DD, YYYY hh:mm A')
                             : 'N/A',
                         type: 'Regular',
@@ -115,7 +115,7 @@ const BlacklistedVehicleList = () => {
                         makeModel: gv.makeModel,
                         ownerName: gv.ownerName,
                         branch: 'Guest',
-                        blacklistedSince: gv.isBlacklistedAt 
+                        blacklistedSince: gv.isBlacklistedAt
                             ? dayjs(gv.isBlacklistedAt).format('MMM DD, YYYY')
                             : 'N/A',
                         type: 'Guest',
@@ -130,7 +130,7 @@ const BlacklistedVehicleList = () => {
 
             // Sort data
             data.sort((a, b) => {
-                switch(sortBy) {
+                switch (sortBy) {
                     case 'date-desc':
                         return new Date(b.blacklistedSince) - new Date(a.blacklistedSince);
                     case 'date-asc':
@@ -181,12 +181,12 @@ const BlacklistedVehicleList = () => {
             const blob = new Blob([finalCsv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
-            
+
             const timestamp = dayjs().format('YYYY-MM-DD');
             link.setAttribute('href', url);
             link.setAttribute('download', `Blacklisted_Vehicles_${timestamp}.csv`);
             link.style.visibility = 'hidden';
-            
+
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -213,7 +213,7 @@ const BlacklistedVehicleList = () => {
 
     return (
         <>
-            <div className="overflow-x-auto max-w-6xl mx-auto my-10 rounded-xl shadow-lg bg-base-100 border border-base-300">
+            <div className="overflow-x-auto max-w-6xl mx-auto mt-10 rounded-xl shadow-lg bg-base-100 border border-base-300 rounded-b-none">
                 {/* Header with Search */}
                 <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -230,7 +230,7 @@ const BlacklistedVehicleList = () => {
                                 <FileSpreadsheet size={18} />
                                 Export CSV
                             </button>
-                            
+
                             {/* Search Bar */}
                             <label className="input flex items-center gap-2 w-full md:w-64">
                                 <Search className="w-4 h-4 opacity-70" />
@@ -247,7 +247,7 @@ const BlacklistedVehicleList = () => {
                 </div>
 
                 {/* Stats */}
-                <div className="stats w-full bg-base-100 border-base-300">
+                <div className="stats stats-vertical md:stats-horizontal w-full bg-base-100 border-base-300">
                     <div className="stat flex flex-row items-center justify-around">
                         <div className="text-warning">
                             <ParkingCircleOffIcon className="h-8 w-8" />
@@ -259,6 +259,9 @@ const BlacklistedVehicleList = () => {
                     </div>
                 </div>
 
+            </div>
+            <div className="overflow-x-auto max-w-6xl mx-auto mb-10 rounded-xl shadow-lg bg-base-100 border border-base-300 rounded-t-none border-t-0">
+
                 <table className="table table-zebra w-full">
                     <thead className="bg-base-200">
                         <tr>
@@ -268,7 +271,7 @@ const BlacklistedVehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Owner</th>
                             <th className="text-base font-semibold text-base-content">Branch</th>
                             <th className="text-base font-semibold text-base-content">Blacklisted Since</th>
-                            {user.role !== "itAdmin" && (
+                            {user.role === "admin" && (
                                 <th className="text-base font-semibold text-base-content">Action</th>
                             )}
                         </tr>
@@ -293,7 +296,7 @@ const BlacklistedVehicleList = () => {
                                         ? dayjs(vehicle.isBlacklistedAt).fromNow()
                                         : "-"}
                                 </td>
-                                {user.role !== "itAdmin" && (
+                                {user.role === "admin" && (
                                     <td>
                                         <button
                                             onClick={() => handleUnblacklist(vehicle._id)}

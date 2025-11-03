@@ -60,7 +60,8 @@ const ArchivedGuestVehicleList = () => {
 
     return (
         <>
-            <div className="overflow-x-auto max-w-6xl mx-auto mt-10 mb-20 rounded-xl shadow-lg bg-base-100 border border-base-300">
+
+            <div className="overflow-x-auto max-w-6xl mx-auto rounded-xl  shadow-lg bg-base-100 border border-base-300 rounded-b-none">
                 {/* Header */}
                 <div className="border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -79,7 +80,7 @@ const ArchivedGuestVehicleList = () => {
                     <p className="text-white/80 mt-2">View {user.role === "admin" && "and restore"} archived guest vehicles</p>
                 </div>
                 {/* Stats */}
-                <div className="stats w-full bg-base-100 border-base-300">
+                <div className="stats stats-vertical md:stats-horizontal w-full bg-base-100 border-base-300">
                     <div className="stat flex flex-row items-center justify-around">
                         <div className="text-warning">
                             <ArchiveIcon className="h-8 w-8" />
@@ -90,6 +91,9 @@ const ArchivedGuestVehicleList = () => {
                         </div>
                     </div>
                 </div>
+
+            </div>
+            <div className="overflow-x-auto max-w-6xl mx-auto mb-10 rounded-xl shadow-lg bg-base-100 border border-base-300 border-t-none rounded-t-none">
 
                 {/* Table */}
                 <table className="table table-zebra w-full">
@@ -164,9 +168,9 @@ const ArchivedGuestVehicleList = () => {
                         className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <h3 className="text-2xl font-semibold mb-6 text-white">Restore Vehicle</h3>
+                        <h3 className="text-2xl font-semibold mb-6 text-white">Reactivate Vehicle</h3>
                         <p className="text-gray-200 mb-4">
-                            Are you sure you want to restore vehicle{" "}
+                            Are you sure you want to reactivate vehicle{" "}
                             <span className="font-bold">{selectedVehicle?.plateNumber}</span> to active list?
                         </p>
                         <div className="modal-action">

@@ -220,7 +220,7 @@ const VehicleRequestList = () => {
         </div>
 
         {/* Stats */}
-        <div className="stats w-full bg-base-100 border-base-300">
+        <div className="stats stats-vertical md:stats-horizontal w-full bg-base-100 border-base-300">
           <div className="stat">
             <div className="stat-figure text-warning">
               <CirclePlusIcon className="h-8 w-8" />

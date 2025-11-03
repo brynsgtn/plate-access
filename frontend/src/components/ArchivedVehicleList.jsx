@@ -141,8 +141,8 @@ const ArchivedVehicleList = () => {
 
     return (
         <>
-            <div className="overflow-x-auto max-w-6xl mx-auto mt-10 mb-10 rounded-xl shadow-lg bg-base-100 border border-base-300">
-                {/* Header with Search */}
+            <div className="overflow-x-auto max-w-6xl mx-auto mt-10 rounded-xl shadow-lg bg-base-100 border border-base-300 rounded-b-none">
+                {/* Header with Search */} 
                 <div className="border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div className="flex items-center gap-3">
@@ -162,7 +162,7 @@ const ArchivedVehicleList = () => {
                             </label>
                         </div>
                     </div>
-                    <p className="text-white/80 mt-2">View archived vehicles{user.role === "admin" && " and restore archived vehicles"} </p>
+                    <p className="text-white/80 mt-2">View archived vehicles{user.role === "admin" && " and reactivate archived vehicles"} </p>
                     <div className="flex justify-end">
                         <button
                             className="btn btn-sm btn-accent text-white"
@@ -174,7 +174,7 @@ const ArchivedVehicleList = () => {
                 </div>
 
                 {/* Stats */}
-                <div className="stats w-full bg-base-100 border-base-300">
+                <div className="stats stats-vertical md:stats-horizontal w-full bg-base-100 border-base-300">
                     <div className="stat">
                         <div className="stat-figure text-warning">
                             <Archive className="h-8 w-8" />
@@ -205,6 +205,9 @@ const ArchivedVehicleList = () => {
                         </div>
                     </div>
                 </div>
+
+            </div>
+            <div className="overflow-x-auto max-w-6xl mx-auto mb-10 rounded-xl shadow-lg bg-base-100 border border-base-300 border-t-0 rounded-t-none">
 
                 {/* Vehicle Table */}
                 <table className="table table-zebra w-full">
@@ -298,10 +301,10 @@ const ArchivedVehicleList = () => {
                         className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <h3 className="text-2xl font-semibold mb-6 text-white">Restore Vehicle</h3>
+                        <h3 className="text-2xl font-semibold mb-6 text-white">Reactivate Vehicle</h3>
 
                         <p className="text-gray-200 mb-4">
-                            Are you sure you want to restore vehicle{" "}
+                            Are you sure you want to reactivate vehicle{" "}
                             <span className="font-bold">{formData.plateNumber}</span>?
                         </p>
                         <p className="text-gray-300 text-sm mb-4">

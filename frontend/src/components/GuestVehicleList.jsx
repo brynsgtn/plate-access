@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, ArchiveIcon} from "lucide-react";
+import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, ArchiveIcon } from "lucide-react";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
@@ -85,7 +85,7 @@ const GuestVehicleList = () => {
     }
 
 
-    const handleArchive= (id) => {
+    const handleArchive = (id) => {
         const vehicleToArchive = guestVehicles.find((v) => v._id === id);
         setFormData({
             id: vehicleToArchive._id,
@@ -204,7 +204,7 @@ const GuestVehicleList = () => {
 
     return (
         <>
-            <div className="overflow-x-auto max-w-6xl mx-auto mt-10 mb-20 rounded-xl shadow-lg bg-base-100 border border-base-300">
+            <div className="overflow-x-auto max-w-6xl mx-auto mt-10  rounded-xl shadow-lg bg-base-100 border border-base-300 rounded-b-none">
                 {/* Header with Search */}
                 <div className="border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4 ">
@@ -236,7 +236,7 @@ const GuestVehicleList = () => {
 
 
                 {/* Stats */}
-                <div className="stats w-full bg-base-100  border-base-300">
+                <div className="stats stats-vertical md:stats-horizontal w-full bg-base-100 border-base-300">
 
                     <div className="stat">
                         <div className="stat-figure text-warning">
@@ -279,6 +279,8 @@ const GuestVehicleList = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className="overflow-x-auto max-w-6xl mx-auto  mb-20 rounded-xl shadow-lg bg-base-100 border border-base-300 border-t-0 rounded-t-none">
 
                 {/* Vehicle Table */}
                 <table className="table table-zebra w-full">
@@ -356,23 +358,23 @@ const GuestVehicleList = () => {
                                     </td>
                                     {user.role !== "itAdmin" && (
                                         <td className="py-4">
-                                        <button
-                                            onClick={() => handleExtendAccess(vehicle._id)}
-                                            className="btn btn-xs btn-ghost text-primary bg-transparent hover:bg-transparent border-none tooltip"
-                                            data-tip="Extend access"
-                                            title="Edit"
-                                        >
-                                            <Edit className="h-4 w-4" />
-                                        </button>
-                                        {user.role === "admin" && (
                                             <button
-                                                onClick={() => handleArchive(vehicle._id)}
-                                                className="btn btn-xs btn-ghost text-red-500 hover:text-red-700 bg-transparent hover:bg-transparent border-none"
-                                                title="Archive"
+                                                onClick={() => handleExtendAccess(vehicle._id)}
+                                                className="btn btn-xs btn-ghost text-primary bg-transparent hover:bg-transparent border-none tooltip"
+                                                data-tip="Extend access"
+                                                title="Edit"
                                             >
-                                                <ArchiveIcon className="h-4 w-4" />
-                                        </button> )}
-                                    </td>)}
+                                                <Edit className="h-4 w-4" />
+                                            </button>
+                                            {user.role === "admin" && (
+                                                <button
+                                                    onClick={() => handleArchive(vehicle._id)}
+                                                    className="btn btn-xs btn-ghost text-red-500 hover:text-red-700 bg-transparent hover:bg-transparent border-none"
+                                                    title="Archive"
+                                                >
+                                                    <ArchiveIcon className="h-4 w-4" />
+                                                </button>)}
+                                        </td>)}
                                 </tr>
                             ))
                         )}

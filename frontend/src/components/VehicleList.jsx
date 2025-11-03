@@ -93,7 +93,7 @@ const VehicleList = () => {
     const handleConfirmArchive = () => {
         if (user.role === "admin") {
             archiveUnarchiveVehicle(formData.id);
-        } 
+        }
         setFormData({
             id: "", plateNumber: "", makeModel: "", ownerName: "", branch: "", reason: "",
         })
@@ -218,8 +218,9 @@ const VehicleList = () => {
 
     return (
         <>
-            <div className="overflow-x-auto max-w-6xl mx-auto mt-10 mb-10 rounded-xl shadow-lg bg-base-100 border border-base-300">
-                {/* Header with Search */}
+            {/* Header with Search */}
+            <div className="overflow-x-auto max-w-6xl mx-auto mt-10  rounded-xl shadow-lg bg-base-100 border border-base-300 rounded-b-none">
+
                 <div className="border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4 ">
                         <h2 className="text-2xl font-bold text-white">Vehicle List</h2>
@@ -251,8 +252,7 @@ const VehicleList = () => {
 
 
                 {/* Stats */}
-                <div className="stats w-full bg-base-100  border-base-300">
-
+                <div className="stats stats-vertical md:stats-horizontal w-full bg-base-100 border-base-300">
                     <div className="stat">
                         <div className="stat-figure text-warning">
                             <CarFrontIcon className="h-8 w-8" />
@@ -282,8 +282,12 @@ const VehicleList = () => {
                             {blacklistedVehicles.length}
                         </div>
                     </div>
-
                 </div>
+
+            </div>
+            <div className="overflow-x-auto max-w-6xl mx-auto mb-10 rounded-xl rounded-t-none shadow-lg bg-base-100 border border-base-300 border-t-0">
+
+
 
                 {/* Vehicle Table */}
                 <table className="table table-zebra w-full">
@@ -296,7 +300,7 @@ const VehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Status</th>
                             <th className="text-base font-semibold text-base-content">Branch</th>
                             <th className="text-base font-semibold text-base-content">Added On</th>
-                            {user.role !== "itAdmin" && <th className="text-base font-semibold text-base-content">Actions</th>}  
+                            {user.role !== "itAdmin" && <th className="text-base font-semibold text-base-content">Actions</th>}
                         </tr>
                     </thead>
                     <tbody>

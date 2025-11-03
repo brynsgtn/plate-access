@@ -180,7 +180,7 @@ const BlacklistedGuestVehicleList = () => {
 
     return (
         <>
-            <div className="overflow-x-auto max-w-6xl mx-auto my-10 rounded-xl shadow-lg bg-base-100 border border-base-300">
+            <div className="overflow-x-auto max-w-6xl mx-auto rounded-xl  shadow-lg bg-base-100 border border-base-300 rounded-b-none"> 
                 {/* Header with Search */}
                 <div className="bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -214,7 +214,7 @@ const BlacklistedGuestVehicleList = () => {
                 </div>
 
                 {/* Stats */}
-                <div className="stats w-full bg-base-100 border-base-300">
+                <div className="stats stats-vertical md:stats-horizontal w-full bg-base-100 border-base-300">
                     <div className="stat flex flex-row items-center justify-around">
                         <div className="text-warning">
                             <Ban className="h-8 w-8" />
@@ -225,6 +225,9 @@ const BlacklistedGuestVehicleList = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className="overflow-x-auto max-w-6xl mx-auto mb-10 rounded-xl shadow-lg bg-base-100 border border-base-300 border-t-none rounded-t-none">
+
 
                 <table className="table table-zebra w-full">
                     <thead className="bg-base-200">
@@ -234,7 +237,7 @@ const BlacklistedGuestVehicleList = () => {
                             <th className="text-base font-semibold text-base-content">Make & Model</th>
                             <th className="text-base font-semibold text-base-content">Owner</th>
                             <th className="text-base font-semibold text-base-content">Blacklisted Since</th>
-                            {(user.role !== "itAdmin") && (
+                            {(user.role === "admin") && (
                                 <th className="text-base font-semibold text-base-content">Action</th>
                             )}
                         </tr>
@@ -258,7 +261,7 @@ const BlacklistedGuestVehicleList = () => {
                                         ? dayjs(vehicle.isBlacklistedAt).fromNow()
                                         : "-"}
                                 </td>
-                                {(user.role !== "itAdmin") && (
+                                {(user.role === "admin") && (
                                     <td>
                                         <button
                                             onClick={() => handleUnblacklist(vehicle._id)}
