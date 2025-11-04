@@ -94,6 +94,21 @@ export const useVehicleStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Failed to change vehicle blacklist status.");
         }
     },
+    banVehicle: async (vehicleId, reason) => {
+        try {
+            const response = await axios.patch(`/vehicle/ban-vehicle`, { id: vehicleId, reason: reason });
+            console.log("Vehicle banned:", response.data);
+            set((prevState) => ({
+                vehicles: prevState.vehicles.map((vehicle) =>
+                    vehicle._id === vehicleId ? response.data.vehicle : vehicle
+                )
+            }));
+            toast.success(response?.data?.message || `Vehicle banned successfully!`);
+        } catch (error) {
+            console.error("Error in banVehicle:", error);
+            toast.error(error.response?.data?.message || "Failed to change vehicle ban status.");
+        }
+    },
     approveVehicleRequest: async (vehicleId) => {
         set({ requestBlacklistLoading: true });
         try {

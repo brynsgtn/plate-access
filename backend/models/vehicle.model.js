@@ -81,6 +81,23 @@ const vehicleSchema = new mongoose.Schema(
             type: Boolean,
             default: false
         },
+        isBanned: {
+            type: Boolean,
+            default: false
+        },
+        bannedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null
+        },
+        bannedReason: {
+            type: String,
+            default: null
+        },
+        bannedAt: {
+            type: Date,
+            default: null
+        },
 
         // Vehicle's update approval status - for parking staff
         updateRequest: {

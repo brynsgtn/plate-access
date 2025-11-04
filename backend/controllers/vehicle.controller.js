@@ -9,7 +9,8 @@ export const viewVehicles = async (req, res) => {
             .populate('addedBy', 'username email') // Populate addedBy field
             .populate('updateRequest.requestedBy', 'username email') // Populate updateRequest.requestedBy field
             .populate('blacklistedBy', 'username email') // Populate blacklistedBy field
-            .populate('unblacklistedBy', 'username email'); // Populate unblacklistedBy field
+            .populate('unblacklistedBy', 'username email') // Populate unblacklistedBy field
+            .populate('bannedBy', 'username email') // Populate bannedBy field
 
 
         // Respond with the list of vehicles
@@ -200,6 +201,57 @@ export const blackListOrUnblacklistVehicle = async (req, res) => {
     } catch (error) {
         // Handle errors
         console.error("Error in blackListOrUnblacklistVehicle controller:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+// Ban vehicle controller
+export const banVehicle = async (req, res) => {
+    const { id, reason } = req.body;
+    const reqUser = req.user;
+
+    // Validate request body
+    if (!id) {
+        return res.status(400).json({ message: "Vehicle ID is required" });
+    }
+
+    if (!reason) {
+        return res.status(400).json({ message: "Reason is required" });
+    }
+
+    // Check if user is admin
+    if (reqUser.role !== "admin") {
+        return res.status(403).json({ message: "Only admin can ban vehicles" });
+    }
+
+    try {
+        // Find the vehicle by id
+        const vehicle = await Vehicle.findOne({ _id: id });
+        if (!vehicle) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+
+        // If vehicle is banned, unban it
+        if (vehicle.isBanned) {
+            return res.status(400).json({ message: "Vehicle is already banned" });
+        }
+
+        // If vehicle is not banned, ban it
+        vehicle.isBanned = true;
+        vehicle.bannedBy = reqUser._id;
+        vehicle.bannedReason = reason;
+        vehicle.bannedAt = new Date();
+
+        // Save the updated vehicle
+        await vehicle.save();
+
+        return res.status(200).json({
+            message: `Vehicle banned successfully!`,
+            vehicle
+        });
+    } catch (error) {
+        // Handle errors
+        console.error("Error in banVehicle controller:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };

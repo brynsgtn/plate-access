@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useUserStore } from "../stores/useUserStore";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import { useGuestVehicleStore } from "../stores/useGuestVehicleStore";
-import { ParkingCircleOffIcon, Search, Download, X, FileSpreadsheet } from "lucide-react";
+import { ParkingCircleOffIcon, Search, Download, X, FileSpreadsheet, ParkingCircleIcon, Ban } from "lucide-react";
 import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 import Papa from "papaparse";
@@ -20,6 +20,7 @@ const BlacklistedVehicleList = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
     const [unBlacklistModal, setUnBlacklistModal] = useState(false);
+    const [banVehicleModal, setBanVehicleModal] = useState(false);
     const [formData, setFormData] = useState({
         id: "",
         plateNumber: "",
@@ -40,7 +41,7 @@ const BlacklistedVehicleList = () => {
     const [sortBy, setSortBy] = useState('date-desc');
 
     const { user } = useUserStore();
-    const { vehicles, blacklistOrUnblacklistVehicle, viewVehicles, loadingVehicles } = useVehicleStore();
+    const { vehicles, blacklistOrUnblacklistVehicle, viewVehicles, loadingVehicles, banVehicle } = useVehicleStore();
     const { guestVehicles, } = useGuestVehicleStore();
 
     const blacklistedVehicles = vehicles.filter((vehicle) => vehicle?.isBlacklisted).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -74,8 +75,27 @@ const BlacklistedVehicleList = () => {
         };
     }
 
+    const handleBanVehicle = (id) => {
+        if (user.role === "admin") {
+            banVehicle(id, formData.reason);
+            setFormData({
+                id: "",
+                plateNumber: "",
+                reason: "",
+            });
+            setBanVehicleModal(false);
+        } else {
+            toast.error("You are not authorized to ban vehicles.");
+        };
+    }
+
     const handleUnblacklistModal = (id, plateNumber) => {
         setUnBlacklistModal(true);
+        setFormData({ ...formData, id, plateNumber });
+    }
+
+    const handleBanVehicleModal = (id, plateNumber) => {
+        setBanVehicleModal(true);
         setFormData({ ...formData, id, plateNumber });
     }
 
@@ -285,10 +305,10 @@ const BlacklistedVehicleList = () => {
                         <tr>
                             <th className="text-base font-semibold text-base-content">#</th>
                             <th className="text-base font-semibold text-base-content">Plate Number</th>
-                            <th className="text-base font-semibold text-base-content">Branch</th>
-                            <th className="text-base font-semibold text-base-content">Blacklisted Since</th>
+                            <th className="text-base font-semibold text-base-content">Status</th>
+                            <th className="text-base font-semibold text-base-content">Actioned Since</th>
                             <th className="text-base font-semibold text-base-content">Reason</th>
-                            <th className="text-base font-semibold text-base-content">Blacklisted By</th>
+                            <th className="text-base font-semibold text-base-content">Actioned By</th>
                             {user.role === "admin" && (
                                 <th className="text-base font-semibold text-base-content">Action</th>
                             )}
@@ -306,219 +326,298 @@ const BlacklistedVehicleList = () => {
                             <tr key={vehicle._id} className="hover:bg-base-200 transition">
                                 <th>{(page - 1) * VEHICLES_PER_PAGE + idx + 1}</th>
                                 <td>{vehicle.plateNumber}</td>
-                                <td>{vehicle.branch ? vehicle.branch : "-"}</td>
+                                <td>{vehicle.isBanned ? (
+                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
+                                            text-error border border-error shadow-sm bg-error/30 w-24">
+                                        <Ban className="h-4 w-4" />
+                                        Banned
+                                    </span>
+                                ) : (
+
+                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
+                                            text-error border border-error shadow-sm w-24">
+                                        <ParkingCircleIcon className="h-4 w-4" />
+                                        Blacklisted
+                                    </span>
+                                )}</td>
                                 <td>
                                     {vehicle.isBlacklistedAt
                                         ? dayjs(vehicle.isBlacklistedAt).fromNow()
                                         : "-"}
                                 </td>
-                                <td>{vehicle.blacklistReason ? vehicle.blacklistReason : "-"}</td>
+                                <td>{vehicle.bannedReason ? vehicle.bannedReason : vehicle.blacklistReason ? vehicle.blacklistReason : "-"}</td>
                                 <td>
-                                    {vehicle.blacklistedBy
-                                        ? vehicle.blacklistedBy.username
-                                        : "N/A"}
+                                    {vehicle.bannedBy
+                                        ? vehicle.bannedBy.username
+                                        : vehicle.blacklistedBy?.username ? vehicle.blacklistedBy.username : "-"}
                                 </td>
-                                {user.role === "admin" && (
-                                    <td>
-                                        <button
-                                            onClick={() => handleUnblacklistModal(vehicle._id, vehicle.plateNumber)}
-                                            className="btn btn-xs btn-success"
-                                        >
-                                            Unblacklist
-                                        </button>
-                                    </td>
-                                )}
+                                {
+                                    user.role === "admin" && (
+                                        <td>
+                                            <button
+                                                onClick={() => handleUnblacklistModal(vehicle._id, vehicle.plateNumber)}
+                                                className={`btn btn-xs btn-ghost text-success hover:bg-success/10 hover:text-success transition border-none ${vehicle.isBanned ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                title="Unblacklist"
+                                            >
+                                                <ParkingCircleIcon className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleBanVehicleModal(vehicle._id, vehicle.plateNumber)}
+                                                className={`btn btn-xs btn-ghost text-error hover:bg-error/10 hover:text-error transition border-none ${vehicle.isBanned ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                title="Ban Vehicle"
+                                            >
+                                                <Ban className="h-4 w-4" />
+                                            </button>
+                                        </td>
+                                    )
+                                }
                             </tr>
                         ))}
                     </tbody>
                 </table>
-            </div>
+            </div >
 
             {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="flex justify-center mb-10">
-                    <div className="join">
-                        {Array.from({ length: totalPages }).map((_, i) => (
-                            <input
-                                key={i}
-                                className="join-item btn btn-square"
-                                type="radio"
-                                name="user-pagination"
-                                aria-label={String(i + 1)}
-                                checked={page === i + 1}
-                                onChange={() => setPage(i + 1)}
-                                readOnly
-                            />
-                        ))}
+            {
+                totalPages > 1 && (
+                    <div className="flex justify-center mb-10">
+                        <div className="join">
+                            {Array.from({ length: totalPages }).map((_, i) => (
+                                <input
+                                    key={i}
+                                    className="join-item btn btn-square"
+                                    type="radio"
+                                    name="user-pagination"
+                                    aria-label={String(i + 1)}
+                                    checked={page === i + 1}
+                                    onChange={() => setPage(i + 1)}
+                                    readOnly
+                                />
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Export Modal */}
-            {isExportModalOpen && (
-                <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4">
-                    <div className="bg-base-100 rounded-lg shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
-                        {/* Header */}
-                        <div className="flex justify-between items-center p-6 border-b border-base-300">
-                            <div>
-                                <h2 className="text-2xl font-bold">Export Blacklisted Vehicles</h2>
-                                <p className="text-sm text-base-content/60 mt-1">Customize your export options</p>
-                            </div>
-                            <button
-                                onClick={() => setIsExportModalOpen(false)}
-                                className="btn btn-ghost btn-sm btn-circle"
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        {/* Content */}
-                        <div className="p-6 space-y-6">
-                            {/* Data Source */}
-                            <div>
-                                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                                    <span className="badge badge-primary">1</span>
-                                    Select Data Source
-                                </h3>
-                                <div className="space-y-2 ml-8">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            className="checkbox checkbox-primary"
-                                            checked={includeRegular}
-                                            onChange={(e) => setIncludeRegular(e.target.checked)}
-                                        />
-                                        <span>Include Regular Vehicles ({blacklistedVehicles.length})</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            className="checkbox checkbox-primary"
-                                            checked={includeGuest}
-                                            onChange={(e) => setIncludeGuest(e.target.checked)}
-                                        />
-                                        <span>Include Guest Vehicles ({blacklistedGuestCount})</span>
-                                    </label>
+            {
+                isExportModalOpen && (
+                    <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50 p-4">
+                        <div className="bg-base-100 rounded-lg shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
+                            {/* Header */}
+                            <div className="flex justify-between items-center p-6 border-b border-base-300">
+                                <div>
+                                    <h2 className="text-2xl font-bold">Export Blacklisted Vehicles</h2>
+                                    <p className="text-sm text-base-content/60 mt-1">Customize your export options</p>
                                 </div>
+                                <button
+                                    onClick={() => setIsExportModalOpen(false)}
+                                    className="btn btn-ghost btn-sm btn-circle"
+                                >
+                                    <X size={20} />
+                                </button>
                             </div>
 
-                            {/* Columns Selection */}
-                            <div>
-                                <div className="flex justify-between items-center mb-3">
-                                    <h3 className="font-semibold flex items-center gap-2">
-                                        <span className="badge badge-primary">2</span>
-                                        Select Columns ({selectedCount}/{availableColumns.length})
+                            {/* Content */}
+                            <div className="p-6 space-y-6">
+                                {/* Data Source */}
+                                <div>
+                                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                                        <span className="badge badge-primary">1</span>
+                                        Select Data Source
                                     </h3>
-                                    <button
-                                        onClick={handleSelectAll}
-                                        className="btn btn-ghost btn-xs"
-                                    >
-                                        {Object.values(selectedColumns).every(v => v) ? 'Deselect All' : 'Select All'}
-                                    </button>
-                                </div>
-                                <div className="grid grid-cols-2 gap-2 ml-8">
-                                    {availableColumns.map(col => (
-                                        <label
-                                            key={col.key}
-                                            className="flex items-center gap-2 cursor-pointer hover:bg-base-200 p-2 rounded"
-                                        >
+                                    <div className="space-y-2 ml-8">
+                                        <label className="flex items-center gap-2 cursor-pointer">
                                             <input
                                                 type="checkbox"
-                                                className="checkbox checkbox-sm checkbox-primary"
-                                                checked={selectedColumns[col.key]}
-                                                onChange={() => handleColumnToggle(col.key)}
+                                                className="checkbox checkbox-primary"
+                                                checked={includeRegular}
+                                                onChange={(e) => setIncludeRegular(e.target.checked)}
                                             />
-                                            <span className="text-sm">{col.label}</span>
+                                            <span>Include Regular Vehicles ({blacklistedVehicles.length})</span>
                                         </label>
-                                    ))}
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                className="checkbox checkbox-primary"
+                                                checked={includeGuest}
+                                                onChange={(e) => setIncludeGuest(e.target.checked)}
+                                            />
+                                            <span>Include Guest Vehicles ({blacklistedGuestCount})</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* Columns Selection */}
+                                <div>
+                                    <div className="flex justify-between items-center mb-3">
+                                        <h3 className="font-semibold flex items-center gap-2">
+                                            <span className="badge badge-primary">2</span>
+                                            Select Columns ({selectedCount}/{availableColumns.length})
+                                        </h3>
+                                        <button
+                                            onClick={handleSelectAll}
+                                            className="btn btn-ghost btn-xs"
+                                        >
+                                            {Object.values(selectedColumns).every(v => v) ? 'Deselect All' : 'Select All'}
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 ml-8">
+                                        {availableColumns.map(col => (
+                                            <label
+                                                key={col.key}
+                                                className="flex items-center gap-2 cursor-pointer hover:bg-base-200 p-2 rounded"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    className="checkbox checkbox-sm checkbox-primary"
+                                                    checked={selectedColumns[col.key]}
+                                                    onChange={() => handleColumnToggle(col.key)}
+                                                />
+                                                <span className="text-sm">{col.label}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Sort Options */}
+                                <div>
+                                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                                        <span className="badge badge-primary">3</span>
+                                        Sort By
+                                    </h3>
+                                    <select
+                                        className="select select-bordered w-full"
+                                        value={sortBy}
+                                        onChange={(e) => setSortBy(e.target.value)}
+                                    >
+                                        <option value="date-desc">Blacklisted Date (Newest First)</option>
+                                        <option value="date-asc">Blacklisted Date (Oldest First)</option>
+                                        <option value="plate-asc">Plate Number (A-Z)</option>
+                                        <option value="plate-desc">Plate Number (Z-A)</option>
+                                        <option value="branch">Branch (Alphabetical)</option>
+                                    </select>
                                 </div>
                             </div>
 
-                            {/* Sort Options */}
-                            <div>
-                                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                                    <span className="badge badge-primary">3</span>
-                                    Sort By
-                                </h3>
-                                <select
-                                    className="select select-bordered w-full"
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value)}
+                            {/* Footer */}
+                            <div className="flex justify-end gap-3 p-6 border-t border-base-300">
+                                <button
+                                    onClick={() => setIsExportModalOpen(false)}
+                                    className="btn btn-ghost"
                                 >
-                                    <option value="date-desc">Blacklisted Date (Newest First)</option>
-                                    <option value="date-asc">Blacklisted Date (Oldest First)</option>
-                                    <option value="plate-asc">Plate Number (A-Z)</option>
-                                    <option value="plate-desc">Plate Number (Z-A)</option>
-                                    <option value="branch">Branch (Alphabetical)</option>
-                                </select>
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleExport}
+                                    disabled={selectedCount === 0 || (!includeRegular && !includeGuest)}
+                                    className="btn btn-primary gap-2"
+                                >
+                                    <Download size={18} />
+                                    Export CSV
+                                </button>
                             </div>
                         </div>
-
-                        {/* Footer */}
-                        <div className="flex justify-end gap-3 p-6 border-t border-base-300">
-                            <button
-                                onClick={() => setIsExportModalOpen(false)}
-                                className="btn btn-ghost"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleExport}
-                                disabled={selectedCount === 0 || (!includeRegular && !includeGuest)}
-                                className="btn btn-primary gap-2"
-                            >
-                                <Download size={18} />
-                                Export CSV
-                            </button>
-                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
 
-            {unBlacklistModal && (
-                <div
-                    className="modal modal-open backdrop-blur-md"
-                    onClick={() => setUnBlacklistModal(false)}
-                >
+            {
+                unBlacklistModal && (
                     <div
-                        className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
-                        onClick={(e) => e.stopPropagation()}
+                        className="modal modal-open backdrop-blur-md"
+                        onClick={() => setUnBlacklistModal(false)}
                     >
-                        <h3 className="text-2xl font-semibold mb-6 text-white">Unblacklist Vehicle</h3>
+                        <div
+                            className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <h3 className="text-2xl font-semibold mb-6 text-white">Unblacklist Vehicle</h3>
 
-                        <p className="text-gray-200 mb-4">
-                            Are you sure you want to unblacklist vehicle{" "}
-                            <span className="font-bold">{formData.plateNumber}</span>?
-                        </p>
+                            <p className="text-gray-200 mb-4">
+                                Are you sure you want to unblacklist vehicle{" "}
+                                <span className="font-bold">{formData.plateNumber}</span>?
+                            </p>
 
-                        <label className="text-gray-200 font-semibold">Reason for unblacklist</label>
-                        <textarea
-                            className="textarea textarea-bordered w-full bg-white text-black my-4 resize-none"
-                            placeholder="Enter reason"
-                            value={formData.reason}
-                            onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                            rows={4}
-                        ></textarea>
+                            <label className="text-gray-200 font-semibold">Reason for unblacklist</label>
+                            <textarea
+                                className="textarea textarea-bordered w-full bg-white text-black my-4 resize-none"
+                                placeholder="Enter reason"
+                                value={formData.reason}
+                                onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                                rows={4}
+                            ></textarea>
 
 
-                        <div className="modal-action">
-                            <button
-                                onClick={() => setUnBlacklistModal(false)}
-                                className="btn btn-sm btn-ghost text-white"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={() => handleUnblacklist(formData.id, formData.reason)}
-                                className="btn btn-error"
-                            >
-                                Unblacklist Vehicle
-                            </button>
+                            <div className="modal-action">
+                                <button
+                                    onClick={() => setUnBlacklistModal(false)}
+                                    className="btn btn-sm btn-ghost text-white"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => handleUnblacklist(formData.id, formData.reason)}
+                                    className="btn btn-error"
+                                >
+                                    Unblacklist Vehicle
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
+
+            {
+                banVehicleModal && (
+                    <div
+                        className="modal modal-open backdrop-blur-md"
+                        onClick={() => setBanVehicleModal(false)}
+                    >
+                        <div
+                            className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <h3 className="text-2xl font-semibold mb-6 text-white">Ban Vehicle</h3>
+
+                            <p className="text-gray-200 mb-4">
+                                Are you sure you want to ban vehicle{" "}
+                                <span className="font-bold">{formData.plateNumber}</span>?
+                            </p>
+
+                            <p className="text-red-400 font-semibold mb-4 text-sm">
+                                This vehicle will be banned permanently. This action cannot be undone.
+                            </p>
+
+                            <label className="text-gray-200 font-semibold">Reason for ban</label>
+                            <textarea
+                                className="textarea textarea-bordered w-full bg-white text-black my-4 resize-none"
+                                placeholder="Enter reason"
+                                value={formData.reason}
+                                onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                                rows={4}
+                            ></textarea>
+
+
+                            <div className="modal-action">
+                                <button
+                                    onClick={() => setBanVehicleModal(false)}
+                                    className="btn btn-sm btn-ghost text-white"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => handleBanVehicle(formData.id, formData.reason)}
+                                    className="btn btn-error"
+                                >
+                                    Ban Vehicle
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
         </>
     );
 };

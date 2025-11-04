@@ -13,6 +13,7 @@ import {
     approveUpdateVehicleRequest,
     denyVehicleRequest,
     rejectUpdateVehicleRequest,
+    banVehicle
 } from "../controllers/vehicle.controller.js";
 
 // Import middleware
@@ -49,6 +50,9 @@ router.patch("/reject-update-vehicle-request", protectRoute, authorizeRoles("adm
 
 // Archive a vehicle (admin only)
 router.patch("/archive-unarchive-vehicle", protectRoute, authorizeRoles("admin"), archiveUnarchiveVehicle);
+
+// Ban a vehicle (admin only)
+router.patch("/ban-vehicle", protectRoute, authorizeRoles("admin"), banVehicle);
 
 // Deny vehicle registration request (admin only)
 router.delete("/deny-vehicle-request", protectRoute, authorizeRoles("admin"), denyVehicleRequest);
