@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { useUserStore } from "../stores/useUserStore";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import { useGuestVehicleStore } from "../stores/useGuestVehicleStore";
-import { Ban, Search, Download, X, FileSpreadsheet } from "lucide-react";
+import { Ban, Search, Download, X, FileSpreadsheet, ParkingCircleIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 import Papa from "papaparse";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { set } from "mongoose";
 
 dayjs.extend(relativeTime);
 
@@ -19,6 +20,7 @@ const BlacklistedGuestVehicleList = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
     const [unBlacklistModal, setUnBlacklistModal] = useState(false);
+    const [banGuestVehicleModal, setBanGuestVehicleModal] = useState(false);
     const [formData, setFormData] = useState({
         id: "",
         plateNumber: "",
@@ -40,7 +42,7 @@ const BlacklistedGuestVehicleList = () => {
 
     const { user } = useUserStore();
     const { loadingVehicles } = useVehicleStore();
-    const { guestVehicles, blacklistOrUnblacklistGuestVehicle, fetchGuestVehicles } = useGuestVehicleStore();
+    const { guestVehicles, blacklistOrUnblacklistGuestVehicle, fetchGuestVehicles, banGuestVehicle } = useGuestVehicleStore();
 
     const blacklistedVehicles = guestVehicles.filter((vehicle) => vehicle.isBlacklisted).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
@@ -72,8 +74,27 @@ const BlacklistedGuestVehicleList = () => {
         };
     }
 
+    const handleBanGuestVehicle = (id, reason) => {
+        if (user.role === "admin") {
+            banGuestVehicle(id, reason);
+            setFormData({
+                id: "",
+                plateNumber: "",
+                reason: "",
+            });
+            setBanGuestVehicleModal(false);
+        } else {
+            toast.error("You are not authorized to ban guest vehicles.");
+        };
+    }
+
     const handleUnblacklistModal = (id, plateNumber) => {
         setUnBlacklistModal(true);
+        setFormData({ ...formData, id, plateNumber });
+    }
+
+    const handleBanGuestVehicleModal = (id, plateNumber) => {
+        setBanGuestVehicleModal(true);
         setFormData({ ...formData, id, plateNumber });
     }
 
@@ -255,9 +276,10 @@ const BlacklistedGuestVehicleList = () => {
                         <tr>
                             <th className="text-base font-semibold text-base-content">#</th>
                             <th className="text-base font-semibold text-base-content">Plate Number</th>
-                            <th className="text-base font-semibold text-base-content">Blacklisted Since</th>
+                            <th className="text-base font-semibold text-base-content">Status</th>
+                            <th className="text-base font-semibold text-base-content">Actioned Since</th>
                             <th className="text-base font-semibold text-base-content">Reason</th>
-                            <th className="text-base font-semibold text-base-content">Blacklisted By</th>
+                            <th className="text-base font-semibold text-base-content">Actioned By</th>
                             {(user.role === "admin") && (
                                 <th className="text-base font-semibold text-base-content">Action</th>
                             )}
@@ -275,23 +297,66 @@ const BlacklistedGuestVehicleList = () => {
                             <tr key={vehicle._id} className="hover:bg-base-200 transition">
                                 <th>{(page - 1) * VEHICLES_PER_PAGE + idx + 1}</th>
                                 <td>{vehicle.plateNumber}</td>
+                                <td>{vehicle.isBanned ? (
+                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
+                                            text-error border border-error shadow-sm bg-error/30 w-24">
+                                        <Ban className="h-4 w-4" />
+                                        Banned
+                                    </span>
+                                ) : (
+
+                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
+                                            text-error border border-error shadow-sm w-24">
+                                        <ParkingCircleIcon className="h-4 w-4" />
+                                        Blacklisted
+                                    </span>
+                                )}</td>
                                 <td>
-                                    {vehicle.isBlacklistedAt
-                                        ? dayjs(vehicle.isBlacklistedAt).fromNow()
-                                        : "-"}
+                                    {vehicle.bannedAt
+                                        ? dayjs(vehicle.bannedAt).fromNow()
+                                        : vehicle.isBlacklistedAt
+                                            ? dayjs(vehicle.isBlacklistedAt).fromNow()
+                                            : "-"}
                                 </td>
-                                <td>{vehicle.blackListReason ? vehicle.blackListReason : "-"}</td>
-                                <td>{vehicle.blacklistedBy ? vehicle.blacklistedBy.username : "-"}</td>
-                                {(user.role === "admin") && (
-                                    <td>
-                                        <button
-                                            onClick={() => handleUnblacklistModal(vehicle._id, vehicle.plateNumber) }
-                                            className="btn btn-xs btn-success"
-                                        >
-                                            Unblacklist
-                                        </button>
-                                    </td>
-                                )}
+                                <td className="relative">
+                                    <div className="inline-block group">
+                                        <span className="truncate max-w-[150px] inline-block">
+                                            {vehicle.bannedReason || vehicle.blacklistReason || "-"}
+                                        </span>
+
+                                        {(vehicle.bannedReason?.length > 15 || vehicle.blacklistReason?.length > 15) && (
+                                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-primary rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-10 transition-opacity duration-200 pointer-events-none">
+                                                {vehicle.bannedReason || vehicle.blacklistReason}
+                                            </div>
+                                        )}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {vehicle.bannedBy
+                                        ? vehicle.bannedBy.username
+                                        : vehicle.blacklistedBy?.username ? vehicle.blacklistedBy.username : "-"}
+                                </td>
+                                {
+                                    user.role === "admin" && (
+                                        <td>
+                                            <button
+                                                onClick={() => handleUnblacklistModal(vehicle._id, vehicle.plateNumber)}
+                                                className={`btn btn-xs btn-ghost text-success hover:bg-success/10 hover:text-success transition border-none ${vehicle.isBanned ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                title="Unblacklist"
+                                            >
+                                                <ParkingCircleIcon className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleBanGuestVehicleModal(vehicle._id, vehicle.plateNumber)}
+                                                className={`btn btn-xs btn-ghost text-error hover:bg-error/10 hover:text-error transition border-none ${vehicle.isBanned ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                title="Ban Vehicle"
+                                            >
+                                                <Ban className="h-4 w-4" />
+                                            </button>
+                                        </td>
+                                    )
+                                }
                             </tr>
                         ))}
                     </tbody>
@@ -446,6 +511,55 @@ const BlacklistedGuestVehicleList = () => {
                                 className="btn btn-error"
                             >
                                 Unblacklist Guest Vehicle
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {banGuestVehicleModal && (
+                <div
+                    className="modal modal-open backdrop-blur-md"
+                    onClick={() => setBanGuestVehicleModal(false)}
+                >
+                    <div
+                        className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-2xl font-semibold mb-6 text-white">Ban Guest Vehicle</h3>
+
+                        <p className="text-gray-200 mb-4">
+                            Are you sure you want to ban guest vehicle{" "}
+                            <span className="font-bold">{formData.plateNumber}</span>?
+                        </p>
+
+                        <p className="text-red-400 font-semibold mb-4 text-sm">
+                            This guest vehicle will be banned permanently. This action cannot be undone.
+                        </p>
+
+                        <label className="text-gray-200 font-semibold">Reason for ban</label>
+                        <textarea
+                            className="textarea textarea-bordered w-full bg-white text-black my-4 resize-none"
+                            placeholder="Enter reason"
+                            value={formData.reason}
+                            onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                            rows={4}
+                            maxLength={30}
+                        ></textarea>
+
+
+                        <div className="modal-action">
+                            <button
+                                onClick={() => setBanGuestVehicleModal(false)}
+                                className="btn btn-sm btn-ghost text-white"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleBanGuestVehicle(formData.id, formData.reason)}
+                                className="btn btn-error"
+                            >
+                                Ban Guest Vehicle
                             </button>
                         </div>
                     </div>

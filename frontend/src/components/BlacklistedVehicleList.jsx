@@ -341,11 +341,25 @@ const BlacklistedVehicleList = () => {
                                     </span>
                                 )}</td>
                                 <td>
-                                    {vehicle.isBlacklistedAt
-                                        ? dayjs(vehicle.isBlacklistedAt).fromNow()
-                                        : "-"}
+                                    {vehicle.bannedAt
+                                        ? dayjs(vehicle.bannedAt).fromNow()
+                                        : vehicle.isBlacklistedAt
+                                            ? dayjs(vehicle.isBlacklistedAt).fromNow()
+                                            : "-"}
                                 </td>
-                                <td>{vehicle.bannedReason ? vehicle.bannedReason : vehicle.blacklistReason ? vehicle.blacklistReason : "-"}</td>
+                                <td className="relative">
+                                    <div className="inline-block group">
+                                        <span className="truncate max-w-[150px] inline-block">
+                                            {vehicle.bannedReason || vehicle.blacklistReason || "-"}
+                                        </span>
+
+                                        {(vehicle.bannedReason?.length > 15 || vehicle.blacklistReason?.length > 15) && (
+                                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-primary rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-10 transition-opacity duration-200 pointer-events-none">
+                                                {vehicle.bannedReason || vehicle.blacklistReason}
+                                            </div>
+                                        )}
+                                    </div>
+                                </td>
                                 <td>
                                     {vehicle.bannedBy
                                         ? vehicle.bannedBy.username
@@ -597,6 +611,7 @@ const BlacklistedVehicleList = () => {
                                 value={formData.reason}
                                 onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
                                 rows={4}
+                                maxLength={30}
                             ></textarea>
 
 

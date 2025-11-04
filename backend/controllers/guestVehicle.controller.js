@@ -7,7 +7,8 @@ export const viewGuestVehicles = async (req, res) => {
         const guestVehicles = await GuestVehicle.find()
             .populate("addedBy", "-password")
             .populate("blacklistedBy", "username email")
-            .populate("unblacklistedBy", "username email");
+            .populate("unblacklistedBy", "username email")
+            .populate("bannedBy", "username email")
         res.json(guestVehicles);
     } catch (error) {
         console.error("Error in viewGuestVehicles controller:", error);
@@ -210,6 +211,43 @@ export const blacklistOrUnblacklistGuestVehicle = async (req, res) => {
 
     } catch (error) {
         console.error("Error in blacklistGuestVehicle controller:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+// Ban guest vehicle controller
+export const banGuestVehicle = async (req, res) => {
+    const { id, reason } = req.body;
+    const reqUser = req.user;
+
+    try {
+        if (!id) {
+            return res.status(400).json({ message: "Id is required" });
+        }
+
+        if (!reason) {
+            return res.status(400).json({ message: "Reason is required" });
+        }
+
+        const guestVehicle = await GuestVehicle.findOne({ _id: id });
+
+        if (!guestVehicle) {
+            return res.status(404).json({ message: "Guest vehicle not found" });
+        }
+
+        if (guestVehicle.isBanned) {
+            return res.status(400).json({ message: "Guest vehicle is already banned" });
+        }
+        guestVehicle.isBanned = true;
+        guestVehicle.bannedBy = reqUser._id;
+        guestVehicle.bannedReason = reason;
+        guestVehicle.bannedAt = Date.now();
+        await guestVehicle.save();
+
+        res.status(200).json({ message: "Guest vehicle banned", guestVehicle });
+
+    } catch (error) {
+        console.error("Error in banGuestVehicle controller:", error);
         res.status(500).json({ message: "Server error" });
     }
 }

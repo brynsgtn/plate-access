@@ -57,6 +57,25 @@ export const useGuestVehicleStore = create((set, get) => ({
         }
     },
 
+    banGuestVehicle: async (guestVehicleId, reason) => {
+        set({ blacklistLoading: true });
+        try {
+            const response = await axios.patch(`/guest-vehicle/ban-guest-vehicle`, { id: guestVehicleId, reason: reason });
+            console.log("Guest vehicle banned:", response.data);
+            set((prevState) => ({
+                guestVehicles: prevState.guestVehicles.map((guestVehicle) =>
+                    guestVehicle._id === guestVehicleId ? response.data.guestVehicle : guestVehicle
+                )
+            }));
+            set({ blacklistLoading: false });
+            toast.success(response?.data?.message || "Guest vehicle banned successfully!");
+        } catch (error) {
+            console.error("Error in banGuestVehicle:", error);
+            toast.error(error.response?.data?.message || "Failed to ban guest vehicle.");
+            set({ blacklistLoading: false });
+        }
+    },
+
     extendGuestVehicleAccess: async (guestVehicleId) => {
         set({ extendingLoading: true });
         try {

@@ -66,6 +66,23 @@ const guestVehicleSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        isBanned: {
+            type: Boolean,
+            default: false
+        },
+        bannedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null
+        },
+        bannedReason: {
+            type: String,
+            default: null
+        },
+        bannedAt: {
+            type: Date,
+            default: null
+        },
     },
     {
         timestamps: true

@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, PlusCircle, ArchiveIcon } from "lucide-react";
+import { Edit, Ban, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, PlusCircle, ArchiveIcon } from "lucide-react";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
-import Papa from "papaparse";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 
@@ -320,22 +319,21 @@ const VehicleList = () => {
                                     <td className="py-4">
                                         {/* Status badge */}
 
-                                        {vehicle.isBlacklisted ? (
-                                            <div>
-                                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
-                                            text-error border border-error shadow-sm">
-                                                    Blacklisted
-                                                </span>
-                                            </div>
+                                        {vehicle.isBanned ? (
+                                            <span className="inline-flex items-center justify-center gap-1 px-3 py-1 text-xs font-semibold  rounded-md shadow-sm w-24 text-center text-error border border-error bg-error/30">
+                                                <Ban className="h-4 w-4" />
+                                                Banned
+                                            </span>
+                                        ) : vehicle.isBlacklisted ? (
+                                            <span className="inline-flex items-center justify-center gap-1 px-3 py-1 text-xs font-semibold  text-error border border-error rounded-md shadow-sm w-24 text-center">
+                                                Blacklisted
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center justify-center gap-1 px-3 py-1 text-xs font-semibold  text-success border border-success rounded-md shadow-sm w-24 text-center">
+                                                Authorized
+                                            </span>
+                                        )}
 
-                                        ) :
-                                            <div>
-                                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
-                                            text-success border border-success shadow-sm">
-                                                    Authorized
-                                                </span>
-                                            </div>
-                                        }
 
                                         {/* {(vehicle.isBlacklisted ? (
                                             <div className="tooltip" data-tip='This vehicle is blacklisted'>
@@ -364,7 +362,7 @@ const VehicleList = () => {
                                     {user.role !== "itAdmin" && <td className="flex">
                                         <button
                                             onClick={() => handleEdit(vehicle._id)}
-                                            className="btn btn-xs btn-ghost text-primary"
+                                            className={`btn btn-xs btn-ghost text-primary ${vehicle.isBanned || vehicle.isBlacklisted ? 'cursor-not-allowed opacity-50' : ''}`}
                                             title="Edit"
                                         >
                                             <Edit className="h-4 w-4" />

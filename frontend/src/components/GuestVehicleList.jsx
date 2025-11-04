@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Edit, Trash2, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, ArchiveIcon } from "lucide-react";
-import { useVehicleStore } from "../stores/useVehicleStore";
+import { BadgePlusIcon, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, ArchiveIcon, Ban } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
 import { useGuestVehicleStore } from "../stores/useGuestVehicleStore";
@@ -8,7 +7,7 @@ import Papa from "papaparse";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { set } from "mongoose";
+
 
 
 dayjs.extend(relativeTime);
@@ -309,8 +308,16 @@ const GuestVehicleList = () => {
                                     <td className="py-4">{vehicle.ownerName}</td>
                                     <td className="py-4">
                                         {/* Status badge */}
-                                        {(vehicle.isBlacklisted ? (
+                                        {vehicle.isBanned ? (
                                             <div>
+                                                <span className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
+                                                    text-error border border-error shadow-sm w-24 bg-error/30">
+                                                    <Ban className="h-4 w-4" />
+                                                    Banned
+                                                </span>
+                                            </div>
+                                        ) : vehicle.isBlacklisted ? (
+                                            <div>   
                                                 {/* {user.isAdmin ? (
                                                     <button
                                                         onClick={() => handleUnblacklist(vehicle._id)}
@@ -372,7 +379,7 @@ const GuestVehicleList = () => {
                                                 </>
 
                                             ))
-                                        )}
+                                        }
                                     </td>
                                     <td>
                                         {vehicle.createdAt
@@ -382,11 +389,11 @@ const GuestVehicleList = () => {
                                         <td className="py-4">
                                             <button
                                                 onClick={() => handleExtendAccess(vehicle._id)}
-                                                className="btn btn-xs btn-ghost text-primary bg-transparent hover:bg-transparent border-none tooltip"
+                                                className={`btn btn-xs btn-ghost text-primary bg-transparent hover:bg-transparent border-none tooltip ${vehicle.isBanned || vehicle.isBlacklisted ? 'cursor-not-allowed opacity-50' : ''}`}
                                                 data-tip="Extend access"
                                                 title="Edit"
                                             >
-                                                <Edit className="h-4 w-4" />
+                                                <BadgePlusIcon className="h-4 w-4" />
                                             </button>
                                             <button
                                                 onClick={() => handleopenBlacklistModal(vehicle._id)}
