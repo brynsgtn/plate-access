@@ -7,8 +7,10 @@ export const viewVehicles = async (req, res) => {
         // Fetch all vehicles with populated user references
         const vehicles = await Vehicle.find({})
             .populate('addedBy', 'username email') // Populate addedBy field
-            .populate('updateRequest.requestedBy', 'username email') // Populate updateRequest.requestedBy
-            .populate('blacklistRequest.requestedBy', 'username email');
+            .populate('updateRequest.requestedBy', 'username email') // Populate updateRequest.requestedBy field
+            .populate('blacklistedBy', 'username email') // Populate blacklistedBy field
+            .populate('unblacklistedBy', 'username email'); // Populate unblacklistedBy field
+
 
         // Respond with the list of vehicles
         res.status(200).json({ vehicles });
@@ -148,11 +150,16 @@ export const archiveUnarchiveVehicle = async (req, res) => {
 
 // Blacklist or unblacklist vehicle
 export const blackListOrUnblacklistVehicle = async (req, res) => {
-    const { id } = req.body;
+    const { id, reason } = req.body;
+    const reqUser = req.user;
 
     // Validate request body
     if (!id) {
         return res.status(400).json({ message: "Vehicle ID is required" });
+    }
+
+    if (!reason) {
+        return res.status(400).json({ message: "Reason is required" });
     }
 
     try {
@@ -167,9 +174,19 @@ export const blackListOrUnblacklistVehicle = async (req, res) => {
 
         // Update the isBlacklistedAt field if the vehicle is blacklisted
         if (vehicle.isBlacklisted) {
+            vehicle.unblacklistedBy = null;
+            vehicle.unblacklistedAt = null;
+            vehicle.unblacklistReason = null;
             vehicle.isBlacklistedAt = new Date();
+            vehicle.blacklistedBy = reqUser._id;
+            vehicle.blacklistReason = reason;
         } else {
             vehicle.isBlacklistedAt = null;
+            vehicle.blacklistedBy = null;
+            vehicle.blacklistReason = null;
+            vehicle.unblacklistedBy = reqUser._id;
+            vehicle.unblacklistedAt = new Date();
+            vehicle.unblacklistReason = reason;
         }
 
         // Save the updated vehicle

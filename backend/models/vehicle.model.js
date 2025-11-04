@@ -39,6 +39,33 @@ const vehicleSchema = new mongoose.Schema(
             type: Date,
             default: null
         },
+        // Reason for blacklisting
+        blacklistReason: {
+            type: String,
+            default: null
+        },
+        // Information about who blacklisted the vehicle
+        blacklistedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null
+        },
+        // Information about who unblacklisted the vehicle
+        unblacklistedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null
+        },
+        // Date when the vehicle was unblacklisted
+        unblacklistedAt: {
+            type: Date,
+            default: null
+        },
+        // Reason for unblacklisting
+        unblacklistReason: {
+            type: String,
+            default: null
+        },
         //Requests made my parking staff
         // Vehicle's registration approval status - for parking staff
         isApproved: {
@@ -69,19 +96,7 @@ const vehicleSchema = new mongoose.Schema(
                 status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
             }, { _id: false }),
             default: null
-        },
-
-        blacklistRequest: {
-            type: new mongoose.Schema({
-                requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-                requestedAt: { type: Date, default: Date.now },
-                approvedOrDeclinedAt: { type: Date, default: null },
-                reason: { type: String },
-                status: { type: String, default: 'pending' }
-            }, { _id: false }),
-            default: null
         }
-
     },
     {
         timestamps: true, // Created at, updated at, etc..

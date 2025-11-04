@@ -102,7 +102,7 @@ const VehicleList = () => {
 
 
     const handleBlacklist = () => {
-        blacklistOrUnblacklistVehicle(formData.id);
+        blacklistOrUnblacklistVehicle(formData.id, formData.reason);
         console.log("Blacklisting vehicle with ID:", formData.id);
         setFormData({
             id: "", plateNumber: "", makeModel: "", ownerName: "", branch: "", reason: "",
@@ -319,7 +319,25 @@ const VehicleList = () => {
                                     <td className="py-4">{vehicle.ownerName}</td>
                                     <td className="py-4">
                                         {/* Status badge */}
-                                        {(vehicle.isBlacklisted ? (
+
+                                        {vehicle.isBlacklisted ? (
+                                            <div>
+                                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
+                                            text-error border border-error shadow-sm">
+                                                    Blacklisted
+                                                </span>
+                                            </div>
+
+                                        ) :
+                                            <div>
+                                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
+                                            text-success border border-success shadow-sm">
+                                                    Authorized
+                                                </span>
+                                            </div>
+                                        }
+
+                                        {/* {(vehicle.isBlacklisted ? (
                                             <div className="tooltip" data-tip='This vehicle is blacklisted'>
                                                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
                                             text-error border border-error shadow-sm">
@@ -336,20 +354,28 @@ const VehicleList = () => {
                                                     Authorized
                                                 </button>
                                             </div>
-                                        )}
+                                        )} */}
                                     </td>
                                     <td>{vehicle.branch ? vehicle.branch : '-'}</td>
                                     <td>
                                         {vehicle.createdAt
                                             ? dayjs(vehicle.createdAt).fromNow() : '-'}
                                     </td>
-                                    {user.role !== "itAdmin" && <td className="flex gap-2">
+                                    {user.role !== "itAdmin" && <td className="flex">
                                         <button
                                             onClick={() => handleEdit(vehicle._id)}
                                             className="btn btn-xs btn-ghost text-primary"
                                             title="Edit"
                                         >
                                             <Edit className="h-4 w-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleopenBlacklistModal(vehicle._id)}
+                                            className={`btn btn-xs btn-ghost text-error ${vehicle.isBlacklisted ? 'cursor-not-allowed opacity-50' : ''}`}
+                                            title="Blacklist"
+                                            disabled={vehicle.isBlacklisted}
+                                        >
+                                            <ParkingCircleOffIcon className="h-4 w-4" />
                                         </button>
                                         {user.role === "admin" && (
                                             <button
@@ -568,6 +594,16 @@ const VehicleList = () => {
                             Are you sure you want to blacklist vehicle{" "}
                             <span className="font-bold">{formData.plateNumber}</span>?
                         </p>
+
+                        <label className="text-gray-200 font-semibold">Reason for blacklist</label>
+                        <textarea
+                            className="textarea textarea-bordered w-full bg-white text-black my-4 resize-none"
+                            placeholder="Enter reason"
+                            value={formData.reason}
+                            onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                            rows={4}
+                        ></textarea>
+
 
                         <div className="modal-action">
                             <button

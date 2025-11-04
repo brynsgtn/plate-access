@@ -16,7 +16,7 @@ const HomePage = () => {
     "admin": [
       { icon: Shield, title: "Dashboard Access", description: "Secure login to access the administrative dashboard" },
       { icon: Users, title: "View Registered Users", description: "Access to view all registered users in the system" },
-      { icon: ClipboardList, title: "Vehicle Management", description: "Add, edit, delete, approve, and deny requests for vehicle information" },
+      { icon: ClipboardList, title: "Vehicle Management", description: "Add/edit vehicles, approve and deny registration/edit requests for vehicle/ vehicle information" },
       { icon: ScanSearch, title: "License Plate Monitoring", description: "View and manage license plate recognition data" }
     ],
     "parkingStaff": [

@@ -35,7 +35,7 @@ router.put("/update-vehicle", protectRoute, authorizeRoles("admin"), updateVehic
 // Request to update a vehicle (user, requires admin approval)
 router.put("/request-update-vehicle", protectRoute, requestUpdateVehicle);
 
-// Blacklist or unblacklist a vehicle (admin only)
+// Blacklist or unblacklist a vehicle (admin only for unblacklist)
 router.patch("/blacklist-unblacklist-vehicle", protectRoute, blackListOrUnblacklistVehicle);
 
 // Approve add vehicle request (admin only)

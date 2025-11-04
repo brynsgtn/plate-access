@@ -9,6 +9,7 @@ import Papa from "papaparse";
 
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { set } from "mongoose";
 
 dayjs.extend(relativeTime);
 
@@ -18,6 +19,12 @@ const BlacklistedVehicleList = () => {
     const [page, setPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+    const [unBlacklistModal, setUnBlacklistModal] = useState(false);
+    const [formData, setFormData] = useState({
+        id: "",
+        plateNumber: "",
+        reason: "",
+    });
 
     // Export modal states
     const [selectedColumns, setSelectedColumns] = useState({
@@ -54,11 +61,22 @@ const BlacklistedVehicleList = () => {
         : [];
 
     const handleUnblacklist = (id) => {
-        if (user.role === "admin" || user.role === "itAdmin") {
-            blacklistOrUnblacklistVehicle(id)
+        if (user.role === "admin") {
+            blacklistOrUnblacklistVehicle(id, formData.reason);
+            setFormData({
+                id: "",
+                plateNumber: "",
+                reason: "",
+            });
+            setUnBlacklistModal(false);
         } else {
             toast.error("You are not authorized to unblacklist vehicles.");
         };
+    }
+
+    const handleUnblacklistModal = (id, plateNumber) => {
+        setUnBlacklistModal(true);
+        setFormData({ ...formData, id, plateNumber });
     }
 
     // Export functionality
@@ -267,10 +285,10 @@ const BlacklistedVehicleList = () => {
                         <tr>
                             <th className="text-base font-semibold text-base-content">#</th>
                             <th className="text-base font-semibold text-base-content">Plate Number</th>
-                            <th className="text-base font-semibold text-base-content">Make & Model</th>
-                            <th className="text-base font-semibold text-base-content">Owner</th>
                             <th className="text-base font-semibold text-base-content">Branch</th>
                             <th className="text-base font-semibold text-base-content">Blacklisted Since</th>
+                            <th className="text-base font-semibold text-base-content">Reason</th>
+                            <th className="text-base font-semibold text-base-content">Blacklisted By</th>
                             {user.role === "admin" && (
                                 <th className="text-base font-semibold text-base-content">Action</th>
                             )}
@@ -288,18 +306,22 @@ const BlacklistedVehicleList = () => {
                             <tr key={vehicle._id} className="hover:bg-base-200 transition">
                                 <th>{(page - 1) * VEHICLES_PER_PAGE + idx + 1}</th>
                                 <td>{vehicle.plateNumber}</td>
-                                <td>{vehicle.makeModel}</td>
-                                <td>{vehicle.ownerName}</td>
                                 <td>{vehicle.branch ? vehicle.branch : "-"}</td>
                                 <td>
                                     {vehicle.isBlacklistedAt
                                         ? dayjs(vehicle.isBlacklistedAt).fromNow()
                                         : "-"}
                                 </td>
+                                <td>{vehicle.blacklistReason ? vehicle.blacklistReason : "-"}</td>
+                                <td>
+                                    {vehicle.blacklistedBy
+                                        ? vehicle.blacklistedBy.username
+                                        : "N/A"}
+                                </td>
                                 {user.role === "admin" && (
                                     <td>
                                         <button
-                                            onClick={() => handleUnblacklist(vehicle._id)}
+                                            onClick={() => handleUnblacklistModal(vehicle._id, vehicle.plateNumber)}
                                             className="btn btn-xs btn-success"
                                         >
                                             Unblacklist
@@ -447,6 +469,51 @@ const BlacklistedVehicleList = () => {
                             >
                                 <Download size={18} />
                                 Export CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
+            {unBlacklistModal && (
+                <div
+                    className="modal modal-open backdrop-blur-md"
+                    onClick={() => setUnBlacklistModal(false)}
+                >
+                    <div
+                        className="modal-box bg-gradient-to-r from-primary to-secondary shadow-lg rounded-lg"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-2xl font-semibold mb-6 text-white">Unblacklist Vehicle</h3>
+
+                        <p className="text-gray-200 mb-4">
+                            Are you sure you want to unblacklist vehicle{" "}
+                            <span className="font-bold">{formData.plateNumber}</span>?
+                        </p>
+
+                        <label className="text-gray-200 font-semibold">Reason for unblacklist</label>
+                        <textarea
+                            className="textarea textarea-bordered w-full bg-white text-black my-4 resize-none"
+                            placeholder="Enter reason"
+                            value={formData.reason}
+                            onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                            rows={4}
+                        ></textarea>
+
+
+                        <div className="modal-action">
+                            <button
+                                onClick={() => setUnBlacklistModal(false)}
+                                className="btn btn-sm btn-ghost text-white"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => handleUnblacklist(formData.id, formData.reason)}
+                                className="btn btn-error"
+                            >
+                                Unblacklist Vehicle
                             </button>
                         </div>
                     </div>

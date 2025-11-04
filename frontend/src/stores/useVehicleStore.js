@@ -79,19 +79,19 @@ export const useVehicleStore = create((set, get) => ({
             toast.error(error.response?.data?.message || "Failed to change vehicle archive status.");
         }
     },
-    blacklistOrUnblacklistVehicle: async (vehicleId) => {
+    blacklistOrUnblacklistVehicle: async (vehicleId, reason) => {
         try {
-            const response = await axios.patch(`/vehicle/blacklist-unblacklist-vehicle`, { id: vehicleId });
+            const response = await axios.patch(`/vehicle/blacklist-unblacklist-vehicle`, { id: vehicleId, reason: reason });
             console.log("Vehicle blacklisted:", response.data);
             set((prevState) => ({
                 vehicles: prevState.vehicles.map((vehicle) =>
                     vehicle._id === vehicleId ? response.data.vehicle : vehicle
                 )
             }));
-            toast.success(response?.data?.message || "Vehicle blacklisted successfully!");
+            toast.success(response?.data?.message || `Vehicle ${response?.data?.vehicle?.isBlacklisted ? "unblacklisted" : "blacklisted"} successfully!`);
         } catch (error) {
-            console.error("Error blacklisting vehicle:", error);
-            toast.error(error.response?.data?.message || "Failed to blacklist vehicle.");
+            console.error("Error in blacklistOrUnblacklistVehicle:", error);
+            toast.error(error.response?.data?.message || "Failed to change vehicle blacklist status.");
         }
     },
     approveVehicleRequest: async (vehicleId) => {
