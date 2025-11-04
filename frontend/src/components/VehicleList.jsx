@@ -373,7 +373,6 @@ const VehicleList = () => {
                                             onClick={() => handleopenBlacklistModal(vehicle._id)}
                                             className={`btn btn-xs btn-ghost text-error ${vehicle.isBlacklisted ? 'cursor-not-allowed opacity-50' : ''}`}
                                             title="Blacklist"
-                                            disabled={vehicle.isBlacklisted}
                                         >
                                             <ParkingCircleOffIcon className="h-4 w-4" />
                                         </button>

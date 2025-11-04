@@ -40,6 +40,28 @@ const guestVehicleSchema = new mongoose.Schema(
             type: Date,
             default: null,
         },
+        blackListReason: {
+            type: String,
+            default: null,
+        },
+        blacklistedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null,
+        },
+        unblacklistedAt: {
+            type: Date,
+            default: null,
+        },
+        unblacklistReason: {
+            type: String,
+            default: null,
+        },
+        unblacklistedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null,
+        },
         isArchived: {
             type: Boolean,
             default: false,

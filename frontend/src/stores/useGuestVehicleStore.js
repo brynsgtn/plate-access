@@ -38,10 +38,10 @@ export const useGuestVehicleStore = create((set, get) => ({
         }
     },
 
-    blacklistOrUnblacklistGuestVehicle: async (guestVehicleId) => {
+    blacklistOrUnblacklistGuestVehicle: async (guestVehicleId, reason) => {
         set({ blacklistLoading: true });
         try {
-            const response = await axios.patch(`/guest-vehicle/blacklist-or-unblacklist-guest-vehicle`, { id: guestVehicleId });
+            const response = await axios.patch(`/guest-vehicle/blacklist-or-unblacklist-guest-vehicle`, { id: guestVehicleId, reason: reason });
             console.log("Guest vehicle blacklisted:", response.data);
             set((prevState) => ({
                 guestVehicles: prevState.guestVehicles.map((guestVehicle) =>
@@ -49,10 +49,10 @@ export const useGuestVehicleStore = create((set, get) => ({
                 )
             }));
             set({ blacklistLoading: false });
-            toast.success(response?.data?.message || "Guest vehicle blacklisted successfully!");
+            toast.success(response?.data?.message || `Guest vehicle ${response.data.guestVehicle.isBlacklisted ? "blacklisted" : "unblacklisted"} successfully!`);
         } catch (error) {
-            console.error("Error blacklisting guest vehicle:", error);
-            toast.error(error.response?.data?.message || "Failed to blacklist guest vehicle.");
+            console.error("Error in blacklistOrUnblacklistGuestVehicle:", error);
+            toast.error(error.response?.data?.message || `Failed to ${response.data.guestVehicle.isBlacklisted ? "blacklist" : "unblacklist"} guest vehicle.`);
             set({ blacklistLoading: false });
         }
     },

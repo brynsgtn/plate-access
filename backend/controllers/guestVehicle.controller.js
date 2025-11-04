@@ -4,7 +4,10 @@ import Vehicle from "../models/vehicle.model.js";
 // View guest vehicle controller
 export const viewGuestVehicles = async (req, res) => {
     try {
-        const guestVehicles = await GuestVehicle.find().populate("addedBy", "-password");
+        const guestVehicles = await GuestVehicle.find()
+            .populate("addedBy", "-password")
+            .populate("blacklistedBy", "username email")
+            .populate("unblacklistedBy", "username email");
         res.json(guestVehicles);
     } catch (error) {
         console.error("Error in viewGuestVehicles controller:", error);
@@ -152,11 +155,16 @@ export const archiveUnarchiveGuestVehicle = async (req, res) => {
 
 // Blacklist guest vehicle controller
 export const blacklistOrUnblacklistGuestVehicle = async (req, res) => {
-    const { id } = req.body;
+    const { id, reason } = req.body;
+    const reqUser = req.user;
 
     try {
         if (!id) {
             return res.status(400).json({ message: "Id is required" });
+        }
+
+        if (!reason) {
+            return res.status(400).json({ message: "Reason is required" });
         }
 
         const guestVehicle = await GuestVehicle.findOne({ _id: id });
@@ -168,6 +176,10 @@ export const blacklistOrUnblacklistGuestVehicle = async (req, res) => {
         if (guestVehicle.isBlacklisted) {
             guestVehicle.isBlacklisted = false;
             guestVehicle.isBlacklistedAt = null;
+            guestVehicle.unblacklistReason = reason;
+            guestVehicle.unblacklistedAt = Date.now();
+            guestVehicle.unblacklistedBy = reqUser._id;
+            guestVehicle.validUntil = new Date(Date.now() + 24 * 60 * 60 * 1000); // extend for 1 day upon unblacklisting   
             await guestVehicle.save();
             return res.status(200).json({ message: "Guest vehicle unblacklisted", guestVehicle });
         }
@@ -187,6 +199,11 @@ export const blacklistOrUnblacklistGuestVehicle = async (req, res) => {
         guestVehicle.isBlacklisted = true;
         guestVehicle.isBlacklistedAt = Date.now();
         guestVehicle.validUntil = new Date(Date.now() - 1000); // 1 second before now
+        guestVehicle.blackListReason = reason;
+        guestVehicle.blacklistedBy = reqUser._id;
+        guestVehicle.unblacklistReason = null;
+        guestVehicle.unblacklistedAt = null;
+        guestVehicle.unblacklistedBy = null;
         await guestVehicle.save();
 
         res.status(200).json({ message: "Guest vehicle blacklisted", guestVehicle });

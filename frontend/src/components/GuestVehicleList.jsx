@@ -106,14 +106,12 @@ const GuestVehicleList = () => {
 
 
     const handleBlacklist = () => {
-        blacklistOrUnblacklistGuestVehicle(formData.id);
+        blacklistOrUnblacklistGuestVehicle(formData.id, formData.reason);
         console.log("Blacklisting vehicle with ID:", formData.id);
+        setFormData({
+            id: "", plateNumber: "", makeModel: "", ownerName: "", reason: "",
+        })
         setBlacklistModal(false);
-    };
-
-    const handleUnblacklist = (id) => {
-        blacklistOrUnblacklistGuestVehicle(id);
-        console.log("Unblacklisting vehicle with ID:", id);
     };
 
     const handleExportCSV = () => {
@@ -312,8 +310,8 @@ const GuestVehicleList = () => {
                                     <td className="py-4">
                                         {/* Status badge */}
                                         {(vehicle.isBlacklisted ? (
-                                            <div className="tooltip" data-tip={` ${user.isAdmin ? "Unblacklist this vehicle" : "This guest vehicle is blacklisted"}`}>
-                                                {user.isAdmin ? (
+                                            <div>
+                                                {/* {user.isAdmin ? (
                                                     <button
                                                         onClick={() => handleUnblacklist(vehicle._id)}
                                                         className="btn btn-xs btn-outline btn-error gap-1"
@@ -326,29 +324,53 @@ const GuestVehicleList = () => {
                                                         Blacklisted
                                                     </span>
                                                 )
-                                                }
+                                                } */}
+
+                                                <span className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
+                                                    text-error border border-error shadow-sm w-24">
+                                                    Blacklisted
+                                                </span>
 
                                             </div>
 
                                         ) :
                                             (new Date(vehicle.validUntil) < new Date() ? (
-                                                <div className="tooltip" data-tip="Guest access expired, blacklist this vehicle">
+                                                <>
+                                                    {/* <div className="tooltip" data-tip="Guest access expired, blacklist this vehicle">
                                                     <button
                                                         onClick={() => handleopenBlacklistModal(vehicle._id)}
                                                         className="btn btn-xs btn-outline btn-warning gap-1"
                                                     >
                                                         Expired
                                                     </button>
-                                                </div>
+                                                </div> */}
+
+
+                                                    <span className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
+                                                        text-warning border border-warning shadow-sm w-24">
+                                                        Expired
+                                                    </span>
+                                                </>
+
+
                                             ) : (
-                                                <div className="tooltip" data-tip="Blacklist this guest vehicle">
+                                                <>
+                                                    {/* <div className="tooltip" data-tip="Blacklist this guest vehicle">
                                                     <button
                                                         onClick={() => handleopenBlacklistModal(vehicle._id)}
                                                         className="btn btn-xs btn-outline btn-success gap-1"
                                                     >
                                                         Authorized
                                                     </button>
-                                                </div>
+                                                </div> */}
+
+                                                    <span className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded-md text-xs font-semibold 
+                                                        text-success border border-success shadow-sm w-24">
+                                                        Authorized
+                                                    </span>
+
+                                                </>
+
                                             ))
                                         )}
                                     </td>
@@ -365,6 +387,13 @@ const GuestVehicleList = () => {
                                                 title="Edit"
                                             >
                                                 <Edit className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleopenBlacklistModal(vehicle._id)}
+                                                className={`btn btn-xs btn-ghost text-error ${vehicle.isBlacklisted ? 'cursor-not-allowed opacity-50' : ''}`}
+                                                title="Blacklist"
+                                            >
+                                                <ParkingCircleOffIcon className="h-4 w-4" />
                                             </button>
                                             {user.role === "admin" && (
                                                 <button
@@ -488,6 +517,16 @@ const GuestVehicleList = () => {
                             Are you sure you want to blacklist guest vehicle{" "}
                             <span className="font-bold">{formData.plateNumber}</span>?
                         </p>
+
+
+                        <label className="text-gray-200 font-semibold">Reason for blacklist</label>
+                        <textarea
+                            className="textarea textarea-bordered w-full bg-white text-black my-4 resize-none"
+                            placeholder="Enter reason"
+                            value={formData.reason}
+                            onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
+                            rows={4}
+                        ></textarea>
 
                         <div className="modal-action">
                             <button
