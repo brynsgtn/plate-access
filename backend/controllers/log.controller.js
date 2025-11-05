@@ -50,6 +50,39 @@ export const entryLogLPR = async (req, res) => {
         // Registered vehicle
         const vehicle = await Vehicle.findOne({ plateNumber: cleanedPlateNumber });
         if (vehicle) {
+
+            if (vehicle.isBanned) {
+                const log = await Log.create({
+                    vehicle: vehicle._id,
+                    plateNumber: cleanedPlateNumber,
+                    branch: branch,
+                    gateType: "entrance",
+                    method: "LPR",
+                    confidence: confidence,
+                    success: false,
+                    banHit: true,
+                    notes: "Banned registered vehicle"
+                });
+                io.emit("newLog", log);
+                return res.status(403).json({ message: "Vehicle is banned", log });
+            }
+
+            if(vehicle.isArchived) {
+                const log = await Log.create({
+                    vehicle: vehicle._id,
+                    plateNumber: cleanedPlateNumber,
+                    branch: branch,
+                    gateType: "entrance",
+                    method: "LPR",
+                    confidence: confidence,
+                    success: false,
+                    archiveHit: true,
+                    notes: "Archived registered vehicle"
+                });
+                io.emit("newLog", log);
+                return res.status(403).json({ message: "Vehicle is archived, please contact admin", log });
+            }
+
             if (vehicle.isBlacklisted) {
                 const log = await Log.create({
                     vehicle: vehicle._id,
@@ -98,6 +131,38 @@ export const entryLogLPR = async (req, res) => {
         // Guest vehicle
         const guestVehicle = await GuestVehicle.findOne({ plateNumber: cleanedPlateNumber });
         if (guestVehicle) {
+
+            if (guestVehicle.isBanned) {
+                const log = await Log.create({
+                    vehicle: guestVehicle._id,
+                    plateNumber: cleanedPlateNumber,
+                    branch: branch,
+                    gateType: "entrance",
+                    method: "LPR",
+                    confidence: confidence,
+                    success: false,
+                    banHit: true, isGuest: true,
+                    notes: "Banned guest vehicle"
+                });
+                io.emit("newLog", log);
+                return res.status(403).json({ message: "Vehicle is banned", log });
+            }
+
+            if (guestVehicle.isArchived) {
+                const log = await Log.create({
+                    vehicle: guestVehicle._id,
+                    plateNumber: cleanedPlateNumber,
+                    branch: branch,
+                    gateType: "entrance",
+                    method: "LPR",
+                    confidence: confidence,
+                    success: false,
+                    isGuest: true,
+                    notes: "Archived guest vehicle"
+                });
+                io.emit("newLog", log);
+                return res.status(403).json({ message: "Guest vehicle is archived, please contact admin", log });
+            }
             if (guestVehicle.isBlacklisted) {
                 const log = await Log.create({
                     vehicle: guestVehicle._id,
@@ -274,8 +339,8 @@ export const entryLogManual = async (req, res) => {
         const cleanedPlateNumber = removeAllWhitespace(plateNumber);
 
         // Find the last log for this plate
-        const lastLog = await Log.findOne({ plateNumber: cleanedPlateNumber })
-            .sort({ timestamp: -1 });
+        // const lastLog = await Log.findOne({ plateNumber: cleanedPlateNumber })
+        //     .sort({ timestamp: -1 });
 
         // // If the last log exists and was an entrance (no exit yet)
         // if (lastLog && lastLog.gateType === "entrance" && lastLog.success) {
@@ -288,6 +353,36 @@ export const entryLogManual = async (req, res) => {
         const vehicle = await Vehicle.findOne({ plateNumber: cleanedPlateNumber });
 
         if (vehicle) {
+
+            if (vehicle.isBanned) {
+                const log = await Log.create({
+                    vehicle: vehicle._id,
+                    plateNumber: cleanedPlateNumber,
+                    branch: currentUserBranch,
+                    gateType: "entrance",
+                    method: "manual",
+                    success: false,
+                    banHit: true,
+                    notes: "Banned"
+                });
+                io.emit("newLog", log); // Emit the new log
+                return res.status(403).json({ message: "Vehicle is banned", log });
+            }
+
+            if (vehicle.isArchived) {
+                const log = await Log.create({
+                    vehicle: vehicle._id,
+                    plateNumber: cleanedPlateNumber,
+                    branch: currentUserBranch,
+                    gateType: "entrance",
+                    method: "manual",
+                    success: false,
+                    archiveHit: true,
+                    notes: "Archived"
+                });
+                io.emit("newLog", log); // Emit the new log
+                return res.status(403).json({ message: "Vehicle is archived, please contact admin", log });
+            }
             // Case 1: Blacklisted
             if (vehicle.isBlacklisted) {
                 const log = await Log.create({

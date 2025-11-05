@@ -239,16 +239,10 @@ const ArchivedVehicleList = () => {
                                     <td className="py-4 font-semibold">{vehicle.plateNumber}</td>
                                     <td className="py-4">{vehicle.makeModel}</td>
                                     <td className="py-4">{vehicle.ownerName}</td>
-                                    <td className="py-4">
-                                        {vehicle.isBlacklisted ? (
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-error border border-error shadow-sm">
-                                                Blacklisted
+                                    <td className="py-4">                
+                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-accent border border-accent shadow-sm">
+                                                Archived
                                             </span>
-                                        ) : (
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-success border border-success shadow-sm">
-                                                Authorized
-                                            </span>
-                                        )}
                                     </td>
                                     <td className="py-4">{vehicle.branch ? vehicle.branch : '-'}</td>
                                     <td className="py-4">

@@ -41,6 +41,14 @@ const logSchema = new mongoose.Schema({
         type: Boolean,
         default: false // becomes true if plate is found in blacklist
     },
+    banHit: {
+        type: Boolean,
+        default: false // becomes true if plate is found in ban list
+    },
+    archiveHit: {
+        type: Boolean,
+        default: false // becomes true if plate is found in archived vehicles
+    },
     notes: {
         type: String,
         default: ""

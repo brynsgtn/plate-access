@@ -6,7 +6,9 @@ import {
     Eye,
     AlertTriangle,
     Ban,
-    FileChartColumnIcon
+    FileChartColumnIcon,
+    ParkingCircleOffIcon,
+    Archive
 
 } from 'lucide-react';
 
@@ -51,7 +53,7 @@ const DashboardPage = () => {
 
     const recentLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 6);
 
-    const recentBlacklistLogs = logs.filter((log) => log.blacklistHit === true).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 2);
+    const recentBlacklistLogs = logs.filter((log) => log.blacklistHit || log.banHit || log.archiveHit === true).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 3);
 
     // Test
 
@@ -325,13 +327,16 @@ const DashboardPage = () => {
                                                             <span>{log.isGuest ? " • Guest" : ""}</span>
                                                             {!isSuccess ? (
                                                                 <>
-                                                                    {log.blacklistHit ? (
-                                                                        <span className="text-error/80 ms-2">• Blacklisted</span>
-                                                                    ) : log.isGuest ? (
-                                                                        <span className="text-error/80 ms-2">• Guest Access Expired</span>
-                                                                    ) : (
-                                                                        <span className="text-error/80 ms-2">• Unrecognized Vehicle</span>
-                                                                    )}
+                                                                    {log.banHit ? <span className="text-error/90 ms-2">• Banned</span>
+                                                                        : log.archiveHit ?
+                                                                            <span className="text-error/90  ms-2">• Archived</span>
+                                                                            : log.blacklistHit ?
+                                                                                <span className="text-error/80 ms-2">• Blacklisted</span>
+                                                                                : log.isGuest ? (
+                                                                                    <span className="text-error/80 ms-2">• Guest Access Expired</span>
+                                                                                ) : (
+                                                                                    <span className="text-error/80 ms-2">• Unrecognized Vehicle</span>
+                                                                                )}
                                                                 </>
                                                             ) : <span
                                                                 className={`${isEntrance ? "text-success/80 ms-2" : "text-warning/80 ms-2"
@@ -421,9 +426,9 @@ const DashboardPage = () => {
                                 <div className="bg-gradient-to-r from-primary to-secondary p-5 rounded-t-xl mb-4">
                                     <h2 className="text-2xl font-bold text-white flex items-center">
                                         <Ban className="mr-3 h-5 w-5 text-white" />
-                                        Blacklist Alerts
+                                        Security Alerts
                                     </h2>
-                                    <p className="text-white/80 mt-2">Latest blacklist alerts</p>
+                                    <p className="text-white/80 mt-2">Latest security alerts</p>
                                 </div>
                                 <div className="p-6 space-y-4">
                                     {recentBlacklistLogs.length > 0 ? (
@@ -434,10 +439,10 @@ const DashboardPage = () => {
                                             >
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex items-start">
-                                                        <Ban className="h-5 w-5 text-red-600 mr-3 mt-0.5" />
+                                                        {log.banHit ? <Ban className="h-5 w-5 text-red-600 mr-3 mt-0.5" /> : log.archiveHit ? <Archive className="h-5 w-5 text-red-600 mr-3 mt-0.5" /> : <ParkingCircleOffIcon className="h-5 w-5 text-red-600 mr-3 mt-0.5" />}
                                                         <div>
                                                             <p className="font-semibold text-red-800">
-                                                                Blacklisted Vehicle
+                                                                {log.banHit ? "Banned" : log.archiveHit ? "Archived" : "Blacklisted"} Vehicle
                                                             </p>
                                                             <p className="text-sm text-red-700">
                                                                 {log.plateNumber} - Access Denied
