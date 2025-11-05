@@ -1,7 +1,7 @@
-import { Mail, UserCheck, AtSign, Calendar, Shield } from "lucide-react";
+import { Mail, UserCheck, AtSign, Calendar, Shield, MapPin } from "lucide-react";
 import dayjs from "dayjs";
 import { useUserStore } from "../stores/useUserStore";
-import { use } from "react";
+
 
 const ProfilePage = () => {
     const { user } = useUserStore();
@@ -58,6 +58,17 @@ const ProfilePage = () => {
                                 </label>
                                 <div className="input input-bordered flex items-center bg-base-200 border-2 group-hover:border-primary/30 transition-colors w-full">
                                     {user.role === "admin" ? "Admin" : user.role ==="itAdmin" ? "IT Admin" : "Parking Staff"}
+                                </div>
+                            </div>
+
+                            {/* Branch Field */}
+                            <div className="group">
+                                <label className="text-sm font-semibold text-base-content/70 flex items-center gap-2 mb-2">
+                                    <MapPin className="w-4 h-4 text-primary" />
+                                    Branch
+                                </label>
+                                <div className="input input-bordered flex items-center bg-base-200 border-2 group-hover:border-primary/30 transition-colors w-full">
+                                    {user.branch || "N/A"}
                                 </div>
                             </div>
                         </div>
