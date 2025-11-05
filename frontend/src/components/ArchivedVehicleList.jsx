@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, RotateCcw, Archive } from "lucide-react";
+import { Search, ParkingCircleIcon, ParkingCircleOffIcon, BanIcon, RotateCcw, Archive } from "lucide-react";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
@@ -129,7 +129,8 @@ const ArchivedVehicleList = () => {
 
     const totalArchivedVehicles = archivedVehicleList.length;
     const archivedAuthorizedVehicles = archivedVehicleList.filter((vehicle) => !vehicle.isBlacklisted).length;
-    const archivedBlacklistedVehicles = archivedVehicleList.filter((vehicle) => vehicle.isBlacklisted).length;
+    const archivedBlacklistedVehicles = archivedVehicleList.filter((vehicle) => vehicle.isBlacklisted && !vehicle.isBanned).length;
+    const archivedBannedVehicles = archivedVehicleList.filter((vehicle) => vehicle.isBanned).length;
 
     if (loadingVehicles) {
         return (
@@ -142,7 +143,7 @@ const ArchivedVehicleList = () => {
     return (
         <>
             <div className="overflow-x-auto max-w-6xl mx-auto mt-10 rounded-xl shadow-lg bg-base-100 border border-base-300 rounded-b-none">
-                {/* Header with Search */} 
+                {/* Header with Search */}
                 <div className="border-b border-base-300 bg-gradient-to-r from-primary to-secondary p-6 rounded-t-xl">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div className="flex items-center gap-3">
@@ -204,6 +205,16 @@ const ArchivedVehicleList = () => {
                             {archivedBlacklistedVehicles}
                         </div>
                     </div>
+
+                    <div className="stat">
+                        <div className="stat-figure text-error">
+                            <BanIcon className="h-8 w-8" />
+                        </div>
+                        <div className="stat-title">Archived Banned</div>
+                        <div className="stat-value text-error">
+                            {archivedBannedVehicles}
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -239,10 +250,15 @@ const ArchivedVehicleList = () => {
                                     <td className="py-4 font-semibold">{vehicle.plateNumber}</td>
                                     <td className="py-4">{vehicle.makeModel}</td>
                                     <td className="py-4">{vehicle.ownerName}</td>
-                                    <td className="py-4">                
-                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-accent border border-accent shadow-sm">
-                                                Archived
-                                            </span>
+                                    <td className="py-4">
+                                        {vehicle.isBanned ? <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-error bg-error/10 border border-error shadow-sm">
+                                            <BanIcon className="w-4 h-4" />
+                                            Banned
+                                        </span> : vehicle.isBlacklisted ? <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-error border border-error shadow-sm">
+                                            Blacklisted
+                                        </span> : <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-success border border-success shadow-sm">
+                                            Authorized
+                                        </span>}
                                     </td>
                                     <td className="py-4">{vehicle.branch ? vehicle.branch : '-'}</td>
                                     <td className="py-4">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Edit, Ban, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, PlusCircle, ArchiveIcon } from "lucide-react";
+import { Edit, Ban, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, PlusCircle, ArchiveIcon, BanIcon } from "lucide-react";
 import { useVehicleStore } from "../stores/useVehicleStore";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
@@ -201,11 +201,8 @@ const VehicleList = () => {
         : [];
 
     const approvedVehicles = vehicleList.filter((vehicle) => (vehicle.isApproved && !vehicle.isBlacklisted));
-    const blacklistedVehicles = vehicleList.filter((vehicle) => vehicle.isBlacklisted);
-
-
-
-
+    const blacklistedVehicles = vehicleList.filter((vehicle) => vehicle.isBlacklisted && !vehicle.isBanned);
+    const bannedVehicles = vehicleList.filter((vehicle) => vehicle.isBanned);
 
     if (loadingVehicles) {
         return (
@@ -281,6 +278,16 @@ const VehicleList = () => {
                             {blacklistedVehicles.length}
                         </div>
                     </div>
+
+                    <div className="stat">
+                        <div className="stat-figure text-error">
+                            <BanIcon className="h-8 w-8" />
+                        </div>
+                        <div className="stat-title">Banned Vehicles</div>
+                        <div className="stat-value text-error">
+                            {bannedVehicles.length}
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -312,7 +319,7 @@ const VehicleList = () => {
                         ) : (
                             paginatedVehicles.map((vehicle, idx) => (
                                 <tr key={vehicle._id} className="hover:bg-base-200 transition">
-                                    <th className="py-4">{idx + 1}</th>
+                                    <th className="py-4">{(page - 1) * VEHICLES_PER_PAGE + (idx + 1)}</th>
                                     <td className="py-4">{vehicle.plateNumber}</td>
                                     <td className="py-4">{vehicle.makeModel}</td>
                                     <td className="py-4">{vehicle.ownerName}</td>

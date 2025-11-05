@@ -53,7 +53,7 @@ const DashboardPage = () => {
 
     const recentLogs = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 6);
 
-    const recentBlacklistLogs = logs.filter((log) => log.blacklistHit || log.banHit || log.archiveHit === true).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 3);
+    const recentBlacklistLogs = logs.filter((log) => log.blacklistHit || log.banHit || log.archiveHit    === true).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 3);
 
     // Test
 

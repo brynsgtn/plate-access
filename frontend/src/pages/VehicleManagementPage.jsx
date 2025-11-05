@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Car, CarFront, CircleParkingOff, FilePen, Plus, CirclePlusIcon, ArchiveIcon } from "lucide-react";
+import { Car, CarFront, CircleParkingOff, FilePen, Plus, BanIcon, ArchiveIcon, ParkingCircleIcon } from "lucide-react";
 
 import AddVehicleForm from "../components/AddVehicleForm";
 import VehicleList from "../components/VehicleList";
@@ -81,7 +81,7 @@ const VehicleManagementPage = () => {
 
     // Hide "add" and "add guest" tabs for itAdmin users
     const visibleTabs = user?.role === "itAdmin"
-        ? tabs.filter(tab => tab.id !== "add" && tab.id !== "requests") 
+        ? tabs.filter(tab => tab.id !== "add" && tab.id !== "requests")
         : tabs;
 
     const visibleGuestTabs = user?.role === "itAdmin"
@@ -104,20 +104,10 @@ const VehicleManagementPage = () => {
         })
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    const blacklistedVehicles = Array.isArray(totalVehicles) ? totalVehicles.filter((vehicle) => vehicle.isBlacklisted).length : 0;
-
-    const unapprovedVehicles = Array.isArray(vehicles) ? vehicles.filter(v => {
-        // Handle different possible values for isApproved
-        return v?.isApproved === false || v?.isApproved === "false" || v?.isApproved === null || v?.isApproved === undefined;
-    }) : [];
-
-    const updateRequests = Array.isArray(vehicles) ? vehicles.filter(v => {
-        return v?.updateRequest && (!v?.updateRequest.status || v?.updateRequest.status === 'pending');
-    }) : [];
-
-    const editDeleteRequests = updateRequests.length
-
+    const blacklistedVehicles = Array.isArray(totalVehicles) ? totalVehicles.filter((vehicle) => vehicle.isBlacklisted && !vehicle.isBanned).length : 0;
+    const authorizedVehicles = Array.isArray(totalVehicles) ? totalVehicles.filter((vehicle) => !vehicle.isBlacklisted && !vehicle.isArchived).length : 0;
     const archivedVehicles = Array.isArray(totalVehicles) ? totalVehicles.filter((vehicle) => vehicle.isArchived).length : 0;
+    const bannedVehicles = Array.isArray(totalVehicles) ? totalVehicles.filter((vehicle) => vehicle.isBanned).length : 0;
 
 
     return (
@@ -142,15 +132,23 @@ const VehicleManagementPage = () => {
                         <div className="stat-figure text-primary">
                             <CarFront className="inline-block h-10 w-10 stroke-current" />
                         </div>
-                        <div className="stat-title text-lg font-bold text-base-content/80">Total Vehicles</div>
+                        <div className="stat-title text-lg font-bold text-base-content/80">Total</div>
                         <div className="stat-value text-primary">{totalVehicles.length}</div>
+                    </div>
+
+                    <div className="stat p-6">
+                        <div className="stat-figure text-success">
+                            <ParkingCircleIcon className="inline-block h-10 w-10 stroke-current" />
+                        </div>
+                        <div className="stat-title text-lg font-bold text-base-content/80">Authorized</div>
+                        <div className="stat-value text-success">{authorizedVehicles}</div>
                     </div>
 
                     <div className="stat p-6">
                         <div className="stat-figure text-error">
                             <CircleParkingOff className="inline-block h-10 w-10 stroke-current" />
                         </div>
-                        <div className="stat-title text-lg font-bold text-base-content/80">Blacklisted Vehicles</div>
+                        <div className="stat-title text-lg font-bold text-base-content/80">Blacklisted</div>
                         <div className="stat-value text-error">{blacklistedVehicles}</div>
                     </div>
 
@@ -159,16 +157,16 @@ const VehicleManagementPage = () => {
                         <div className="stat-figure text-accent">
                             <ArchiveIcon className="inline-block h-10 w-10 stroke-current" />
                         </div>
-                        <div className="stat-title text-lg font-bold text-base-content/80">Archived Vehicles</div>
+                        <div className="stat-title text-lg font-bold text-base-content/80">Archived</div>
                         <div className="stat-value text-accent">{archivedVehicles}</div>
                     </div>
 
                     <div className="stat p-6">
-                        <div className="stat-figure text-accent">
-                            <FilePen className="inline-block h-10 w-10 stroke-current" />
+                        <div className="stat-figure text-error">
+                            <BanIcon className="inline-block h-10 w-10 stroke-current" />
                         </div>
-                        <div className="stat-title text-lg font-bold text-base-content/80">Requests</div>
-                        <div className="stat-value text-accent">{unapprovedVehicles.length + editDeleteRequests}</div>
+                        <div className="stat-title text-lg font-bold text-base-content/80">Banned</div>
+                        <div className="stat-value text-error">{bannedVehicles}</div>
                     </div>
                 </div>
             </div>

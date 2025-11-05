@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BadgePlusIcon, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, ArchiveIcon, Ban } from "lucide-react";
+import { BadgePlusIcon, Search, ParkingCircleIcon, ParkingCircleOffIcon, CarFrontIcon, ArchiveIcon, Ban, BanIcon } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
 import { useUserStore } from "../stores/useUserStore";
 import { useGuestVehicleStore } from "../stores/useGuestVehicleStore";
@@ -186,7 +186,8 @@ const GuestVehicleList = () => {
         : [];
 
     const authorizedGuestVehicles = guestVehicleList.filter((vehicle) => (!vehicle.isBlacklisted && new Date(vehicle.validUntil) > new Date()));
-    const blacklistedVehicles = guestVehicleList.filter((vehicle) => vehicle.isBlacklisted);
+    const blacklistedVehicles = guestVehicleList.filter((vehicle) => vehicle.isBlacklisted && !vehicle.isBanned);
+    const bannedVehicles = guestVehicleList.filter((vehicle) => vehicle.isBanned);
     const expiredGuestAccess = guestVehicleList.filter((vehicle) => new Date(vehicle.validUntil) < new Date());
 
 
@@ -246,32 +247,42 @@ const GuestVehicleList = () => {
                     </div>
 
                     <div className="stat">
-                        <div className="stat-figure text-warning">
+                        <div className="stat-figure text-success">
                             <ParkingCircleIcon className="h-8 w-8" />
                         </div>
                         <div className="stat-title">Authorized Guests</div>
-                        <div className="stat-value text-warning">
+                        <div className="stat-value text-success">
                             {authorizedGuestVehicles.length}
                         </div>
                     </div>
 
                     <div className="stat">
-                        <div className="stat-figure text-primary">
+                        <div className="stat-figure text-error">
                             <ParkingCircleOffIcon className="h-8 w-8" />
                         </div>
-                        <div className="stat-title">Blacklisted Guest</div>
-                        <div className="stat-value text-primary">
+                        <div className="stat-title">Blacklisted Guests</div>
+                        <div className="stat-value text-error">
                             {blacklistedVehicles.length}
+                        </div>
+                    </div>
+
+                    <div className="stat">
+                        <div className="stat-figure text-primary">
+                            <BanIcon className="h-8 w-8" />
+                        </div>
+                        <div className="stat-title">Banned Guests</div>
+                        <div className="stat-value text-primary">
+                            {bannedVehicles.length}
                         </div>
                     </div>
 
 
                     <div className="stat">
-                        <div className="stat-figure text-primary">
+                        <div className="stat-figure text-accent">
                             <ParkingCircleOffIcon className="h-8 w-8" />
                         </div>
                         <div className="stat-title">Expired Access</div>
-                        <div className="stat-value text-primary">
+                        <div className="stat-value text-accent">
                             {expiredGuestAccess.length}
                         </div>
                     </div>
@@ -302,7 +313,7 @@ const GuestVehicleList = () => {
                         ) : (
                             paginatedVehicles.map((vehicle, idx) => (
                                 <tr key={vehicle._id} className="hover:bg-base-200 transition">
-                                    <th className="py-4">{idx + 1}</th>
+                                    <th className="py-4">{(page - 1) * VEHICLES_PER_PAGE + (idx + 1)}</th>
                                     <td className="py-4">{vehicle.plateNumber}</td>
                                     <td className="py-4">{vehicle.makeModel}</td>
                                     <td className="py-4">{vehicle.ownerName}</td>
@@ -317,7 +328,7 @@ const GuestVehicleList = () => {
                                                 </span>
                                             </div>
                                         ) : vehicle.isBlacklisted ? (
-                                            <div>   
+                                            <div>
                                                 {/* {user.isAdmin ? (
                                                     <button
                                                         onClick={() => handleUnblacklist(vehicle._id)}
