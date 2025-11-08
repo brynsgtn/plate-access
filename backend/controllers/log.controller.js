@@ -1,6 +1,7 @@
 import Vehicle from "../models/vehicle.model.js";
 import GuestVehicle from "../models/guestVehicle.model.js";
 import Log from "../models/log.model.js";
+import { pool } from "../lib/db.js";
 import { io } from "../lib/socket.js";
 
 // View logs controller
@@ -67,7 +68,7 @@ export const entryLogLPR = async (req, res) => {
                 return res.status(403).json({ message: "Vehicle is banned", log });
             }
 
-            if(vehicle.isArchived) {
+            if (vehicle.isArchived) {
                 const log = await Log.create({
                     vehicle: vehicle._id,
                     plateNumber: cleanedPlateNumber,
@@ -578,29 +579,160 @@ export const exitLogManual = async (req, res) => {
     }
 };
 
-// Delete logs older than 1 year
-export const deleteOldLogs = async (req, res) => {
+
+export const archiveOldLogs = async (req, res) => {
     try {
-
-        const itAdmin = req.user.role === "itAdmin";
-
-        if (!itAdmin) {
+        if (req.user.role !== "itAdmin") {
             return res.status(403).json({
-                message: "Access denied. Only IT admins can delete old logs."
+                message: "Access denied. Only IT admins can archive old logs"
             });
         }
-        // Calculate the date 1 year ago
+
+        const dbName = "plate_access_db";
+
+        // Create DB if not exists and switch to it
+        await pool.query(`CREATE DATABASE IF NOT EXISTS ${dbName}`);
+        await pool.query(`USE ${dbName}`);
+
+        // Create table if not exists
+        const createTableQuery = `
+            CREATE TABLE IF NOT EXISTS archived_logs (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                vehicle_id VARCHAR(255) NULL,
+                plate_number VARCHAR(255) NOT NULL,
+                branch ENUM('Main Branch','North Branch','South Branch') NOT NULL,
+                gate_type ENUM('entrance','exit') NOT NULL,
+                method ENUM('LPR','manual') NOT NULL,
+                confidence INT DEFAULT 100,
+                success BOOLEAN NOT NULL,
+                is_guest BOOLEAN DEFAULT FALSE,
+                blacklist_hit BOOLEAN DEFAULT FALSE,
+                ban_hit BOOLEAN DEFAULT FALSE,
+                archive_hit BOOLEAN DEFAULT FALSE,
+                notes TEXT DEFAULT '',
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_vehicle_id (vehicle_id),
+                INDEX idx_plate_number (plate_number),
+                INDEX idx_timestamp (timestamp)
+            )
+        `;
+        await pool.query(createTableQuery);
+
+        // Calculate date one year ago
         const oneYearAgo = new Date();
         oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-        // Delete all logs with timestamp older than one year
-        const result = await Log.deleteMany({ timestamp: { $lt: oneYearAgo } });
+        // Get old logs
+        const oldLogs = await Log.find({ timestamp: { $lt: oneYearAgo } }).lean();
+        if (oldLogs.length === 0) {
+            return res.status(200).json({ message: "No logs older than one year found" });
+        }
 
-        res.status(200).json({
-            message: `Deleted ${result.deletedCount} logs older than 1 year`,
-        });
+        // Prepare insert query
+        const insertQuery = `
+            INSERT INTO archived_logs 
+            (vehicle_id, plate_number, branch, gate_type, method, confidence, success, is_guest, blacklist_hit, ban_hit, archive_hit, notes, timestamp)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        // Start transaction
+        const conn = await pool.getConnection();
+        try {
+            await conn.beginTransaction();
+
+            for (const log of oldLogs) {
+                await conn.query(insertQuery, [
+                    log.vehicle ? String(log.vehicle) : null,
+                    log.plateNumber,
+                    log.branch,
+                    log.gateType,
+                    log.method,
+                    log.confidence,
+                    log.success,
+                    log.isGuest,
+                    log.blacklistHit,
+                    log.banHit,
+                    log.archiveHit,
+                    log.notes || "",
+                    log.timestamp
+                ]);
+            }
+
+            // Delete logs only after successful archive
+            await Log.deleteMany({ _id: { $in: oldLogs.map(l => l._id) } });
+
+            await conn.commit();
+            conn.release();
+
+            res.status(200).json({
+                message: `Archived and deleted ${oldLogs.length} logs older than one year`
+            });
+
+        } catch (err) {
+            await conn.rollback();
+            conn.release();
+            throw err;
+        }
+
     } catch (error) {
-        console.error("Error deleting old logs:", error);
-        res.status(500).json({ message: "Server error while deleting old logs" });
+        console.error("Error archiving logs", error);
+        res.status(500).json({ message: "Server error while archiving logs" });
     }
 };
+
+
+export const getArchivedLogs = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+
+    const dbName = "plate_access_db";
+
+    // Create database if missing
+    await pool.query(`CREATE DATABASE IF NOT EXISTS ${dbName}`);
+    await pool.query(`USE ${dbName}`);
+
+    // Create table if missing
+    const createTableQuery = `
+      CREATE TABLE IF NOT EXISTS archived_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        vehicle_id VARCHAR(255) NULL,
+        plate_number VARCHAR(255) NOT NULL,
+        branch ENUM('Main Branch','North Branch','South Branch') NOT NULL,
+        gate_type ENUM('entrance','exit') NOT NULL,
+        method ENUM('LPR','manual') NOT NULL,
+        confidence INT DEFAULT 100,
+        success BOOLEAN NOT NULL,
+        is_guest BOOLEAN DEFAULT FALSE,
+        blacklist_hit BOOLEAN DEFAULT FALSE,
+        ban_hit BOOLEAN DEFAULT FALSE,
+        archive_hit BOOLEAN DEFAULT FALSE,
+        notes TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_vehicle_id (vehicle_id),
+        INDEX idx_plate_number (plate_number),
+        INDEX idx_timestamp (timestamp)
+      )
+    `;
+    await pool.query(createTableQuery);
+
+    // Get logs
+    const [archiveLogs] = await pool.query(
+      `SELECT * FROM archived_logs ORDER BY timestamp DESC LIMIT ? OFFSET ?`,
+      [limit, offset]
+    );
+
+    res.status(200).json(
+      { archiveLogs }
+    );
+
+  } catch (error) {
+    console.error("Error reading archived logs", error);
+    res.status(500).json({
+      message: "Server error while reading archived logs"
+    });
+  }
+};
+
+

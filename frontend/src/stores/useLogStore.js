@@ -3,15 +3,18 @@ import axios from "../lib/axios";
 import { toast } from "react-hot-toast";
 import { io as clientIO } from "socket.io-client";
 
+
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : window.location.origin;
 
 const socket = clientIO(BASE_URL, {
-  transports: ["websocket", "polling"]
+    transports: ["websocket", "polling"]
 });
 
 export const useLogStore = create((set) => ({
     logs: [],
     loading: false,
+    archivedLogs: [],
+    archivedLogsLoading: false,
 
     fetchLogs: async () => {
         set({ loading: true });
@@ -83,18 +86,41 @@ export const useLogStore = create((set) => ({
             return { success: false, error: error.response?.data }; // return failure
         }
     },
-    deleteOldLogs: async () => {
-        set({ loading: true });
+    archiveOldLogs: async () => {
+        set({ archivedLogsLoading: true });
+
         try {
-            const response = await axios.delete("/log/delete-old-logs");
-            set({ loading: false });
-            toast.success(response.data.message || "Logs deleted successfully!");
-            return { success: true, data: response.data }; // return result
+            const response = await axios.post("/log/archive-old-logs");
+            set({
+                archivedLogsLoading: false,
+                archivedLogs: response.data?.archivedLogs || []
+            });
+            toast.success(response.data.message || "Logs archived successfully!");
+            return { success: true, data: response.data };
         } catch (error) {
-            set({ loading: false });
-            console.error("Delete logs failed:", error);
-            toast.error(error.response?.data?.message || "Failed to delete logs.");
-            return { success: false, error: error.response?.data }; // return failure
+            toast.error(error.response?.data?.message || "Failed to archive logs.");
+            console.error("Archive logs failed:", error);
+            set({ archivedLogsLoading: false, archivedLogs: [] });
+            return { success: false, error: error.response?.data };
+        }
+    },
+
+    getArchivedLogs: async () => {
+        set({ archivedLogsLoading: true });
+        try {
+            const response = await axios.get("/log/get-old-logs");
+            const logs = response.data?.archiveLogs || [];
+            set({
+                archivedLogsLoading: false,
+                archivedLogs: logs
+            });
+            console.log("Archived logs fetched:", logs);
+            return { success: true, data: logs };
+        } catch (error) {
+            set({ archivedLogsLoading: false, archivedLogs: [] });
+            console.error("Get archived logs failed:", error);
+            toast.error("Failed to fetch archived logs");
+            return { success: false, error: error.response?.data };
         }
     },
 

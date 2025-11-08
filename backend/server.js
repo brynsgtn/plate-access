@@ -16,7 +16,7 @@ import guestVehicleRoutes from "./routes/guestVehicle.route.js"
 import { app, server } from "./lib/socket.js"
 
 // Import library functions
-import { connectDB } from "./lib/db.js";
+import { connectDB, connectMySQL } from "./lib/db.js";
 
 // Load environment variables from .env
 dotenv.config();
@@ -58,4 +58,5 @@ if (process.env.NODE_ENV === "production") {
 server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
     connectDB(); // connects to mongoDB
+    connectMySQL(); // connects to MySQL
 });

@@ -1,5 +1,6 @@
 // Import dependencies
 import express from "express";
+import { pool } from "../lib/db.js";
 
 // Import controllers
 import {
@@ -8,7 +9,8 @@ import {
     exitLogLPR,
     entryLogManual,
     exitLogManual,
-    deleteOldLogs
+    archiveOldLogs,
+    getArchivedLogs
 } from "../controllers/log.controller.js";
 
 // Import middleware
@@ -23,7 +25,8 @@ router.post("/entry-log-lpr", protectRoute, entryLogLPR);
 router.post("/exit-log-lpr", protectRoute, exitLogLPR);
 router.post("/entry-log-manual", protectRoute, entryLogManual);
 router.post("/exit-log-manual", protectRoute, exitLogManual);
-router.delete("/delete-old-logs", protectRoute, authorizeRoles("itAdmin"), deleteOldLogs);
+router.post("/archive-old-logs", protectRoute, authorizeRoles("itAdmin"), archiveOldLogs);
+router.get("/get-old-logs", protectRoute, authorizeRoles("itAdmin"), getArchivedLogs);
 
 // Export router
 export default router;

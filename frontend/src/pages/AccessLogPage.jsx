@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useLogStore } from "../stores/useLogStore";
 import { useUserStore } from "../stores/useUserStore";
-import { Search, BadgeCheckIcon, BadgeXIcon, Trash2, X, FileSpreadsheet } from "lucide-react";
+import { Search, BadgeCheckIcon, BadgeXIcon, Trash2, X, FileSpreadsheet, Archive, ArchiveIcon } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Papa from "papaparse";
 import toast from "react-hot-toast";
+import { get } from "mongoose";
+
 
 dayjs.extend(relativeTime);
 
@@ -16,9 +18,13 @@ const AccessLogPage = () => {
     const [filterType, setFilterType] = useState("all"); // all, guest, non-guest
     const [sortOrder, setSortOrder] = useState("newest");
     const [page, setPage] = useState(1);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showArchiveModal, setShowArchiveModal] = useState(false);
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-    const [branchFilter, setBranchFilter] = useState("all");
+    const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+    const [archiveLogs, setArchiveLogs] = useState([]);
+    const [archiveLoading, setArchiveLoading] = useState(false);
+    const [archivePage, setArchivePage] = useState(1);
+    const [archiveSearchTerm, setArchiveSearchTerm] = useState("");
 
     // Export modal states
     const [selectedColumns, setSelectedColumns] = useState({
@@ -40,13 +46,17 @@ const AccessLogPage = () => {
         branch: "all",
     });
 
-    const { logs: accessLog, fetchLogs, deleteOldLogs } = useLogStore();
+    const { logs: accessLog, fetchLogs, archiveOldLogs, getArchivedLogs, archivedLogs } = useLogStore();
     const { user } = useUserStore();
     const currentUser = user;
 
     useEffect(() => {
         fetchLogs();
-    }, [fetchLogs]);
+    }, [fetchLogs, accessLog]);
+    useEffect(() => {
+        getArchivedLogs();
+        console.log("Archived Logs from store:", archivedLogs);
+    }, [getArchivedLogs]);
 
     // Filtering logs based on search, type, and branch
     const logs = [...accessLog]
@@ -83,10 +93,10 @@ const AccessLogPage = () => {
         return matchesSearch && matchesType;
     });
 
-    const handleDeleteOldLogs = () => {
-        deleteOldLogs();
+    const handleArchiveOldLogs = () => {
+        archiveOldLogs();
         fetchLogs();
-        setShowDeleteModal(false);
+        setShowArchiveModal(false);
     };
 
     const totalPages = filteredLogs ? Math.ceil(filteredLogs.length / LOGS_PER_PAGE) : 1;
@@ -216,6 +226,30 @@ const AccessLogPage = () => {
 
     const selectedCount = Object.values(selectedColumns).filter(Boolean).length;
 
+
+    const handleViewArchive = () => {
+        setIsArchiveModalOpen(true);
+        getArchivedLogs();
+    };
+
+    // Filter archived logs
+    const filteredArchiveLogs = archivedLogs?.filter(log => {
+        const term = archiveSearchTerm.toLowerCase().trim();
+        if (!term) return true;
+        const plate = log.plate_number ? String(log.plate_number).toLowerCase() : "";
+        return plate.includes(term);
+    }).sort((a, b) => {
+        return sortOrder === "newest"
+            ? new Date(b.timestamp) - new Date(a.timestamp)
+            : new Date(a.timestamp) - new Date(b.timestamp);
+    });
+
+    const totalArchivePages = Math.ceil(filteredArchiveLogs.length / LOGS_PER_PAGE);
+    const paginatedArchiveLogs = filteredArchiveLogs.slice(
+        (archivePage - 1) * LOGS_PER_PAGE,
+        archivePage * LOGS_PER_PAGE
+    );
+
     return (
         <div className="min-h-screen relative overflow-hidden bg-base-100">
             {/* Page header */}
@@ -303,14 +337,25 @@ const AccessLogPage = () => {
                             Export CSV
                         </button>
 
-                        {/* Delete old logs */}
+                        {/* View Archive button */}
                         {currentUser.role === "itAdmin" && (
                             <button
-                                className="btn btn-error btn-outline flex items-center gap-2 hover:scale-105 transition-transform duration-200 ms-auto"
-                                onClick={() => setShowDeleteModal(true)}
+                                onClick={handleViewArchive}
+                                className="btn btn-info flex items-center gap-2 hover:scale-105 transition-transform duration-200"
                             >
-                                <Trash2 className="w-5 h-5" />
-                                Delete Old Logs
+                                <Archive className="w-5 h-5" />
+                                View Archive
+                            </button>
+                        )}
+
+                        {/* Archive old logs */}
+                        {currentUser.role === "itAdmin" && (
+                            <button
+                                className="btn btn-error btn-outline flex items-center gap-2 hover:scale-105 transition-transform duration-200"
+                                onClick={() => setShowArchiveModal(true)}
+                            >
+                                <ArchiveIcon className="w-5 h-5" />
+                                Archive Old Logs
                             </button>
                         )}
                     </div>
@@ -423,20 +468,20 @@ const AccessLogPage = () => {
             )}
 
 
-            {/* Delete Confirmation Modal */}
-            {showDeleteModal && (
+            {/* Archive Confirmation Modal */}
+            {showArchiveModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                     <div className="bg-gradient-to-r from-primary to-secondary rounded-lg shadow-lg max-w-md w-full p-6 relative">
-                        <button className="absolute top-3 right-3 btn btn-sm btn-ghost bg-transparent border-none" onClick={() => setShowDeleteModal(false)}>
+                        <button className="absolute top-3 right-3 btn btn-sm btn-ghost bg-transparent border-none" onClick={() => setShowArchiveModal(false)}>
                             <X className="w-5 h-5 text-white" />
                         </button>
-                        <h2 className="text-xl font-bold text-white mb-4">Confirm Deletion</h2>
+                        <h2 className="text-xl font-bold text-white mb-4">Confirm Archiving</h2>
                         <p className="mb-6 text-white/80">
-                            Are you sure you want to permanently delete all logs older than 1 year? This action cannot be undone.
+                            Are you sure you want to archive all logs older than 1 year? This action cannot be undone.
                         </p>
                         <div className="flex justify-end gap-4">
-                            <button className="btn btn-outline" onClick={() => setShowDeleteModal(false)}>Cancel</button>
-                            <button className="btn btn-error" onClick={handleDeleteOldLogs}>Delete</button>
+                            <button className="btn btn-outline" onClick={() => setShowArchiveModal(false)}>Cancel</button>
+                            <button className="btn btn-error" onClick={handleArchiveOldLogs}>Archive</button>
                         </div>
                     </div>
                 </div>
@@ -545,6 +590,145 @@ const AccessLogPage = () => {
                         <div className="flex justify-end gap-4 p-6 border-t border-base-300">
                             <button className="btn btn-outline" onClick={() => setIsExportModalOpen(false)}>Cancel</button>
                             <button className="btn btn-accent" onClick={handleExport}>Export CSV</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Archive Modal */}
+            {isArchiveModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-base-100 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center p-6 border-b border-base-300 from-primary to-secondary bg-gradient-to-r">
+                            <div>
+                                <h2 className="text-2xl font-bold text-white">Archived Logs</h2>
+                                <p className="text-sm text-white/80 mt-1">View historical archived logs</p>
+                            </div>
+                            <button onClick={() => {
+                                setIsArchiveModalOpen(false);
+                                setArchiveSearchTerm("");
+                                setArchivePage(1);
+                            }} className="btn btn-ghost btn-sm btn-circle text-white">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="p-6">
+                            {archiveLoading ? (
+                                <div className="flex justify-center items-center py-12">
+                                    <span className="loading loading-spinner loading-lg"></span>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Search */}
+                                    <div className="mb-4">
+                                        <label className="input input-bordered flex items-center gap-2 w-full md:w-64">
+                                            <Search className="w-4 h-4 opacity-70" />
+                                            <input
+                                                type="text"
+                                                className="grow"
+                                                placeholder="Search by plate number"
+                                                value={archiveSearchTerm}
+                                                onChange={e => setArchiveSearchTerm(e.target.value)}
+                                            />
+                                        </label>
+                                    </div>
+
+                                    {/* Archive Table */}
+                                    <div className="overflow-x-auto">
+                                        <table className="table table-zebra w-full">
+                                            <thead className="bg-base-200">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Date</th>
+                                                    <th>Time</th>
+                                                    <th>Branch</th>
+                                                    <th>Gate</th>
+                                                    <th>Method</th>
+                                                    <th>Confidence</th>
+                                                    <th>Success</th>
+                                                    <th>Type</th>
+                                                    <th>Plate Number</th>
+                                                    <th>Notes</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {paginatedArchiveLogs.length === 0 ? (
+                                                    <tr>
+                                                        <td colSpan={11} className="text-center py-8 text-base-content/70">
+                                                            No archived logs found.
+                                                        </td>
+                                                    </tr>
+                                                ) : (
+                                                    paginatedArchiveLogs.map((log, idx) => (
+                                                        <tr key={log.id} className="hover:bg-base-200 transition">
+                                                            <th>{(archivePage - 1) * LOGS_PER_PAGE + idx + 1}</th>
+                                                            <td>{dayjs(log.timestamp).format("MMM DD, YYYY")}</td>
+                                                            <td>{dayjs(log.timestamp).format("h:mm A")}</td>
+                                                            <td>{log.branch}</td>
+                                                            <td>{log.gate_type}</td>
+                                                            <td>{log.method}</td>
+                                                            <td>{log.confidence}%</td>
+                                                            <td>
+                                                                {log.success ? (
+                                                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-success border-none">
+                                                                        <BadgeCheckIcon className="w-5 h-5" />
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold text-error border-none">
+                                                                        <BadgeXIcon className="w-5 h-5" />
+                                                                    </span>
+                                                                )}
+                                                            </td>
+                                                            <td>{log.is_guest ? "Guest" : "Tenant"}</td>
+                                                            <td>{log.plate_number}</td>
+                                                            <td className="max-w-xs truncate" title={log.notes || "-"}>
+                                                                {log.notes || "-"}
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    {/* Archive Pagination */}
+                                    {totalArchivePages > 1 && (
+                                        <div className="flex justify-center mt-6">
+                                            <div className="join">
+                                                <button
+                                                    className="join-item btn btn-square btn-outline hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    onClick={() => setArchivePage(prev => Math.max(prev - 1, 1))}
+                                                    disabled={archivePage === 1}
+                                                >
+                                                    &lt;
+                                                </button>
+
+                                                {Array.from({ length: Math.min(10, totalArchivePages) }, (_, i) => {
+                                                    const pageNumber = i + 1;
+                                                    return (
+                                                        <button
+                                                            key={pageNumber}
+                                                            className={`join-item btn btn-square ${archivePage === pageNumber ? "btn-primary font-bold" : "btn-ghost hover:bg-gray-200"}`}
+                                                            onClick={() => setArchivePage(pageNumber)}
+                                                        >
+                                                            {pageNumber}
+                                                        </button>
+                                                    );
+                                                })}
+
+                                                <button
+                                                    className="join-item btn btn-square btn-outline hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    onClick={() => setArchivePage(prev => Math.min(prev + 1, totalArchivePages))}
+                                                    disabled={archivePage === totalArchivePages}
+                                                >
+                                                    &gt;
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
