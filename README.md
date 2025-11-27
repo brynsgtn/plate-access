@@ -48,7 +48,7 @@ A Web-based License Plate Recognition System with Automated Access Control for R
 ![User Management](./usermanagement.png)  
 ![Access Logs](./accesslogs.png)  
 ![Access Controls](./accesscontrols.png)
-![Profile](./profile.png)
+![Profile](./public/profile.png)
 
 ---
 
