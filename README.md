@@ -3,8 +3,9 @@
 A Web-based License Plate Recognition System with Automated Access Control for Residential and Workplace Parking
 
 > **Disclaimer:** The live demo includes the web interface only.  
-> License Plate Recognition (LPR) and archival cold storage are not included.  
+> License Plate Recognition (LPR) and archival cold storage feature are not included in the deployed version.  
 > Manual plate entry can be used to test without physical cameras.
+> The Flask API code for License Plate Recognition (LPR) is **not included** in this repository.  
 
 🔗 [Live Demo](https://plate-access.onrender.com/)  
 
