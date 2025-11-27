@@ -62,10 +62,10 @@ A Web-based License Plate Recognition System with Automated Access Control for R
 ## Contact
 
 - GitHub: [@brynsgtn](https://github.com/brynsgtn)  
-- Portfolio: [brynsgtn-webportfolio.vercel.app](https://brynsgtn-webportfolio.vercel.app/)  
+- Portfolio: [brynsgtn-webportfolio.vercel.app](https://web-portfolio-v2-git-main-bryansuguitan17s-projects.vercel.app/)  
 - Email: *[your-email@example.com]*  
 
-**Repository:** [github.com/yourusername/plateaccess](https://github.com/yourusername/plateaccess)  
+**Repository:** [github.com/brynsgtn/plateaccess](https://github.com/brynsgtn/plateaccess)  
 
 ---
 
